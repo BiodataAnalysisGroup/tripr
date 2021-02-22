@@ -1,0 +1,5 @@
+Function	Parameters	Num of input rows	Num of input columns	Start time	End time	Memory used
+testColumnNames	Datasets loaded: B1 B2	read data	read data	2018-10-31 13:35:33	2018-10-31 13:35:34	298134464
+imgtcleaning	Filter ids ,1,2,3	1000	23	2018-10-31 13:35:37	2018-10-31 13:35:37	298285232
+imgtfilter	Filter ids ,5	621	23	2018-10-31 13:35:40	2018-10-31 13:35:40	298754000
+clonotypes	Summary.V.GENE,Summary.AA.JUNCTION	582	23	2018-10-31 13:35:43	2018-10-31 13:35:46	300603392
