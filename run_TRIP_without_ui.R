@@ -1,19 +1,20 @@
 source("libraries.R")
 source("helpers.R")
 
-run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selection, identity_range, vgenes, dgenes, jgenes, cdr3_length_range, aminoacid,
+run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selection, identity_range, vgenes, dgenes, jgenes, cdr3_length_range, aminoacid,
                      pipeline, select_clonotype, highly_sim_params, shared_clonotypes_params, highly_shared_clonotypes_params, repertoires_params, identity_groups,
                      multiple_values_params, alignment_params, mutations_params){
+  
   ##### Input data parameters ####
   name <- list.files(datapath) #dataset names eg c("B1","B2")
   allDatasets <- name
   loaded_datasets <- list.files(datapath) #dataset names eg c("B1","B2")
   files <- filelist #selected imgt files eg c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", "4_IMGT-gapped-AA-sequences.txt","6_Junction.txt" )
   
-  if (cell=="Bcell"){
+  if(cell == "Bcell"){
     cell_id <- 2
     Tcell <- F
-  }else{
+  } else {
     cell_id <- 1
     Tcell <- T
   }
@@ -29,9 +30,10 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
   #### Preselection ####
   preselection <- strsplit(preselection, ",")[[1]]
   option4 <- which(startsWith(preselection,"4"))
-  filterStart=""
-  filterEnd=""
+  filterStart = ""
+  filterEnd = ""
   filter_id <- as.numeric(preselection)
+  
   if (length(option4) > 0){
     filter_id <- preselection[-option4]
     filter_id <- c(as.numeric(filter_id),4)
@@ -40,12 +42,12 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     filterEnd <- paste0(strsplit(temp, ":")[[1]][2], "$")
   }
 
-  if (throughput=="High Throughput"){
+  if (throughput == "High Throughput"){
     imgtcleaning_results <- imgtcleaning(rawDataSet, name, allDatasets, files, cell_id, 
                                          filter_id, " P| ORF", "[*]|X|#|[.]", "productive", 
                                          filterStart,filterEnd, identityLow=95, identityHigh=100, VGene="", 
                                          JGene="", DGene="", lengthLow=7, lengthHigh=15,  aminoacid="CASSPPDTGELFF", seq1=1,seq2=2,Tcell)
-  }else{
+  } else {
     imgtcleaning_results <- imgtcleaningLow(rawDataSet, name, allDatasets, files, cell_id, 
                                             filter_id, " P| ORF", "[*]|X|#|[.]", "productive", 
                                             filterStart,filterEnd, identityLow=95, identityHigh=100, VGene="", 
@@ -87,7 +89,6 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   ########### Pipeline ###############
   pipeline <- as.numeric(strsplit(pipeline, ",")[[1]])
-  
   pipeline_clonotypes <- F
   pipeline_highly_similar_clonotypes <- F
   pipeline_public_clonotypes <- F
@@ -104,6 +105,9 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
   pipeline_alignment <- F
   pipeline_mutations <- F
   pipeline_logo <- F
+  pipeline_SHM_normal <- F
+  pipeline_SHM_High_similarity <- F
+  pipeline_diagnosis <- F
   
   if (1 %in% pipeline){
     pipeline_clonotypes <- T
@@ -169,7 +173,17 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     pipeline_logo <- T
   }
   
+  if(17 %in% pipeline){
+    pipeline_SHM_normal <- T
+  }
   
+  if(18 %in% pipeline){
+    pipeline_SHM_High_similarity <- T
+  }
+  
+  if(19 %in% pipeline){
+    pipeline_diagnosis <- T
+  }
   
   ############ Clonotypes ###############
   if (pipeline_clonotypes){
@@ -209,6 +223,10 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
       allele=F
       junction=used_columns[["Summary"]][18]
       gene=c()
+    }else if(select_clonotype == "Sequence"){
+      allele=F
+      junction = used_columns[["Summary"]][20]
+      gene = c()
     }else{
       allele=F
       junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
@@ -219,23 +237,25 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     junction_clonotypes <- junction
     allele_clonotypes <- allele
     
-    clono <- clonotypes(imgtfilter_results$allData,allele,gene,junction,loaded_datasets)
-    
+    clono <- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, pipeline_diagnosis)
   }
   
-  ########### Highly similar clonotypes #############
+  ############ Highly similar clonotypes #############
+  
   if (pipeline_highly_similar_clonotypes){
     highly_sim_params <- strsplit(highly_sim_params, ",")[[1]]
     missmatches_user <- strsplit(strsplit(highly_sim_params[1], " ")[[1]],"-", fixed = T)
     missmatches_user2 <- as.data.frame(matrix(0, nrow = length(missmatches_user), ncol = 2))
+    
     for (i in 1:length(missmatches_user)){
       missmatches_user2[i,] <- as.numeric(missmatches_user[[i]])
     }
+    
     clonotype_freq_thr_for_highly_sim <- highly_sim_params[2]
     take_gene_highly_similar <- highly_sim_params[3]
-    
     select_highly_sim_num_of_missmatches <- 'select_highly_sim_num_of_missmatches_number'
     num_of_missmatches <- rep(1,length(cdr3_lengths))
+    
     #if (select_highly_sim_num_of_missmatches != 'select_highly_sim_num_of_missmatches_number'){
       for (i in 1:length(cdr3_lengths)){
         if (cdr3_lengths[i] %in% missmatches_user2[,1]){
@@ -246,11 +266,18 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
       }
     #}
 
-    highly_similar_clonotypes_results <- highly_similar_clonotypes(clono$clono_allData,clono$clono_datasets,num_of_missmatches,
-                                                                   take_gene_highly_similar,cdr3_lengths,gene_clonotypes,
-                                                                   clonotype_freq_thr_for_highly_sim,loaded_datasets)
+    highly_similar_clonotypes_results <- highly_similar_clonotypes(clono$clono_allData,
+                                                                   clono$clono_datasets,
+                                                                   num_of_missmatches,
+                                                                   take_gene_highly_similar,
+                                                                   cdr3_lengths,
+                                                                   gene_clonotypes,
+                                                                   clonotype_freq_thr_for_highly_sim,
+                                                                   loaded_datasets)
     
     highly_sim_datasets <- list()
+    filtered_High_SHM_similarity <- list()
+    
     for (d in names(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets)){
       temp<-do.call(rbind.data.frame, highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[d]])
       temp$clonotype<-as.character(temp$clonotype)
@@ -261,38 +288,81 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
       highly_sim_datasets[[d]]<-temp
       temp$Gene=NA
       temp$CDR3=NA
+      
       for (cl in 1:nrow(temp)){
         temp$Gene[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][1]
         temp$CDR3[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][2]
       }
       temp=temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
+
+      if(pipeline_SHM_High_similarity){
+        all_filter <- clono$filterin_highly_clono[which(clono$filterin_highly_clono$dataName == d), ]
+        all_filter$highly_cluster_id <- 0
+        all_filter$highly_freq_cluster_id <- 0
+
+        for (h in 1:nrow(temp)){
+          prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+          all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
+          all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
+        }
+
+        filtered_High_SHM_similarity[[d]] = SHM_high_similarity(all_filter)
+      }
+
       if (save_tables_individually){
         write.table(temp, paste0(output_folder,"/","highly_sim_all_clonotypes_",d,".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+
+        if(pipeline_SHM_High_similarity){
+          write.table(filtered_High_SHM_similarity[[d]], paste0(output_folder,"/","SHM_high_similarity_",d,".txt"),
+                      sep = "\t", row.names = FALSE, col.names = TRUE)
+        }
       }
     }
     
     highly_sim <- do.call(rbind.data.frame, highly_similar_clonotypes_results$highly_sim_clonotypes)
     highly_sim$clonotype <- as.character(highly_sim$clonotype)
-    row.names(highly_sim)=NULL
-    highly_sim=highly_sim[,c("clonotype", "N", "Freq", "prev_cluster")]
-    highly_sim=highly_sim[order(-highly_sim$N),]
-    row.names(highly_sim)=1:nrow(highly_sim)
-    highly_sim<<-highly_sim
+    row.names(highly_sim) = NULL
+    highly_sim = highly_sim[,c("clonotype", "N", "Freq", "prev_cluster")]
+    highly_sim = highly_sim[order(-highly_sim$N),]
+    row.names(highly_sim) = 1:nrow(highly_sim)
+    highly_sim <<- highly_sim
+
+    temp = highly_sim
+    temp$Gene = NA
+    temp$CDR3 = NA
+    for (cl in 1:nrow(temp)){
+      temp$Gene[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][1]
+      temp$CDR3[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][2]
+    }
+
+    temp = temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
+
+    if(pipeline_SHM_High_similarity){
+      all_filter <- clono$filterin_highly_clono
+      all_filter$highly_cluster_id <- 0
+      all_filter$highly_freq_cluster_id <- 0
+      for (h in 1:nrow(temp)){
+        prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+        all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
+        all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
+      }
+    
+      filtered_High_SHM_similarity[["All Data"]] = SHM_high_similarity(all_filter)
+    }
     
     if (save_tables_individually){
-      temp=highly_sim
-      temp$Gene=NA
-      temp$CDR3=NA
-      for (cl in 1:nrow(temp)){
-        temp$Gene[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][1]
-        temp$CDR3[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][2]
-      }
-      temp=temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
+    
       write.table(temp, paste0(output_folder,"/","highly_sim_all_clonotypes_","All Data",".txt"),sep = "\t", row.names = FALSE, col.names = TRUE)
+    
+      if(pipeline_SHM_High_similarity){
+        write.table(filtered_High_SHM_similarity[["All Data"]], paste0(output_folder,"/","SHM_high_similarity_All_Data.txt"),
+                    sep = "\t", row.names = FALSE, col.names = TRUE)
+      }
     }
   }
   
-  ############# Shared clonotypes ##############
+  ############ Shared clonotypes ##############
+  
   if (pipeline_public_clonotypes){
     if (strsplit(shared_clonotypes_params, ",")[[1]][1] == "reads")
       select_topN_or_reads_thr_shared_clono <- "select_reads_thr_shared_clono"
@@ -310,7 +380,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
   }
   
-  ############# Highly similar Shared clonotypes ##############
+  ############ Highly similar Shared clonotypes ##############
+  
   if (pipeline_highly_sim_public_clonotypes){
     if (strsplit(highly_shared_clonotypes_params, ",")[[1]][1] == "reads")
       select_topN_or_reads_thr_shared_clono <- "select_reads_thr_shared_clono"
@@ -328,27 +399,26 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
   }
  
+  ############ Repertoires #############
   
-  
-  ########### Repertoires #############
   if (pipeline_Repertoires){
     repertories_results <- list()
     insertedRepertoires <- as.numeric(strsplit(repertoires_params, ",")[[1]])
     
     for (i in 1:length(insertedRepertoires)){
-      if (insertedRepertoires[i]==1){
+      if (insertedRepertoires[i] == 1){
         allele <- F
         gene <- used_columns[["Summary"]][3]
-      }else if (insertedRepertoires[i]==2){
+      }else if (insertedRepertoires[i] == 2){
         allele <- T
         gene <- used_columns[["Summary"]][3]
-      }else if (insertedRepertoires[i]==3){
+      }else if (insertedRepertoires[i] == 3){
         allele <- F
         gene <- used_columns[["Summary"]][8]
-      }else if (insertedRepertoires[i]==4){
+      }else if (insertedRepertoires[i] == 4){
         allele <- T
         gene <- used_columns[["Summary"]][8]
-      }else if (insertedRepertoires[i]==5){
+      }else if (insertedRepertoires[i] == 5){
         allele <- F 
         gene <- used_columns[["Summary"]][11]
       }else{
@@ -356,29 +426,58 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         gene <- used_columns[["Summary"]][11]
       }
       
-      repertories_results[[i]] <- repertoires(clono$clono_allData,clono$clono_datasets,allele,allele_clonotypes,
-                                              gene,gene_clonotypes,loaded_datasets,clono$view_specific_clonotype_allData,
+      repertories_results[[i]] <- repertoires(clono$clono_allData,
+                                              clono$clono_datasets,
+                                              allele,allele_clonotypes,
+                                              gene, gene_clonotypes,
+                                              loaded_datasets,
+                                              clono$view_specific_clonotype_allData,
                                               clono$view_specific_clonotype_datasets)
-      
     }
   }
   
-  
-  
-  
   ############ Highly similar repertoires ############
+  
   if (pipeline_HighlySim_Repertoires){
     if (pipeline_HighlySim_Repertoires){
       take_gene_highly_similar <- "Yes"
       HighlySim_repertories_results <- list()
       for (i in 1:length(insertedRepertoires)){
-        HighlySim_repertories_results[[i]] <- repertoires_highly_similar(highly_sim,highly_sim_datasets,allele,allele_clonotypes,gene,gene_clonotypes,loaded_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,take_gene_highly_similar)
+        if (insertedRepertoires[i] == 1){
+          allele <- F
+          gene <- used_columns[["Summary"]][3]
+        }else if (insertedRepertoires[i] == 2){
+          allele <- T
+          gene <- used_columns[["Summary"]][3]
+        }else if (insertedRepertoires[i] == 3){
+          allele <- F
+          gene <- used_columns[["Summary"]][8]
+        }else if (insertedRepertoires[i] == 4){
+          allele <- T
+          gene <- used_columns[["Summary"]][8]
+        }else if (insertedRepertoires[i] == 5){
+          allele <- F 
+          gene <- used_columns[["Summary"]][11]
+        }else{
+          allele <- T
+          gene <- used_columns[["Summary"]][11]
+        }
+        HighlySim_repertories_results[[i]] <- repertoires_highly_similar(highly_sim,
+                                                                         highly_sim_datasets,
+                                                                         allele,
+                                                                         allele_clonotypes,
+                                                                         gene,
+                                                                         gene_clonotypes,
+                                                                         loaded_datasets,
+                                                                         clono$view_specific_clonotype_allData,
+                                                                         clono$view_specific_clonotype_datasets,
+                                                                         take_gene_highly_similar)
       }
     }
   }
   
+  ############ Repertoire comparison #########
   
-  ########### Repertoire comparison #########
   if (pipeline_repertoires_comparison){
     if (pipeline_repertoires_comparison){
       repertoires_comparison_results <- list()
@@ -393,18 +492,15 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   }
   
+  ############ Identity groups #############
   
-  ########### Identity groups #############
   if (pipeline_insert_identity_groups){
     if (("1_Summary.txt" %in% files) & (pipeline_mutational_status)){
       Identity_low_group <- as.numeric(strsplit(strsplit(identity_groups, ":")[[1]][1],",")[[1]])
       Identity_high_group <- as.numeric(strsplit(strsplit(identity_groups, ":")[[1]][2], ",")[[1]])
-      print(Identity_low_group)
-      print(Identity_high_group)
       select_clono_or_highly_for_mutational_status <- "initial_clonotypes"
       label=paste(Identity_low_group,Identity_high_group,sep="-")
       identity_groups <- (data.frame(low=Identity_low_group,high=Identity_high_group, label=label,stringsAsFactors = F))
-      print(identity_groups)
       if (pipeline_highly_similar_clonotypes){
         if (select_clono_or_highly_for_mutational_status=="initial_clonotypes"){
           highly=F
@@ -452,7 +548,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         mutational_status_table_datasets <- list()
         for (j in 1:(length(loaded_datasets)+1)){
           if (j==(length(loaded_datasets)+1)){
-            mut=filteredData_id %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+            mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(filteredData_id)
             mutational_status_table_allData<<-data.frame(mut,freq)
           }else{
@@ -479,7 +575,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
               }
               data=temp
             }
-            mut=data %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+            mut=data %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(data)
             mutational_status_table_datasets[[loaded_datasets[j]]] <- data.frame(mut,freq)
           }
@@ -528,7 +624,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         mutational_status_table_datasets <- list()
         for (j in 1:(length(loaded_datasets)+1)){
           if (j==(length(loaded_datasets)+1)){
-            mut=filteredData_id %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+            mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(filteredData_id)
             mutational_status_table_allData<<-data.frame(mut,freq)
           }else{
@@ -562,7 +658,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
               }
               data=temp
             }
-            mut=data %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+            mut=data %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(data)
             mutational_status_table_datasets[[loaded_datasets[j]]] <- data.frame(mut,freq)
           }
@@ -572,9 +668,10 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
   }
   
   ############ Multiple value comparison ##########
+  
   if (pipeline_Multiple_value_comparison){
     values <- strsplit(multiple_values_params,",")[[1]]
-    select_clono_or_highly_for_Multiple_value_comparison <- F
+    select_clono_or_highly_for_Multiple_value_comparison <- "initial_clonotypes"
     Multiple_value_comparison_result <- list()
     Multiple_value_comparison_input_values <- matrix("", nrow = 2, ncol = length(values))
     options <- c("V GENE", 
@@ -588,31 +685,52 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
                  "Molecular mass",
                  "pI",
                  "V-REGION identity %")
+    
     for (i in 1:length(values)){
-      Multiple_value_comparison_input_values[1,i] <- options[as.numeric(strsplit(values[i], ":")[[1]][1])]
-      Multiple_value_comparison_input_values[2,i] <- options[as.numeric(strsplit(values[i], ":")[[1]][2])]
+      Multiple_value_comparison_input_values[1, i] <- options[as.numeric(strsplit(values[i], ":")[[1]][1])]
+      Multiple_value_comparison_input_values[2, i] <- options[as.numeric(strsplit(values[i], ":")[[1]][2])]
     }
-    Multiple_value_comparison_input_values[1,] <- c("V GENE", "J GENE") 
-    Multiple_value_comparison_input_values[2,] <- c("J GENE", "CDR3-IMGT length")
-    for (i in 1:nrow(Multiple_value_comparison_input_values)){
-      val1 <- Multiple_value_comparison_input_values[i,1]
-      val2 <- Multiple_value_comparison_input_values[i,2]
-      Multiple_value_comparison_input_values<<-rbind(Multiple_value_comparison_input_values,c(val1,val2))
+    
+    # Multiple_value_comparison_input_values[1,] = c("V GENE", "J GENE") 
+    # Multiple_value_comparison_input_values[2,] = c("J GENE", "CDR3-IMGT length")
+    
+    for (i in 1:ncol(Multiple_value_comparison_input_values)){
+      val1 <- Multiple_value_comparison_input_values[1, i]
+      val2 <- Multiple_value_comparison_input_values[2, i]
       
-      if (select_clono_or_highly_for_Multiple_value_comparison=="initial_clonotypes"){
-        highly=F
-      }else{
-        highly=T
+      Multiple_value_comparison_input_values <<- rbind(Multiple_value_comparison_input_values,
+                                                       c(val1, val2))
+      
+      if (select_clono_or_highly_for_Multiple_value_comparison == "initial_clonotypes"){
+        highly = F
+      } else {
+        highly = T
       }
-      if (highly)
-        Multiple_value_comparison_result[[i]] <- Multiple_value_comparison_highly_similar(highly_sim,highly_sim_datasets,allele_clonotypes,gene_clonotypes,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,val1,val2,loaded_datasets,c())
+      
+      if(highly)
+        Multiple_value_comparison_result[[i]] <- Multiple_value_comparison_highly_similar(highly_sim,
+                                                                                          highly_sim_datasets,
+                                                                                          allele_clonotypes,
+                                                                                          gene_clonotypes,
+                                                                                          clono$view_specific_clonotype_allData,
+                                                                                          clono$view_specific_clonotype_datasets,
+                                                                                          val1, val2,
+                                                                                          loaded_datasets, c())
       else
-        Multiple_value_comparison_result[[i]] <- Multiple_value_comparison(clono$clono_allData,clono$clono_datasets,allele_clonotypes,gene_clonotypes,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,val1,val2,loaded_datasets,c())
+        Multiple_value_comparison_result[[i]] <- Multiple_value_comparison(clono$clono_allData,
+                                                                           clono$clono_datasets,
+                                                                           allele_clonotypes,
+                                                                           gene_clonotypes,
+                                                                           clono$view_specific_clonotype_allData,
+                                                                           clono$view_specific_clonotype_datasets,
+                                                                           val1, val2,
+                                                                           loaded_datasets, c())
       
     }
   }
   
-  ################## Create Frequency Tables ####################
+  ############ Create Frequency Tables ####################
+  
   if (pipeline_logo){
     select_topN_clonotypes_for_freqTable <- "topN_clonotypes_for_alignment"
     if (select_topN_clonotypes_for_freqTable=="topN_clonotypes_for_alignment"){
@@ -685,8 +803,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   }
   
+  ############ Alignment #############
   
-  ############### Alignment #############
   if (pipeline_alignment){
     AAorNtAlignment <- strsplit(alignment_params, ",")[[1]][2]
     regionAlignment <- strsplit(alignment_params, ",")[[1]][1]
@@ -767,7 +885,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
   }
   
-  ############### Mutations #############
+  ############ Mutations #############
+  
   if (pipeline_mutations){
     AAorNtMutations <- strsplit(mutations_params, ",")[[1]][1]
     ThrAAMutations <- strsplit(mutations_params, ",")[[1]][2]
@@ -839,46 +958,45 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   }
   
+  ############ save png files  ############### 
   
-  
-  ############### save png files  ############### 
-  #source("save_png_files.R")
+  # source("save_png_files.R")
   clonotypes_barplot_select_range <- F
   clonotypes_barchart_threshold <- 0.1
   clonotypes_barchart_down_threshold <- 0.1
   clonotypes_barchart_up_threshold <- 1
   
-  
-  folder_name=paste("Analysis",trunc(as.numeric(Sys.time())))
-  if(!file.exists(paste0(tmp_path,"/",folder_name))){ #check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-    dir.create(paste0(tmp_path,"/",folder_name))}#make the dir if not
-  in.path=paste0(tmp_path,"/",folder_name) #go into the dir, alternatively you could just set the path of the file each time
+  folder_name = paste("Analysis", trunc(as.numeric(Sys.time())))
+  if(!file.exists(paste0(tmp_path,"/",folder_name))){ # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
+    dir.create(paste0(tmp_path,"/",folder_name))      # make the dir if not
+  }                   
+  in.path = paste0(tmp_path,"/",folder_name)          # go into the dir, alternatively you could just set the path of the file each time
   
   #check if the following have run
   
-  ####### clonotype plots  #######
-  if (pipeline_clonotypes){
+  ############ clonotype plots  #######
+  
+  if(pipeline_clonotypes){
     if (clonotypes_barplot_select_range){
-      parameters=paste0("from cluster",clonotypes_barchart_down_threshold,"to cluster",clonotypes_barchart_up_threshold)
+      parameters = paste0("from cluster",clonotypes_barchart_down_threshold,"to cluster",clonotypes_barchart_up_threshold)
     }else{
-      parameters=paste0("with_threshold ",clonotypes_barchart_threshold)
+      parameters = paste0("with_threshold ",clonotypes_barchart_threshold)
     }
     
-    if (clonotypes_barplot_select_range==F){
+    if(clonotypes_barplot_select_range==F){
       #Find the clonotypes that we want to draw for all the datasets
-      cl<-c()
-      a<-list()
-      if (is.null(clonotypes_barchart_threshold)) thr=0 else thr=clonotypes_barchart_threshold
+      cl <- c()
+      a <- list()
+      if(is.null(clonotypes_barchart_threshold)) thr=0 else thr=clonotypes_barchart_threshold
       a[["allData"]]=clono$clono_allData %>% filter(clono$clono_allData$Freq>thr)
       cl=c(cl,a[["allData"]]$clonotype)
       for (i in loaded_datasets){
         a[[i]]=clono$clono_datasets[[i]] %>% filter(clono$clono_datasets[[i]]$Freq>thr)
         cl<-c(cl,a[[i]]$clonotype)
       }
-      
-    }else{
+    } else {
       #Find the clonotypes that we want to draw for all the datasets
-      range=clonotypes_barchart_down_threshold:clonotypes_barchart_up_threshold
+      range = clonotypes_barchart_down_threshold:clonotypes_barchart_up_threshold
       cl<-c()
       a<-list()
       a[["allData"]]=clono$clono_allData[range,]
@@ -901,48 +1019,45 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
       for (j in 1:length(data)){
         if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
         else{
-          if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
-            freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
+          if (length(which(a[[data[j]]]$clonotype == cl[i])) > 0){
+            freq_mat[i,j] = a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype == cl[i])]
           } 
         }
       }
-      
     }
     
     colnames(freq_mat) <- data
     rownames(freq_mat) <- cl 
-    freq_mat<<-freq_mat
-    freq_mat<<-round(freq_mat,2)
+    freq_mat <<- freq_mat
+    freq_mat <<- round(freq_mat,2)
     
-    png(paste0(in.path,"/","clonotypes_bar_plot_",parameters,".png"),width=3000, height=1550)
-    barplot(
-      freq_mat,
-      xlim=c(0, ncol(freq_mat) + 5),
-      col=brewer.pal(nrow(freq_mat), "Paired"),
-      legend.text=TRUE,
-      args.legend=list(
-        x=ncol(freq_mat) + 5,
-        y=max(colSums(freq_mat)),
-        bty = "n"
-      )
-    )
+    png(paste0(in.path,"/","clonotypes_bar_plot_",parameters,".png"), width=3000, height=1550)
+    barplot(freq_mat, 
+            xlim = c(0, ncol(freq_mat) + 5),
+            col = brewer.pal(nrow(freq_mat), "Paired"),
+            legend.text = TRUE,
+            args.legend = list(x = ncol(freq_mat) + 5,
+                               y = max(colSums(freq_mat)),
+                               bty = "n"))
     #barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2) 
     #legend("topright", fill=rainbow(nrow(freq_mat)), legend=cl,cex = 0.6)
     dev.off()
   }
   
-  ####### Highly Similar clonotype plots  #######
+  ############ Highly Similar clonotype plots  #######
+  
   higly_sim_clonotypes_barplot_select_range <- F
   higly_sim_clonotypes_barchart_up_threshold <- 1
   higly_sim_clonotypes_barchart_up_threshold <- 0.1
   higly_sim_clonotypes_barchart_threshold <- 0.1
+
   if (pipeline_highly_similar_clonotypes){
     if (higly_sim_clonotypes_barplot_select_range){
       parameters=paste0("from cluster",higly_sim_clonotypes_barchart_down_threshold,"to cluster",higly_sim_clonotypes_barchart_up_threshold)
     }else{
       parameters=paste0("with_threshold ",higly_sim_clonotypes_barchart_threshold)
     }
-    
+
     if (higly_sim_clonotypes_barplot_select_range==F){
       #Find the clonotypes that we want to draw for all the datasets
       cl<-c()
@@ -954,7 +1069,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         a[[i]]=highly_sim_datasets[[i]] %>% filter(highly_sim_datasets[[i]]$Freq>thr)
         cl<-c(cl,a[[i]]$clonotype)
       }
-      
+
     }else{
       #Find the clonotypes that we want to draw for all the datasets
       range=higly_sim_clonotypes_barchart_down_threshold:higly_sim_clonotypes_barchart_up_threshold
@@ -967,11 +1082,11 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         cl<-c(cl,a[[i]]$clonotype)
       }
     }
-    
+
     #Unique clonotypes
     cl=unique(cl)
     cl<<-c(cl,"Other")
-    
+
     #Create a freqeuncy matrix
     data=c("allData",loaded_datasets)
     freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
@@ -982,17 +1097,17 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         else{
           if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
             freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
-          } 
+          }
         }
       }
-      
+
     }
-    
+
     colnames(freq_mat) <- data
-    rownames(freq_mat) <- cl 
+    rownames(freq_mat) <- cl
     freq_mat<<-freq_mat
     freq_mat<<-round(freq_mat,2)
-    
+
     png(paste0(in.path,"/","Highly_sim_clonotypes_bar_plot_",parameters,".png"),width=3000, height=1550)
     barplot(
       freq_mat,
@@ -1005,12 +1120,13 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         bty = "n"
       )
     )
-    #barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2) 
+    #barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2)
     #legend("topright", fill=rainbow(nrow(freq_mat)), legend=cl,cex = 0.6)
     dev.off()
   }
   
-  ####### Repertoires #######
+  ############ Repertoires #######
+  
   repertories_pies_threshold <- NULL
   if (pipeline_Repertoires){####### reperoires plots
     if (repertories_results[[1]]$confirm!=""){
@@ -1057,8 +1173,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         
       }}}
   
+  ############ Highly Similar Repertoires #######
   
-  ####### Highly Similar Repertoires #######
   HighlySim_repertories_pies_threshold <- 0.1
   if (pipeline_HighlySim_Repertoires){####### reperoires plots
     if (HighlySim_repertories_results[[1]]$confirm!=""){
@@ -1105,7 +1221,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         
       }}}
   
-  ####### Mutational status ####### 
+  ############ Mutational status ####### 
+  
   regionFreqTable <- 'CDR3' 
   if (("1_Summary.txt" %in% files) & (pipeline_mutational_status)){
     for (j in 1:(length(loaded_datasets)+1)){
@@ -1127,8 +1244,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   }
   
+  ############ Distributions #####################################
   
-  ##### Distributions #####################################
   select_clono_or_highly_for_cdr3_distribution <- "initial_clonotypes"
   cdr3_length_distribution_dataset <- list()
   if (clono$confirm!=""){
@@ -1153,7 +1270,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=as.data.frame(d,stringsAsFactors=F)
             colnames(d)=var
-            d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+            d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(clono$clono_allData)
             colnames(d)=c("CDR3Length","n","Freq")
             d$CDR3Length=as.numeric(d$CDR3Length)
@@ -1165,7 +1282,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=as.data.frame(d,stringsAsFactors=F)
             colnames(d)=var
-            d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+            d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
             colnames(d)=c("CDR3Length","n","Freq")
             d$CDR3Length=as.numeric(d$CDR3Length)
@@ -1187,7 +1304,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=as.data.frame(d,stringsAsFactors=F)
             colnames(d)=var
-            d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+            d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(highly_sim)
             colnames(d)=c("CDR3Length","n","Freq")
             d$CDR3Length=as.numeric(d$CDR3Length)
@@ -1206,7 +1323,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=as.data.frame(d,stringsAsFactors=F)
             colnames(d)=var
-            d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+            d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
             colnames(d)=c("CDR3Length","n","Freq")
             d$CDR3Length=as.numeric(d$CDR3Length)
@@ -1218,7 +1335,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   }
   
-  #CDR3 Length Distribution #######
+  ############ CDR3 Length Distribution #######
+  
   if (pipeline_cdr3_distribution){
     for (j in 1:(length(loaded_datasets)+1)){
       if (j==(length(loaded_datasets)+1)){
@@ -1329,7 +1447,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(clono$clono_allData)
           colnames(d)=c("Pi","n","Freq")
           d$Pi=as.numeric(d$Pi)
@@ -1341,7 +1459,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
           colnames(d)=c("Pi","n","Freq")
           d$Pi=as.numeric(d$Pi)
@@ -1363,7 +1481,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(highly_sim)
           colnames(d)=c("Pi","n","Freq")
           d$Pi=as.numeric(d$Pi)
@@ -1382,7 +1500,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
           colnames(d)=c("Pi","n","Freq")
           d$Pi=as.numeric(d$Pi)
@@ -1390,10 +1508,10 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
         }
       }
     }
-    
   }
   
-  #Pi Distribution #######  
+  ############ Pi Distribution #######  
+  
   if (pipeline_pi_distribution){
     png(paste0(in.path,"/","Pi Distribution ","All Data",".png"),width=900, height=600)
     boxplot(box_input, horizontal=F, main=" ")
@@ -1407,8 +1525,7 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     } 
   }
   
-  
-  ####### logo plots ####### 
+  ############ logo plots ####### 
   msgLogo <- ""
   if (msgLogo!=""){
     if (regionFreqTable=='CDR3'){
@@ -1546,7 +1663,8 @@ run_ARGP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   }}
   
-  ####### nucleotides of top clonotypes ####### 
+  ############ nucleotides of top clonotypes ####### 
+  
   fileNames=loaded_datasets
   nucleotides_per_clonotype_topN <- 20
   nucleotides_per_clonotype <- F

@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 
-# Wrapper for the run_ARGP_without_ui script. It lives as an R shell script in 
+# Wrapper for the run_TRIP_without_ui script. It lives as an R shell script in 
 # order to be seamlessly integrated to the general variant calling pipeline 
 # which uses only system interactions.
 # To run the script using the command line using the default input arguments: Rscript --vanilla make_options.R
@@ -15,36 +15,38 @@ option_list <- list(
   make_option(
     opt_str=c("-a","--datapath"),
     action="store",
-    default="Datasets/Bcell",
-    help=paste0(
-      "The directory where the folders of the patients' data are located."
-    )
+    default="Datasets/nikolas/Tcell_sample/",
+    help=paste0("The directory where the folders of the patients' data are located.")
   ),
+  
   make_option(
     opt_str=c("-b","--filelist"),
     action="store",
     default="1_Summary.txt,2_IMGT-gapped-nt-sequences.txt,4_IMGT-gapped-AA-sequences.txt,6_Junction.txt",
     help=paste0(
       "The files of the IMGT output that will be used through the analysis.\n",
-      "Use comma to separate the list of files (default %default)"
+      "Use comma to seperate the list of files (default %default)"
     )
   ),
+  
   make_option(
     opt_str=c("-c","--cell"),
     action="store",
-    default="Bcell",
+    default="Tcell",
     help="Supported cells: One of 'Bcell' (default) or 'Tcell'."
   ),
+  
   make_option(
     opt_str=c("-d","--throughput"),
     action="store",
     default="High Throughput",
     help="Supported cells: One of 'High Throughput' (default) or 'Low Throughput'."
   ),
+  
   make_option(
     opt_str=c("-e","--preselection"),
     action="store",
-    default="1,2,3,4C:F|W",
+    default="1,4C:F",
     help=paste0(
       "Preselection options:\n",
       "1. Only take into account Functional V-Gene\n",
@@ -53,9 +55,10 @@ option_list <- list(
       "4. Only take into account CDR3 with valid start/end landmarks.\n",
       "For Preselection option 4, select start/end landmarks.\n",
       "Use the vertical line '|' to add more than one start or end landmarks\n",
-      "Use comma to separate the list of options, use semicolon ':' to separate start and end landmarks (default %default) \n"
+      "Use comma to seperate the list of options, use semicolon ':' to seperate start and end landmarks (default %default) \n"
     )
   ),
+  
   make_option(
     opt_str=c("-f","--selection"),
     action="store",
@@ -67,19 +70,21 @@ option_list <- list(
       "7. Select Specific J Gene \n",
       "8. Select Specific D Gene \n",
       "9. Select CDR3 length range \n",
-      "Only select CDR3 containing specific amino-acid sequence.\n",
-      "Use comma to separate the list of options (default %default)"
+      "10. Only select CDR3 containing specific amino-acid sequence.\n",
+      "Use comma to seperate the list of options (default %default)"
     )
   ),
+  
   make_option(
     opt_str=c("-g","--identity_range"),
     action="store",
-    default="85:100",
+    default="95:100",
     help=paste0(
       "V-REGION identity %Low and %High\n",
-      "Use semicolon ':' to separate identity low and high (default %default) \n"
+      "Use semicolon ':' to seperate identity low and high (default %default) \n"
     )
   ),
+  
   make_option(
     opt_str=c("-i","--vgenes"),
     action="store",
@@ -89,6 +94,7 @@ option_list <- list(
       "Separate the different V-Gene names with '|' e.g. TRBV11-2|TRBV29-1*03 (F)\n"
     )
   ),
+  
   make_option(
     opt_str=c("-j","--dgenes"),
     action="store",
@@ -98,6 +104,7 @@ option_list <- list(
       "Separate the different D-Gene names with | e.g. TRBD2|TRBD1\n"
     )
   ),
+  
   make_option(
     opt_str=c("-k","--jgenes"),
     action="store",
@@ -107,15 +114,17 @@ option_list <- list(
       "Separate the different J-Gene names with | e.g. TRBJ2-6|TRBJ2-2\n"
     )
   ),
+  
   make_option(
     opt_str=c("-l","--cdr3_length_range"),
     action="store",
-    default="7:15",
+    default="",
     help=paste0(
       "Filter in rows with CDR3 lengths within a range\n",
-      "Use semicolon ':' to separate identity low and high (default %default)\n"
+      "Use semicolon ':' to seperate identity low and high (default %default)\n"
     )
   ),
+  
   make_option(
     opt_str=c("-m","--aminoacid"),
     action="store",
@@ -124,10 +133,11 @@ option_list <- list(
       "Filter in rows with CDR3 containing specific amino-acid sequence\n"
     )
   ),
+  
   make_option(
     opt_str=c("-n","--pipeline"),
     action="store",
-    default="1,2,3,4,5,6,7,8,9,10,11,12,13,14,15",
+    default="1,12",
     help=paste0(
       "Pipeline options:\n",
       "1. Clonotypes Computation \n",
@@ -146,9 +156,13 @@ option_list <- list(
       "14. Alignment \n",
       "15. Somatic hypermutations\n", 
       "16. Logo\n",
-      "Use comma to separate the list of options (default %default)"
+      "17. SHM normal\n",
+      "18. SHM High similarity\n",
+      "19. Diagnosis\n",
+      "Use comma to seperate the list of options (default %default)"
     )
   ),
+  
   make_option(
     opt_str=c("-o","--select_clonotype"),
     action="store",
@@ -165,20 +179,23 @@ option_list <- list(
       "J Gene and Allele + CDR3 Nucleotide\n",
       "CDR3 Amino Acids\n",
       "CDR3 Nucleotide\n",
+      "Sequence\n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-p","--highly_sim_params"),
     action="store",
-    default="6-1 7-1 8-1 9-2 10-2 11-2 12-2 13-2 14-2 15-3 16-3 17-3 18-3 19-3 20-3 21-3 22-4 23-4 25-4 26-4 27-4 28-4 29-4 30-4,1,Yes",
+    default="1-1 2-1 3-1 4-1 5-1 6-1 7-1 8-1 9-1 10-1 11-1 12-1 13-1 14-1 15-2 16-2 17-2 18-2 19-2 20-2 21-2 23-2 24-2 25-2 26-2 27-2 28-2 29-3 30-3 31-3 32-3 33-3 34-3 35-3 36-3 37-3 38-3 39-3 40-3 41-3 42-3 43-3 44-3 45-3 46-3 47-3 48-3 49-3 50-3,1,Yes",
     help=paste0(
       "Select number of missmatches, the theshold of the clonotype frequency and whether you want to take gene into account\n",
-      "Use dashes '-' to show the length of the cdr3 sequences and the number of allowed missmatches and spaces ' ' to separate. For the cdr3 lengths that the number of missmatches are not specified the default value that will be used is 1.  \n",
+      "Use dashes '-' to show the length of the cdr3 sequences and the number of allowed missmatches and spaces ' ' to separate. For the cdr3 lengths that the number of missmatches are not specified the default value that will be used is 1 \n",
       "Use comma to separate the three options \n",
       "default %default"
-    ) 
+    )
   ),
+  
   make_option(
     opt_str=c("-q","--shared_clonotypes_params"),
     action="store",
@@ -186,10 +203,11 @@ option_list <- list(
     help=paste0(
       "Shared clonotypes computation\n",
       "Select 'reads' of 'theshold' for clonotypes, the number of reads or the threshold percentage accordingly, and whether you want to take gene into account\n",
-      "Use comma to separate the 3 options \n",
+      "Use comma to seperate the 3 options \n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-r","--highly_shared_clonotypes_params"),
     action="store",
@@ -197,14 +215,15 @@ option_list <- list(
     help=paste0(
       "Highly Similar Shared Clonotypes Computation \n",
       "Select 'reads' of 'theshold' for clonotypes, the number of reads or the threshold percentage accordingly, and whether you want to take gene into account\n",
-      "Use comma to separate the 3  options \n",
+      "Use comma to seperate the 3  options \n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-s","--repertoires_params"),
     action="store",
-    default="1,3,5",
+    default="1,4,6",
     help=paste0(
       "Repertoires Extraction  \n",
       "Options:\n",
@@ -214,26 +233,28 @@ option_list <- list(
       "4. J Gene and allele\n",
       "5. D Gene\n", 
       "6. D Gene and allele\n",
-      "Use comma to separate the selected options \n",
+      "Use comma to seperate the selected options \n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-t","--identity_groups"),
     action="store",
-    default="50,70,90:70,90,100",
+    default="85:97,97:99,99:100,100:100",
     help=paste0(
       "Insert identity groups  \n",
       "Insert low and high values as follows\n",
       "low_values:high_values\n", 
-      "separate low_values and high_values using comma.\n",
+      "Seperate low_values and high_values using comma.\n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-u","--multiple_values_params"),
     action="store",
-    default="1:3,1:7",
+    default="2:7,2:3,2:5,2:11",
     help=paste0(
       "Multiple value comparison  \n",
       "Options\n",
@@ -248,36 +269,38 @@ option_list <- list(
       "9. Molecular mass \n",
       "10. pI \n",
       "11. V-REGION identity % \n",
-      "Use semicolon to indicate cobinations of 2 values, use comma to separate the selected options \n",
+      "Use semicolon to indicate cobinations of 2 values, use comma to seperate the selected options \n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-v","--alignment_params"),
     action="store",
-    default="1,aa,2,2:20",
+    default="1,both,1,2:20",
     help=paste0(
       "Alignment parameters:\n",
       "Region for Alignment: 1. V.D.J.REGION or 2. V.J.REGION\n",
       "AA or Nt: Select aa or nt or both\n",
       "Germline: 1. Use Allele's germline or 2. Use Gene's germline\n",
       "Use: 1. All clonotypes or 2. Select top N clonotypes or 3. Select threshold for clonotypes\n",
-      "Use comma to separate the 4 parameters.\n",
+      "Use comma to seperate the 4 parameters.\n",
       "If you select option 2 or 3 at the 4rth parameter you have to set the N or the threshold as well using semicolon\n",
       "default %default"
     )
   ),
+  
   make_option(
     opt_str=c("-w","--mutations_params"),
     action="store",
-    default="aa,0.5,0.5,2:20",
+    default="both,0.5,0.5,2:20",
     help=paste0(
       "Somatic hypermutations parameters:\n",
       "AA or Nt: Select aa or nt or both\n",
       "Set threshold for AA\n",
       "Set threshold for Nt\n",
       "Use: 1. All clonotypes or 2. Select top N clonotypes or 3. Select threshold for clonotypes\n",
-      "Use comma to separate the 3 parameters.\n",
+      "Use comma to seperate the 3 parameters.\n",
       "If you select option 2 or 3 at the 3rd parameter you have to set the N or the threshold as well using semicolon\n",
       "default %default"
     )
@@ -289,12 +312,31 @@ opt <- parse_args(OptionParser(option_list=option_list));
 
 filelist <- strsplit(opt$filelist, ",")[[1]]
 
-source("run_ARGP_without_ui.R")
-run_ARGP(datapath=opt$datapath, filelist=filelist, cell=opt$cell, throughput=opt$throughput, preselection=opt$preselection, selection=opt$selection, 
-         identity_range=opt$identity_range, vgenes=opt$vgenes, dgenes=opt$dgenes, jgenes=opt$jgenes, cdr3_length_range=opt$cdr3_length_range, aminoacid=opt$aminoacid,
-         pipeline=opt$pipeline, select_clonotype=opt$select_clonotype, highly_sim_params=opt$highly_sim_params, shared_clonotypes_params=opt$shared_clonotypes_params, 
-         highly_shared_clonotypes_params=opt$highly_shared_clonotypes_params, repertoires_params=opt$repertoires_params, identity_groups=opt$identity_groups,
-         multiple_values_params=opt$multiple_values_params, alignment_params=opt$alignment_params, mutations_params=opt$mutations_params)
+source("run_TRIP_without_ui.R")
+
+run_TRIP(datapath = opt$datapath, 
+         filelist = filelist, 
+         cell = opt$cell, 
+         throughput = opt$throughput, 
+         preselection = opt$preselection, 
+         selection = opt$selection, 
+         identity_range = opt$identity_range, 
+         vgenes = opt$vgenes, 
+         aminoacid = opt$aminoacid,
+         dgenes = opt$dgenes, 
+         jgenes = opt$jgenes, 
+         cdr3_length_range = opt$cdr3_length_range, 
+         aminoacid = opt$aminoacid,
+         pipeline = opt$pipeline, 
+         select_clonotype = opt$select_clonotype, 
+         highly_sim_params = opt$highly_sim_params, 
+         shared_clonotypes_params = opt$shared_clonotypes_params, 
+         highly_shared_clonotypes_params = opt$highly_shared_clonotypes_params, 
+         repertoires_params = opt$repertoires_params, 
+         identity_groups = opt$identity_groups,
+         multiple_values_params = opt$multiple_values_params, 
+         alignment_params = opt$alignment_params, 
+         mutations_params = opt$mutations_params)
 
 # Print help
 # print_help( OptionParser(option_list=option_list))

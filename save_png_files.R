@@ -308,7 +308,7 @@ if (clono$confirm!=""){
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(clono$clono_allData)
           colnames(d)=c("CDR3Length","n","Freq")
           d$CDR3Length=as.numeric(d$CDR3Length)
@@ -320,7 +320,7 @@ if (clono$confirm!=""){
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
           colnames(d)=c("CDR3Length","n","Freq")
           d$CDR3Length=as.numeric(d$CDR3Length)
@@ -342,7 +342,7 @@ if (clono$confirm!=""){
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(highly_sim)
           colnames(d)=c("CDR3Length","n","Freq")
           d$CDR3Length=as.numeric(d$CDR3Length)
@@ -361,7 +361,7 @@ if (clono$confirm!=""){
           }
           d=as.data.frame(d,stringsAsFactors=F)
           colnames(d)=var
-          d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+          d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
           colnames(d)=c("CDR3Length","n","Freq")
           d$CDR3Length=as.numeric(d$CDR3Length)
@@ -485,7 +485,7 @@ if ("6_Junction.txt" %in% files){
         }
         d=as.data.frame(d,stringsAsFactors=F)
         colnames(d)=var
-        d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+        d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
         d$Freq=100*d$n/nrow(clono$clono_allData)
         colnames(d)=c("Pi","n","Freq")
         d$Pi=as.numeric(d$Pi)
@@ -497,7 +497,7 @@ if ("6_Junction.txt" %in% files){
         }
         d=as.data.frame(d,stringsAsFactors=F)
         colnames(d)=var
-        d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+        d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
         d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
         colnames(d)=c("Pi","n","Freq")
         d$Pi=as.numeric(d$Pi)
@@ -519,7 +519,7 @@ if ("6_Junction.txt" %in% files){
         }
         d=as.data.frame(d,stringsAsFactors=F)
         colnames(d)=var
-        d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+        d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
         d$Freq=100*d$n/nrow(highly_sim)
         colnames(d)=c("Pi","n","Freq")
         d$Pi=as.numeric(d$Pi)
@@ -538,7 +538,7 @@ if ("6_Junction.txt" %in% files){
         }
         d=as.data.frame(d,stringsAsFactors=F)
         colnames(d)=var
-        d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+        d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
         d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
         colnames(d)=c("Pi","n","Freq")
         d$Pi=as.numeric(d$Pi)

@@ -1,7 +1,7 @@
 
-# Dockerize the ARGP Shiny app 
+# Dockerize the TRIP Shiny app 
 
-Build the docker image of ARGP shiny framework 
+Build the docker image of TRIP shiny framework 
 
 ```
 docker build -t app .

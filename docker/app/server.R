@@ -1,34 +1,7 @@
-#app <- shinyApp(ui = ui, server = server)
-#runApp(app, host ="0.0.0.0", port = 8084, launch.browser = FALSE)
-#shiny::runApp(port=3168)
-
-#install.packages(c("shinyFiles", "shinyjs", "shinyBS", "DT","plyr","dplyr","pryr","data.table","stringr","tidyr","xtable","plot3D","gridExtra","stringdist","plotly"))
-#source("http://bioconductor.org/biocLite.R")
-#biocLite("Biostrings")
-#source("https://bioconductor.org/biocLite.R") 
-#biocLite("motifStack")
-
-#library(motifStack)     
-library(shinyFiles)
-library("shinyBS")
-library("DT")
-library(plyr)
-library(dplyr)
-library(data.table)   
-library(stringr)
-library(tidyr)
-library(Biostrings)
-library(plotly)
-library(xtable)
-library(plot3D)
-library(gridExtra)
-library(RColorBrewer)
-library('stringdist')
-library("parallel")
-
 #Sys.setenv(R_GSCMD=file.path("C:", "Program Files", "gs","gs9.21", "bin", "gswin32c.exe"))
 
 source("helpers.R")
+
 includeHTML("on_reload.html")
 
 options(shiny.maxRequestSize=3000*1024^2)
@@ -41,6 +14,7 @@ on_click_js_convergent_evolution= "
 Shiny.onInputChange('conv_evo', '%s');
 $('#modalViewConvergentEvolution').modal('show')
 "
+
 ##JS Code for enabling and diabling tabs
 jscode <- "shinyjs.disabletab =function(name){
 $('ul li:has(a[data-value= ' + name + '])').addClass('disabled');
@@ -55,8 +29,8 @@ $('ul li:has(a[data-value= ' + name + '])').removeClass('disabled');
 shinyServer( 
   function(session, input, output) { 
     
-    ######################################## initialize global variables  ########################################
-    print("session started")
+    ############################### initialize global variables  ###############################
+    
     loaded_datasets <- c()
     newDatasetNames <- NULL   
     file_size <- 0
@@ -187,8 +161,7 @@ shinyServer(
     pi_distribution <- c()  #delete from global 
     pi_distribution_dataset <- list()   #delete from global 
     
-    
-    ############################################# Select Datasets ######################################### #############################################
+    ############################### Select Datasets ###############################
     
     # dir
     shinyDirChoose(input, 'dir', roots = c(home = '.'), filetypes = c('', 'txt'))
@@ -203,24 +176,23 @@ shinyServer(
     })
     
     # files
-    output$files <- renderPrint(list.files(path()))
+    # output$files <- renderPrint(list.files(path()))
     
-    #Load Data
+    # Load Data
     output$uiLoadData <- renderUI({
       if (is.null(input$inputFiles) | is.null(input$Dataset)) return()
       # Wrap the button in the function `withBusyIndicatorUI()`
       withBusyIndicatorUI(
-      actionButton("LoadData", "Load Data", 
-                   style="color: #fff; background-color: #5F021F; border-color: #fff")
-      )
+        actionButton("LoadData", "Load Data", 
+                     style="color: #fff; background-color: #5F021F; border-color: #fff"))
     })
 
     dataInputColumns <- reactive({
       if (is.null(input$inputFiles) | is.null(input$Dataset) | is.null(input$LoadData)) return()
-      if (input$LoadData==FALSE){return()}
+      if (input$LoadData == FALSE){return()}
       withBusyIndicatorServer("LoadData", {
-        #testColumnNames(list.files(path()), input$inputFiles, path()) #load all datasets that are located at the path
-        testColumnNames(input$Dataset, input$inputFiles, path()) #load only selected datasets
+        # testColumnNames(list.files(path()), input$inputFiles, path()) #load all datasets that are located at the path
+        testColumnNames(input$Dataset, input$inputFiles, path()) # load only selected datasets
       })
     })
     
@@ -230,11 +202,13 @@ shinyServer(
         if (is.null(input$inputFiles) | is.null(input$Dataset) | is.null(input$LoadData)) return()
         if (input$LoadData==FALSE){return()}
       }
+
       if (input$select_load_or_compute_clonotypes=="compute_clonotypes")
         length(unique(t(data.frame(strsplit(input$Dataset,"_")))[,1]))
       else
         length(loaded_datasets)
     })
+    
     outputOptions(output, 'num_of_datasets', suspendWhenHidden = FALSE)
     
     output$confirmLoadData <- renderUI({
@@ -245,9 +219,11 @@ shinyServer(
     
     output$uiInputFiles <- renderUI({
       if (is.null(dir())){return()}
-      a=list.files(paste0(path(),"/",list.files(path())[1]))
+      a = list.files(paste0(path(),"/",list.files(path())[1]))
       wellPanel(
-        tags$div(class = "multicol", checkboxGroupInput(inputId = "inputFiles", label = "Select Files", inline=FALSE, choices = a, selected=c("1_Summary.txt","2_IMGT-gapped-nt-sequences.txt","4_IMGT-gapped-AA-sequences.txt","6_Junction.txt")))
+        tags$div(class = "multicol", 
+                 checkboxGroupInput(inputId = "inputFiles", label = "Select Files", inline=FALSE, choices = a, 
+                                    selected=c("1_Summary.txt","2_IMGT-gapped-nt-sequences.txt","4_IMGT-gapped-AA-sequences.txt","6_Junction.txt")))
       )
     })
     
@@ -271,24 +247,22 @@ shinyServer(
         }
       }
       print(paste0(file_size/1000000,"MB to be loaded"))
-      
     })
     
     observeEvent(input$select_load_or_compute_clonotypes,{
       if (input$select_load_or_compute_clonotypes == 'load_clonotypes'){
         #used columns
         load("rData files/used_columns.rData")
-        used_columns<<-used_columns
+        used_columns <<- used_columns
         load("rData files/cdr3_lengths.rData")
-        cdr3_lengths<<-cdr3_lengths
+        cdr3_lengths <<- cdr3_lengths
       }
     })
     
-    
-    ########################################### Wrong column names  ####################################### #############################################
-    
+    ############################### Wrong column names ###############################
     # Return the UI for a modal dialog with data selection input. If 'failed' is
     # TRUE, then display a message that the previous value was invalid.
+    
     dataModal <- function(failed = FALSE) {
       data <- dataInputColumns()
       modalDialog(
@@ -321,12 +295,12 @@ shinyServer(
       if (data$message!="wrong column names"){return()}
       if (length(new_columns)>0){if (correctColumns=="yes"){return()}}
       showModal(dataModal())
-      
     })
     
     # When OK button is pressed, attempt to load the data set. If successful,
     # remove the modal. If not show another modal, but this time with a failure
     # message.
+    
     observeEvent(input$ok, {
       data <- dataInputColumns()
       # Take the input values for the new column names.
@@ -366,11 +340,10 @@ shinyServer(
       }
     })
     
-    
-    ################################################# Load a Previous Session  ############################ #################################################
+    ############################### Load a Previous Session ###############################
     
     vals <- reactiveValues(sum = 0)
-    vals <- reactiveValues(excludedPoints=c(1,2,3))
+    vals <- reactiveValues(excludedPoints = c(1,2,3))
     
     # makeReactiveBinding("excludedPoints")
     
@@ -491,15 +464,9 @@ shinyServer(
       #Execute Button for pipeline if filtering has alreary been applied
       output$uiExecute_pipeline <- renderUI({
         #if (length(imgtfilter_results)==0){return()}
-        actionButton("Execute_pipeline", "Execute Pipeline", 
-                     style="color: #fff; background-color: #5F021F; border-color: #fff")
-        withBusyIndicatorUI(
-          actionButton(
-            "Execute_pipeline", "Execute Pipeline", 
-            style="color: #fff; background-color: #5F021F; border-color: #fff"
-          )
-        )
-        
+        # actionButton("Execute_pipeline", "Execute Pipeline", 
+        #              style="color: #fff; background-color: #5F021F; border-color: #fff")
+        withBusyIndicatorUI(actionButton("Execute_pipeline", "Execute Pipeline", style="color: #fff; background-color: #5F021F; border-color: #fff"))
       })
       
       newDataset<-F
@@ -570,7 +537,7 @@ shinyServer(
       
     })
     
-    ####################################### Enable/Disable Tabs ###########################################
+    ############################### Enable/Disable Tabs ###############################
     observeEvent(input$pipeline_alignment,{
       if(input$pipeline_alignment){#If true enable, else disable
         js$enabletab("Alignment")
@@ -635,7 +602,7 @@ shinyServer(
       }
     })
     
-    ############################# In each tab select the dataset you want to see  ######################### ###############################
+    ############################### In each tab select the dataset you want to see ###############################
     output$uiSelectDatasetCleaning <- renderUI({
       if ((is.null(input$Dataset)) & (length(loaded_datasets)==0)){return()}
       selectInput("cleaningDataset", "Select Dataset:",c("All Data",loaded_datasets), width="170px")
@@ -697,7 +664,7 @@ shinyServer(
       selectInput("VisualisationDataset", "Select Dataset:",c("All Data",loaded_datasets), width="170px")
     })
     
-    ###################################### Cleaning and Filtering inputs  ################################# ######################################
+    ############################### Cleaning and Filtering inputs
     
     output$uiStart <- renderUI({
       if (input$start_end==FALSE){return()}
@@ -784,7 +751,7 @@ shinyServer(
       )
     })
     
-    ################## Execute Button for pipeline if filtering has alreary been applied ###################
+    ############################### Execute Button for pipeline if filtering has alreary been applied ###############################
     output$uiExecute_pipeline <- renderUI({
       if ((input$Continue==FALSE | is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset) | newDataset==TRUE) & (input$select_load_or_compute_clonotypes=="compute_clonotypes")){return()}
       if (input$select_load_or_compute_clonotypes=="compute_clonotypes")
@@ -799,7 +766,7 @@ shinyServer(
       )
     })
     
-    ################################################## Cleaning  ########################################## ##################################################
+    ############################### Cleaning ###############################
     #newDataset=T when the dataset state is changed. When this happens the execute button has to disapear and cleaning must be applyed
     observeEvent(input$Dataset, {
       newDataset<<-TRUE
@@ -860,9 +827,9 @@ shinyServer(
             start_char=""
             for (j in 1:length(k)){
               if (j%%2==1){
-                start_char=paste0(start_char,paste0("^",k[j]))
+                start_char = paste0(start_char,paste0("^", k[j]))
               }else{
-                start_char=paste0(start_char,k[j])
+                start_char = paste0(start_char,k[j])
               }
             }
           }
@@ -872,13 +839,13 @@ shinyServer(
           #filter_id <- c(filter_id, 4)
           if ((input$end_char=="")) end_char=""
           else{
-            k=strsplit(as.character(input$end_char),"|")[[1]]
+            k = strsplit(as.character(input$end_char),"|")[[1]]
             end_char=""
             for (j in 1:length(k)){
-              if (j%%2==1){
-                end_char=paste0(end_char,paste0(k[j],"$"))
-              }else{
-                end_char=paste0(end_char,k[j])
+              if (j%%2 == 1){
+                end_char = paste0(end_char, paste0(k[j], "$"))
+              } else {
+                end_char = paste0(end_char, k[j])
               }
             }
           }
@@ -1008,7 +975,7 @@ shinyServer(
     })
     
     
-    ################################################## Filtering ##########################################
+    ############################### Filtering ###############################
     observeEvent(input$Execute, {
       
       withBusyIndicatorServer("Execute", {
@@ -1168,7 +1135,7 @@ shinyServer(
       
     })
       
-    ########################################### Pipeline  ############################################### 
+    ############################### Pipeline  ###############################
     observeEvent(input$Execute_pipeline, {
       msgClonotypes<<-""
       if (length(insertedRepertoires)>0)
@@ -1231,7 +1198,7 @@ shinyServer(
           
     })
     
-    ########################################### Error Msg  ##############################################
+    ############################### Error Msg ###############################
     observeEvent(input$Execute_pipeline, {
       if (input$pipeline_mutations){
         if (input$pipeline_alignment==F) {
@@ -1288,174 +1255,193 @@ shinyServer(
       }
     })
     
-    ########################################### Clonotypes ##############################################  
+    ############################### Clonotypes ############################### 
+    
     observeEvent(input$Execute_pipeline, {
       
-      if (input$pipeline_clonotypes==F) return()
+      if (input$pipeline_clonotypes == F) return()
       
       # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
       withBusyIndicatorServer("Execute_pipeline", {
         
         if (input$select_load_or_compute_clonotypes == 'load_clonotypes'){
           load("rData files/clono.rdata")
-          clono<<-clono
-          loaded_datasets<<-names(clono$clono_datasets)
+          clono <<- clono
+          loaded_datasets <<- names(clono$clono_datasets)
           #used columns
           load("rData files/used_columns.rData")
-          used_columns<<-used_columns
-        }else{
-          cdr3_lengths<<-sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
-          cdr3_lengths<<-as.numeric(cdr3_lengths) #+2
-          cdr3_lengths<<-sort(cdr3_lengths)
+          used_columns <<- used_columns
+        } else {
+          cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
+          cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
+          cdr3_lengths <<- sort(cdr3_lengths)
           #save(cdr3_lengths,file=paste0(output_folder,"/cdr3_lengths.rData"))
         }
         
         if (input$select_clonotype=="V Gene + CDR3 Amino Acids"){
-          allele=F
-          gene=used_columns[["Summary"]][3]
-          junction=used_columns[["Summary"]][18]
+          allele = F
+          gene = used_columns[["Summary"]][3]
+          junction = used_columns[["Summary"]][18]
         }else if (input$select_clonotype=="V Gene and Allele + CDR3 Amino Acids"){
-          allele=T
-          gene=used_columns[["Summary"]][3]
-          junction=used_columns[["Summary"]][18]
+          allele = T
+          gene = used_columns[["Summary"]][3]
+          junction = used_columns[["Summary"]][18]
         }else if (input$select_clonotype=="V Gene + CDR3 Nucleotide"){
-          allele=F
-          gene=used_columns[["Summary"]][3]
-          junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
+          allele = F
+          gene = used_columns[["Summary"]][3]
+          junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
         }else if (input$select_clonotype=="V Gene and Allele + CDR3 Nucleotide"){
-          allele=T
-          gene=used_columns[["Summary"]][3]
-          junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
+          allele = T
+          gene = used_columns[["Summary"]][3]
+          junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
         }else if (input$select_clonotype=="J Gene + CDR3 Amino Acids"){
-          allele=F
-          gene=used_columns[["Summary"]][8]
-          junction=used_columns[["Summary"]][18]
+          allele = F
+          gene = used_columns[["Summary"]][8]
+          junction = used_columns[["Summary"]][18]
         }else if (input$select_clonotype=="J Gene and Allele + CDR3 Amino Acids"){
-          allele=T
-          gene=used_columns[["Summary"]][3]
-          junction=used_columns[["Summary"]][18]
+          allele = T
+          gene = used_columns[["Summary"]][3]
+          junction = used_columns[["Summary"]][18]
         }else if (input$select_clonotype=="J Gene + CDR3 Nucleotide"){
-          allele=F
-          gene=used_columns[["Summary"]][8]
-          junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
+          allele = F
+          gene = used_columns[["Summary"]][8]
+          junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
         }else if (input$select_clonotype=="J Gene and Allele + CDR3 Nucleotide"){
-          allele=T
-          gene=used_columns[["Summary"]][8]
-          junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
+          allele = T
+          gene = used_columns[["Summary"]][8]
+          junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
         }else if (input$select_clonotype=="CDR3 Amino Acids"){
-          allele=F
-          junction=used_columns[["Summary"]][18]
-          gene=c()
+          allele = F
+          junction = used_columns[["Summary"]][18]
+          gene = c()
+        }else if(input$select_clonotype=="Sequence"){
+          allele = FALSE
+          gene = c()
+          junction = used_columns[["Summary"]][20]
         }else{
-          allele=F
-          junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
-          gene=c()
+          allele = F
+          junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
+          gene = c()
         }
         
-        gene_clonotypes<<-gene
-        junction_clonotypes<<-junction
-        allele_clonotypes<<-allele
+        gene_clonotypes <<- gene
+        junction_clonotypes <<- junction
+        allele_clonotypes <<- allele
         
-        if ((just_restored_session_clonotypes==F) & (input$select_load_or_compute_clonotypes != 'load_clonotypes'))
-          clono<<-clonotypes(imgtfilter_results$allData,allele,gene,junction,loaded_datasets)
+        if ((just_restored_session_clonotypes == F) & (input$select_load_or_compute_clonotypes != 'load_clonotypes')){
+          clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis) # input$shm_normal,
+        }
         
-        just_restored_session_clonotypes<<-F
+        just_restored_session_clonotypes <<- F
         #convergent_evolution_list_datasets<<-clono$convergent_evolution_list_datasets
         
-        msgClonotypes<<-clono$confirm
+        msgClonotypes <<- clono$confirm
         
         output$clonoTable <- renderDataTable({
           if(is.null(input$clonotypesDataset)) return()
-          if (input$clonotypesDataset=="All Data"){
-            my_table <- clono$clono_allData
+          if (input$clonotypesDataset == "All Data"){
+            my_table = clono$clono_allData
+          } else {
+            my_table = clono$clono_datasets[[input$clonotypesDataset]]
           }
-          else{
-            my_table <- clono$clono_datasets[[input$clonotypesDataset]]
+          
+          if(input$select_clonotype == "Sequence"){
+            return(my_table)
           }
-          colnames(my_table) <- c(paste0("Clonotype (",input$select_clonotype,")"),'N','Freq','Convergent Evolution')
-          my_table[[paste0("Clonotype (",input$select_clonotype,")")]] <- sapply(my_table[[paste0("Clonotype (",input$select_clonotype,")")]], function(x) {as.character(tags$a(href = "#", onclick = sprintf(on_click_js,x), x))})
-          my_table[['Convergent Evolution']] <- sapply(my_table[['Convergent Evolution']], function(x) {as.character(tags$a(href = "#", onclick = sprintf(on_click_js_convergent_evolution,x), x))})
+          
+          colnames(my_table) = c(paste0("Clonotype (",input$select_clonotype,")"),'N','Freq','Convergent Evolution')
+          
+          my_table[[paste0("Clonotype (",input$select_clonotype,")")]] <- sapply(my_table[[paste0("Clonotype (",input$select_clonotype,")")]], function(x) {
+              as.character(tags$a(href = "#", onclick = sprintf(on_click_js,x), x))
+            })
+          
+          my_table[['Convergent Evolution']] <- sapply(my_table[['Convergent Evolution']], function(x) {
+              as.character(tags$a(href = "#", onclick = sprintf(on_click_js_convergent_evolution,x), x))
+            })
+          
           return(my_table)
           
-        }, escape = FALSE,options = list(
-          autoWidth = FALSE,
-          columnDefs = list(list(width = '40%', targets = 1)) )
-        )
+        }, escape = FALSE, options = list(autoWidth = FALSE,
+                                          columnDefs = list(list(width = '40%', targets = 1))))
         
         output$downloadAllClonotypes <- downloadHandler(
           filename = function(){paste0("Clonotypes_",input$select_clonotype,"_",input$clonotypesDataset,".txt")},
           content = function(file) {
             if (input$clonotypesDataset=="All Data"){
-              clono$clono_allData$CDR3=clono$clono_allData[,1]
-              clono$clono_allData=clono$clono_allData[,c(1,5,2:4)]
-              for (i in 1:nrow(clono$clono_allData)){
-                clono$clono_allData[i,2]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][2]
-                clono$clono_allData[i,1]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][1]
+              if(input$select_clonotype!="Sequence"){
+                clono$clono_allData$CDR3=clono$clono_allData[,1]
+                clono$clono_allData=clono$clono_allData[,c(1,5,2:4)]
+                for (i in 1:nrow(clono$clono_allData)){
+                  clono$clono_allData[i,2]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][2]
+                  clono$clono_allData[i,1]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][1]
+                }
               }
             }else{
-              clono$clono_datasets[[input$clonotypesDataset]]$CDR3=clono$clono_datasets[[input$clonotypesDataset]][,1]
-              clono$clono_datasets[[input$clonotypesDataset]]=clono$clono_datasets[[input$clonotypesDataset]][,c(1,5,2:4)]
-              for (i in 1:nrow(clono$clono_datasets[[input$clonotypesDataset]])){
-                clono$clono_datasets[[input$clonotypesDataset]][i,2]=strsplit(as.character(clono$clono_datasets[[input$clonotypesDataset]][i,1])," - ")[[1]][2] 
-                clono$clono_datasets[[input$clonotypesDataset]][i,1]=strsplit(as.character(clono$clono_datasets[[input$clonotypesDataset]][i,1])," - ")[[1]][1]   
+              if(input$select_clonotype!="Sequence"){
+                clono$clono_datasets[[input$clonotypesDataset]]$CDR3=clono$clono_datasets[[input$clonotypesDataset]][,1]
+                clono$clono_datasets[[input$clonotypesDataset]]=clono$clono_datasets[[input$clonotypesDataset]][,c(1,5,2:4)]
+                for (i in 1:nrow(clono$clono_datasets[[input$clonotypesDataset]])){
+                  clono$clono_datasets[[input$clonotypesDataset]][i,2]=strsplit(as.character(clono$clono_datasets[[input$clonotypesDataset]][i,1])," - ")[[1]][2] 
+                  clono$clono_datasets[[input$clonotypesDataset]][i,1]=strsplit(as.character(clono$clono_datasets[[input$clonotypesDataset]][i,1])," - ")[[1]][1]   
+                }
               }
             }
             
             if (input$clonotypesDataset=="All Data") write.table(clono$clono_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
             else write.table(clono$clono_datasets[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
-          }) 
+          }
+        ) 
         
         output$viewSpecificClonotype<- DT::renderDataTable({
-          if (input$clonotypesDataset=="All Data"){
-            my_table<-clono$view_specific_clonotype_allData[[input$mydata]]
+          if (input$clonotypesDataset == "All Data"){
+            my_table <- clono$view_specific_clonotype_allData[[input$mydata]]
+          } else {
+            my_table <- clono$view_specific_clonotype_datasets[[input$clonotypesDataset]][[input$mydata]]
           }
-          else{
-            my_table<-clono$view_specific_clonotype_datasets[[input$clonotypesDataset]][[input$mydata]]
-          }
-          #my_table <- viewClonotypes(data,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
+          
+          # my_table <- viewClonotypes(data,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
           specificClonotypes<<-my_table
+          
           return(my_table)
-        }, escape = FALSE,options = list(scrollX = TRUE)
-        )
+        }, escape = FALSE,options = list(scrollX = TRUE))
         
-        output$viewSpecificConvergentEvolution<- DT::renderDataTable({
+        output$viewSpecificConvergentEvolution <- DT::renderDataTable({
           cluster=strsplit(input$conv_evo," ")[[1]][2]
+          
           if (input$clonotypesDataset=="All Data"){
             my_table<-clono$convergent_evolution_list_allData[[cluster]]
-          }
-          else{
+          } else {
             my_table<-clono$convergent_evolution_list_datasets[[input$clonotypesDataset]][[cluster]]
           }
-          colnames(my_table)<-c('IMGT.gapped.nt.sequences.CDR3.IMGT','N: Convergent Evolution')
-          SpecificConvergentEvolution<<-my_table
+          
+          colnames(my_table) <- c('IMGT.gapped.nt.sequences.CDR3.IMGT','N: Convergent Evolution')
+          
+          SpecificConvergentEvolution <<- my_table
+          
           return(my_table)
-        }, escape = FALSE,options = list(scrollX = TRUE)
-        )
+          
+        }, escape = FALSE,options = list(scrollX = TRUE))
         
         output$downloadElementsOfClonotype <- downloadHandler(
-          filename = function(){
-            paste0("ElementsOfClonotype ",input$mydata,".txt")
-          } ,
+          filename = function(){paste0("ElementsOfClonotype ",input$mydata,".txt")},
           content = function(file) {
             write.table(specificClonotypes, file, sep = "\t", row.names = FALSE, col.names = TRUE)
-          })
+          }
+        )
         
         output$downloadConvergentEvolution <- downloadHandler(
-          filename = function(){
-            paste0("ConvergentEvolution ",input$conv_evo,".txt")
-          } ,
+          filename = function(){paste0("ConvergentEvolution ",input$conv_evo,".txt")} ,
           content = function(file) {
             write.table(SpecificConvergentEvolution, file, sep = "\t", row.names = FALSE, col.names = TRUE)
-          })
+          }
+        )
         
         ########### create frequency matrix for bar plots
-        
-        ########### 
         
         output$clonotypes_bar_plot <- renderPlot({
           if(is.null(input$VisualisationDataset)) return()
           
-          if (input$clonotypes_barplot_select_range==F){
+          if (input$clonotypes_barplot_select_range == F){
             #Find the clonotypes that we want to draw for all the datasets
             cl<-c()
             a<-list()
@@ -1467,7 +1453,7 @@ shinyServer(
               cl<-c(cl,a[[i]]$clonotype)
             }
             
-          }else{
+          } else {
             #Find the clonotypes that we want to draw for all the datasets
             range=input$clonotypes_barchart_down_threshold:input$clonotypes_barchart_up_threshold
             cl<-c()
@@ -1515,29 +1501,73 @@ shinyServer(
               bty = "n"
             )
           )
-        }) 
+        })
+
+        # if(input$shm_normal == TRUE){
+        #   output$shmNormalTable <- renderDataTable({
+        #     if(is.null(input$clonotypesDataset)) return()
+        #     if(input$clonotypesDataset == "All Data"){
+        #       my_table <- clono$SHM_normal[["All Data"]]
+        #     } else {
+        #       my_table <- clono$SHM_normal[[input$clonotypesDataset]]
+        #     }
+        #     
+        #     return(my_table)
+        #   }, escape = FALSE, options = list(autoWidth = TRUE))
+        #   
+        #   output$downloadShmNormal <- downloadHandler(
+        #     filename = function(){paste0("Clonotypes_SHM_normal_",input$select_clonotype,"_",input$clonotypesDataset,".txt")},
+        #     content = function(file) {
+        #       if (input$clonotypesDataset=="All Data"){
+        #         write.table(clono$SHM_normal[["All Data"]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+        #       } else {
+        #         write.table(clono$SHM_normal[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+        #       }
+        #     }
+        #   ) 
+        # }
         
+        if(input$diagnosis == TRUE){
+          output$diagnosisTable <- renderDataTable({
+            if(is.null(input$clonotypesDataset)) return()
+            if(input$clonotypesDataset == "All Data"){
+              return()
+            } else {
+              my_table <- clono$diagnosis[[input$clonotypesDataset]]
+            }
+            
+            return(my_table)
+          }, escape = FALSE, options = list(autoWidth = TRUE))
+          
+          output$downloadDiagnosis <- downloadHandler(
+            filename = function(){paste0("Diagnosis_",input$select_clonotype,"_",input$clonotypesDataset,".txt")},
+            content = function(file) {
+              if (input$clonotypesDataset=="All Data"){
+                write.table(clono$diagnosis[["All Data"]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+              } else {
+                write.table(clono$diagnosis[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+              }
+            }
+          ) 
+        }
         
         output$confirmClonotype <- renderUI({
           h5(msgClonotypes, style = "color: #CD0000;")
         })
         
-        #save(clono, file=paste0(output_folder,"/clono.rdata"))
-        
-        
-      }) #with busy indicator 
-      
+        # save(clono, file=paste0(output_folder,"/clono.rdata"))
+      }) 
     })
-    
-    ################################### Highly Similar Clonotypes #####################################  
+      
+    ############################### Highly Similar Clonotypes ###############################
     observeEvent(input$pipeline_highly_similar_clonotypes, {
-      if ((input$select_load_or_compute_clonotypes != 'load_clonotypes') & (just_restored_session_highly_similar_clonotypes==F)){
-        cdr3_lengths<<-sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
-        cdr3_lengths<<-as.numeric(cdr3_lengths) #+2
-        cdr3_lengths<<-sort(cdr3_lengths)
-      }else{
+      if((input$select_load_or_compute_clonotypes != 'load_clonotypes') & (just_restored_session_highly_similar_clonotypes == F)){
+        cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
+        cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
+        cdr3_lengths <<- sort(cdr3_lengths)
+      } else {
         load("rData files/cdr3_lengths.rData")
-        cdr3_lengths<<-cdr3_lengths
+        cdr3_lengths <<- cdr3_lengths
       }
 
       lapply(1:length(cdr3_lengths), function(i) {
@@ -1590,153 +1620,251 @@ shinyServer(
     })
     
     observeEvent(input$Execute_pipeline, {
+      if (input$pipeline_highly_similar_clonotypes == F) return()
       
-      if (input$pipeline_highly_similar_clonotypes==F) return()
-      
-      if (input$pipeline_clonotypes==F) {
-        validate(
-          #"Please ckeck Clonotypes first!"
-        )
-        showModal(modalDialog(
-          title = "Error Message Repertoires",
-          "Please ckeck Clonotypes first!",
-          easyClose = TRUE,
-          footer = NULL
-        ))
+      if (input$pipeline_clonotypes == F) {
+        validate()
+        showModal(modalDialog(title = "Error Message Highly Similar Clonotypes", "Please ckeck Clonotypes first!", easyClose = TRUE, footer = NULL))
         return()
       }
       
       # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
       withBusyIndicatorServer("Execute_pipeline", {
-        num_of_missmatches<-c()
-        if (input$select_highly_sim_num_of_missmatches == 'select_highly_sim_num_of_missmatches_number'){
+        num_of_missmatches <- c()
+        
+        if(input$select_highly_sim_num_of_missmatches == 'select_highly_sim_num_of_missmatches_number'){
           for (i in 1:length(cdr3_lengths)){
             num_of_missmatches=c(num_of_missmatches,input[[paste0("num_of_missmatches_cdr3_length_",i)]])
           }
-        }else{
-          for (i in 1:length(cdr3_lengths)){
+        } else {
+          for(i in 1:length(cdr3_lengths)){
             num_of_missmatches=c(num_of_missmatches,round(cdr3_lengths[i]*input[[paste0("num_of_mismatches_thr_cdr3_length_",i)]]/100,0))
           }
         }
         
-        if (just_restored_session_highly_similar_clonotypes==F)
-          highly_similar_clonotypes_results<<-highly_similar_clonotypes(clono$clono_allData,clono$clono_datasets,num_of_missmatches,input$take_gene_highly_similar,cdr3_lengths,gene_clonotypes,input$clonotype_freq_thr_for_highly_sim,loaded_datasets)
+        if(just_restored_session_highly_similar_clonotypes == F){
+          highly_similar_clonotypes_results <<- highly_similar_clonotypes(clono$clono_allData,
+                                                                          clono$clono_datasets,
+                                                                          num_of_missmatches,
+                                                                          input$take_gene_highly_similar,
+                                                                          cdr3_lengths,
+                                                                          gene_clonotypes,
+                                                                          input$clonotype_freq_thr_for_highly_sim,
+                                                                          loaded_datasets)
+        }
         
-        just_restored_session_highly_similar_clonotypes<<-F
+        just_restored_session_highly_similar_clonotypes <<- F
+        filtered_High_SHM_similarity = list()
+        msgHighlySim <<- highly_similar_clonotypes_results$confirm
         
-        msgHighlySim<<-highly_similar_clonotypes_results$confirm
         #highly_sim_view_specific_clonotypes,highly_sim_clonotypes
+        highly_sim_datasets <- list()
         
-        #highly_sim_datasets<-list()
         for (d in names(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets)){
-          temp<-do.call(rbind.data.frame, highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[d]])
-          temp$clonotype<-as.character(temp$clonotype)
-          row.names(temp)=NULL
-          temp=temp[,c("clonotype", "N", "Freq", "prev_cluster")]
-          temp=temp[order(-temp$N),]
-          row.names(temp)=1:nrow(temp)
-          highly_sim_datasets[[d]]<<-temp
-          temp$Gene=NA
-          temp$CDR3=NA
+          temp <- do.call(rbind.data.frame, highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[d]])
+          temp$clonotype <- as.character(temp$clonotype)
+          row.names(temp) = NULL
+          temp = temp[,c("clonotype", "N", "Freq", "prev_cluster")]
+          temp = temp[order(-temp$N),]
+          row.names(temp) = 1:nrow(temp)
+          highly_sim_datasets[[d]] <<- temp
+          temp$Gene = NA
+          temp$CDR3 = NA
           for (cl in 1:nrow(temp)){
             temp$Gene[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][1]
             temp$CDR3[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][2]
           }
-          temp=temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
+
+          temp = temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
+          
+          write.table(temp, "for_high_shm_testing.txt", sep = "\t", row.names = FALSE)
+
+          # if(input$high_shm_normal){
+          #   all_filter <- clono$filterin_highly_clono[which(clono$filterin_highly_clono$dataName == d), ]
+          #   all_filter$highly_cluster_id <- 0
+          #   all_filter$highly_freq_cluster_id <- 0
+          #   for (h in 1:nrow(temp)){
+          #     prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+          #     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
+          #     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
+          #   }
+          # 
+          #   filtered_High_SHM_similarity[[d]] = SHM_high_similarity(all_filter)
+          # }
+
           if (save_tables_individually){
             write.table(temp, paste0(output_folder,"/","highly_sim_all_clonotypes_",d,".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+
+            # save filter in + highly clono id
+            all_filter = read.csv(paste0(output_folder,"/","filterin_clono_",d,".txt"), sep = "\t", stringsAsFactors = F)
+            all_filter$highly_cluster_id = 0
+            all_filter$highly_freq_cluster_id = 0
+            
+            for (h in 1:nrow(temp)){
+              prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+              all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
+              all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
+            }
+            
+            write.table(all_filter, paste0(output_folder,"/","filterin_highly_clono_",d,".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+            
+            # if(input$high_shm_normal){
+            #   write.table(filtered_High_SHM_similarity[[d]], paste0("Clonotypes_high_SHM_similarity_",d,".txt"),
+            #               sep = "\t", row.names = FALSE, col.names = TRUE)
+            # }
           }
         }
         
-        highly_sim<<-do.call(rbind.data.frame, highly_similar_clonotypes_results$highly_sim_clonotypes)
-        highly_sim$clonotype<<-as.character(highly_sim$clonotype)
-        row.names(highly_sim)=NULL
-        highly_sim=highly_sim[,c("clonotype", "N", "Freq", "prev_cluster")]
-        highly_sim=highly_sim[order(-highly_sim$N),]
-        row.names(highly_sim)=1:nrow(highly_sim)
-        highly_sim<<-highly_sim
+        highly_sim <<- do.call(rbind.data.frame, highly_similar_clonotypes_results$highly_sim_clonotypes)
+        highly_sim$clonotype <<- as.character(highly_sim$clonotype)
+        row.names(highly_sim) = NULL
+        highly_sim = highly_sim[,c("clonotype", "N", "Freq", "prev_cluster")]
+        highly_sim = highly_sim[order(-highly_sim$N),]
+        row.names(highly_sim) = 1:nrow(highly_sim)
+        highly_sim <<- highly_sim
         
+        temp = highly_sim
+        temp$Gene = NA
+        temp$CDR3 = NA
+        
+        for(cl in 1:nrow(temp)){
+          temp$Gene[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][1]
+          temp$CDR3[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][2]
+        }
+        
+        temp = temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
+        
+        # if(input$high_shm_normal){
+        # 
+        #   all_filter <- clono$filterin_highly_clono
+        #   all_filter$highly_cluster_id <- 0
+        #   all_filter$highly_freq_cluster_id <- 0
+        #   for (h in 1:nrow(temp)){
+        #     prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+        #     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
+        #     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
+        #   }
+        # 
+        #   filtered_High_SHM_similarity[["All Data"]] = SHM_high_similarity(all_filter)
+        # 
+        #   output$highSHMsimilarity_table <- renderDataTable({
+        #     if(is.null(input$highlySimClonotypesDataset)) return()
+        #     if (input$highlySimClonotypesDataset == "All Data"){
+        #       my_table <- filtered_High_SHM_similarity[["All Data"]]
+        #     } else {
+        #       my_table <- filtered_High_SHM_similarity[[input$highlySimClonotypesDataset]]
+        #     }
+        # 
+        #     return(my_table)
+        #   }, escape = FALSE, options = list(autoWidth = TRUE))
+        # 
+        #   output$downloadHighSHMsimilarity <- downloadHandler(
+        #     filename = function(){paste0("Clonotypes_high_SHM_similarity_",input$highlySimClonotypesDataset,".txt")},
+        #     content = function(file) {
+        #       if (input$highlySimClonotypesDataset == "All Data") write.table(filtered_High_SHM_similarity[["All data"]], file,sep = "\t", row.names = FALSE, col.names = TRUE)
+        #       else write.table(filtered_High_SHM_similarity[[input$highlySimClonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+        #     }
+        #   )
+        # }
+
         if (save_tables_individually){
-          temp=highly_sim
-          temp$Gene=NA
-          temp$CDR3=NA
-          for (cl in 1:nrow(temp)){
-            temp$Gene[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][1]
-            temp$CDR3[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][2]
-          }
-          temp=temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
           write.table(temp, paste0(output_folder,"/","highly_sim_all_clonotypes_","All Data",".txt"),sep = "\t", row.names = FALSE, col.names = TRUE)
+
+          # save filter in + highly clono id
+          all_filter <- read.csv(paste0(output_folder,"/","filterin_clono_","All_Data",".txt"), sep = "\t", stringsAsFactors = F)
+          all_filter$highly_cluster_id <- 0
+          all_filter$highly_freq_cluster_id <- 0
+          
+          for (h in 1:nrow(temp)){
+            prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+            all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
+            all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
+          }
+          
+          write.table(all_filter, paste0(output_folder,"/","filterin_highly_clono_","All_Data",".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+          
+          # if(input$high_shm_normal){
+          #   write.table(filtered_High_SHM_similarity[["All Data"]], paste0("Clonotypes_high_SHM_similarity_All_Data.txt"),
+          #               sep = "\t", row.names = FALSE, col.names = TRUE)
+          # }
         }
         
         output$highlySimAllClonoTable <- renderDataTable({
           if(is.null(input$highlySimClonotypesDataset)) return()
-          if (input$highlySimClonotypesDataset=="All Data"){
+          if (input$highlySimClonotypesDataset == "All Data"){
             my_table <- highly_sim
-          }
-          else{
+          } else {
             my_table <- highly_sim_datasets[[input$highlySimClonotypesDataset]]
           }
+          
           return(my_table)
           
         }, escape = FALSE,options = list(
           autoWidth = FALSE,
-          columnDefs = list(list(width = '40%', targets = 1)) )
+          columnDefs = list(list(width = '40%', targets = 1)))
         )
         
         output$downloadHighlySimAllClonoTable <- downloadHandler(
           filename = function(){paste0("highly_sim_all_clonotypes_",input$highlySimClonotypesDataset,".txt")},
           content = function(file) {
-            if (input$highlySimClonotypesDataset=="All Data") write.table(highly_sim, file,sep = "\t", row.names = FALSE, col.names = TRUE)
-            else write.table(highly_sim_datasets[[input$highlySimClonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            if (input$highlySimClonotypesDataset=="All Data"){ 
+              write.table(highly_sim, file,sep = "\t", row.names = FALSE, col.names = TRUE)
+            } else {
+              write.table(highly_sim_datasets[[input$highlySimClonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            }
           }) 
         
         output$highlySimClonoTable <- renderDataTable({
           if(is.null(input$highlySimClonotypesDataset)) return()
-          if (input$highlySimClonotypesDataset=="All Data"){
+          
+          if (input$highlySimClonotypesDataset == "All Data"){
             my_table <- highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ",input$select_length_to_show_highlySimClono)]]
-          }
-          else{
+          } else {
             my_table <- highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]]
           }
+          
           return(my_table)
           
         }, escape = FALSE,options = list(
           autoWidth = FALSE,
-          columnDefs = list(list(width = '40%', targets = 1)) )
+          columnDefs = list(list(width = '40%', targets = 1)))
         )
         
         output$downloadAllhighlySimClonotypes <- downloadHandler(
           filename = function(){paste0("highly_sim_clonotypes",input$highlySimClonotypesDataset,"_",paste0("length ",input$select_length_to_show_highlySimClono),".txt")},
           content = function(file) {
-            if (input$highlySimClonotypesDataset=="All Data") write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
-            else write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            if (input$highlySimClonotypesDataset == "All Data") {
+              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            } else {
+              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            }
           }) 
         
         output$highlySimClono_allGroups_Table <- renderDataTable({
           if(is.null(input$highlySimClonotypesDataset)) return()
           if (input$highlySimClonotypesDataset=="All Data"){
-            my_table <- highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ",input$select_length_to_show_highlySimClono)]]
+            my_table = highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ",input$select_length_to_show_highlySimClono)]]
+          } else {
+            my_table = highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]]
           }
-          else{
-            my_table <- highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]]
-          }
+          
           return(my_table)
           
         }, escape = FALSE,options = list(
           autoWidth = FALSE,
-          columnDefs = list(list(width = '40%', targets = 1)) )
+          columnDefs = list(list(width = '40%', targets = 1)))
         )
         
         output$downloadAllhighlySimClonotypes_allGroups <- downloadHandler(
           filename = function(){paste0("highly_sim_clonotypes_allGroups",input$highlySimClonotypesDataset,"_",paste0("length ",input$select_length_to_show_highlySimClono),".txt")},
           content = function(file) {
-            if (input$highlySimClonotypesDataset=="All Data") write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
-            else write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            if (input$highlySimClonotypesDataset == "All Data") {
+              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            } else {
+              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[input$highlySimClonotypesDataset]][[paste0("length ",input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+            }
           }) 
         
-        ########### create frequency matrix for bar plots
-        
-        ########### 
         ############################################# Change Parameters !!!!!!!!!!!!!!!!!!!!!!!
         output$higly_sim_clonotypes_bar_plot <- renderPlot({
           if(is.null(input$VisualisationDataset)) return()
@@ -1753,7 +1881,7 @@ shinyServer(
               cl<-c(cl,a[[i]]$clonotype)
             }
             
-          }else{
+          } else {
             #Find the clonotypes that we want to draw for all the datasets
             range=input$higly_sim_clonotypes_barchart_down_threshold:input$higly_sim_clonotypes_barchart_up_threshold
             cl<-c()
@@ -1811,8 +1939,7 @@ shinyServer(
       })
     })
     
-    
-    ################################### Shared Clonotypes #####################################  
+    ############################### Shared Clonotypes ############################### 
     observeEvent(input$Execute_pipeline, {
       
       if (input$pipeline_public_clonotypes==F) return()
@@ -1867,7 +1994,7 @@ shinyServer(
       })
     })
     
-    ############################ Highly Similar Public Clonotypes ############################  
+    ############################### Highly Similar Public Clonotypes ###############################  
     observeEvent(input$Execute_pipeline, {
       
       if (input$pipeline_highly_sim_public_clonotypes==F) return()
@@ -1913,7 +2040,7 @@ shinyServer(
         
       })
     })
-    ########################################### Repertoires ###########################################   
+    ############################### Repertoires ###############################  
     #Add new element
     addRepertoryFct <- function(id,btn) {
       insertUI(
@@ -1944,7 +2071,7 @@ shinyServer(
       )
       insertedRepertoires <<- insertedRepertoires[-length(insertedRepertoires)]
     })
-    #################################################################################################### 
+    ############################### Repertoires ###############################
     observeEvent(input$Execute_pipeline, {
       if (input$pipeline_Repertoires==F) return()
       
@@ -2112,8 +2239,7 @@ shinyServer(
       return()
     })
     
-    
-    #################################### Repertoires Highly Similar ####################################   
+    ############################### Repertoires Highly Similar ###############################   
     observeEvent(input$Execute_pipeline, {
       if (input$pipeline_HighlySim_Repertoires==F) return()
       
@@ -2282,8 +2408,7 @@ shinyServer(
       return()
     })
     
-    
-    ######################################## Repertoires Comparison ###############################################
+    ############################### Repertoires Comparison ###############################
     observeEvent(input$Execute_pipeline, {
       
       if (input$pipeline_repertoires_comparison==F) return() 
@@ -2381,7 +2506,7 @@ shinyServer(
       })
     })
     
-    ########################################### Insert Identity Groups #################################
+    ############################### Insert Identity Groups ###############################
     observeEvent(input$pipeline_insert_identity_groups, {
       lapply(1:input$N_identity_groups, function(i) {
         output[[paste0("idenity_group_ui_", i)]] <- renderUI({
@@ -2416,7 +2541,7 @@ shinyServer(
       
     })
     
-    ########################################### Multiple value comparison ##################################################
+    ############################### Multiple value comparison ###############################
     #insert Multiple_value_comparison
     addMultipleValues <- function(id, btn, columns_for_Multiple_value_comparison,default_val1 = NULL,default_val2 = NULL) {
       insertUI(
@@ -2480,7 +2605,7 @@ shinyServer(
       insertedMultiple_value_comparison <<- insertedMultiple_value_comparison[-length(insertedMultiple_value_comparison)]
     })
     
-    #################################################################################################### 
+    ############################### Multiple value comparison ###############################
     Multiple_value_comparison_input_values<<-c()
     
     observeEvent(input$Execute_pipeline, {
@@ -2508,16 +2633,18 @@ shinyServer(
         #display inputs on pipeline tab
         
         #identity groups
-        low=c()
-        high=c()
+        low = c()
+        high = c()
+        
         for (i in 1:input$N_identity_groups){
           low=c(low,input[[paste0("Identity_low_group",i)]])
           high=c(high,input[[paste0("Identity_high_group",i)]])
         }
+        
         label=paste(low,high,sep="-")
         identity_groups<<-(data.frame(low=low,high=high,label=label,stringsAsFactors = F))
         
-        #Multiple_value_comparison_result<-list()
+        # Multiple_value_comparison_result<-list()
         
         for (i in 1:length(insertedMultiple_value_comparison)){
           
@@ -2545,12 +2672,11 @@ shinyServer(
           }
           
           msgMultiple_value_comparison[i]<<-Multiple_value_comparison_result[[i]]$confirm
-          
         }
         
         just_restored_session_Multiple_value_comparison<<-F
         
-        #Multiple_value_comparison tab
+        # Multiple_value_comparison tab
         output$uiMultiple_value_comparisonTables <- renderUI({
           lapply(1:length(insertedMultiple_value_comparison), function(i) {
             mainPanel(
@@ -2634,15 +2760,10 @@ shinyServer(
           save(Multiple_value_comparison_result, file=paste0(output_folder,"/Multiple_value_comparison_result.rdata"))
         
       })
-      
-      
       return()
-      
     })
     
-    ########################################### Freq Tables ############################################    
-    
-    ########################################### Logo plots #############################################
+    ############################### Logo plots ###############################
     observeEvent(input$Execute_pipeline_2nd_part, {
       if (input$pipeline_logo==F) return()
       #if (msgFreqTables=="") return()
@@ -3285,62 +3406,155 @@ shinyServer(
     })
     
     
-    ########################################### Alignment ##############################################    
+    ############################### Alignment ###############################    
     observeEvent(input$Execute_pipeline_2nd_part, {
-      if (input$pipeline_alignment==F) return()
+      if (input$pipeline_alignment == F) return()
       
       # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
       withBusyIndicatorServer("Execute_pipeline_2nd_part", {
         
-        if (input$useGermline=="Insert Germline" && input$Germline=="") return()
+        if (input$useGermline == "Insert Germline" && input$Germline == "") return()
         
-        if (input$useGermline=="Insert Germline") only_one_germline=T else only_one_germline=F
+        if (input$useGermline == "Insert Germline") only_one_germline = T else only_one_germline = F
         
-        if (input$useGermline=="Use Gene's germline") use_genes_germline=T else use_genes_germline=F
+        if (input$useGermline == "Use Gene's germline") use_genes_germline = T else use_genes_germline = F
         
-        if (input$select_topN_clonotypes_for_alignment!="all_clonotypes"){
-          if (input$select_topN_clonotypes_for_alignment=="topN_clonotypes_for_alignment"){
-            FtopN=T
-            Fthr=F
-          } 
-          else {
-            FtopN=F
-            Fthr=T
+        if (input$select_topN_clonotypes_for_alignment != "all_clonotypes"){
+          
+          if (input$select_topN_clonotypes_for_alignment == "topN_clonotypes_for_alignment"){
+            FtopN = T
+            Fthr = F
+          } else {
+            FtopN = F
+            Fthr = T
           }
           
-          if (input$pipeline_clonotypes==F) {
+          if (input$pipeline_clonotypes == F) {
+            
             validate(
               #"Please ckeck Clonotypes first!"
             )
+            
             showModal(modalDialog(
               title = "Error Message Repertoires",
               "Please ckeck Clonotypes first!",
               easyClose = TRUE,
               footer = NULL
             ))
+            
             return()
           }
-        }else {
-          FtopN=F
-          Fthr=F
+          
+        } else {
+          
+          FtopN = F
+          Fthr = F
+          
         }
         
-        if (just_restored_session_alignment==F){ 
+        if (just_restored_session_alignment == F){ 
           #if (input$regionAlignment=="V.D.J.REGION" || input$regionAlignment=="V.J.REGION"){
-          if (length(highly_sim)==0){
-            if (input$AAorNtAlignment=="both"){
-              alignmentRegion_results<<-alignment(imgtfilter_results$allData,input$regionAlignment,input$Germline,loaded_datasets,only_one_germline,use_genes_germline,input$cell=="T cell","aa",clono$clono_allData,clono$clono_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$topNClonoAlignment,FtopN,input$thrClonoAlignment,Fthr,F)
-              alignmentRegion_results_nt<<-alignment(imgtfilter_results$allData,input$regionAlignment,input$Germline,loaded_datasets,only_one_germline,use_genes_germline,input$cell=="T cell","nt",clono$clono_allData,clono$clono_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$topNClonoAlignment,FtopN,input$thrClonoAlignment,Fthr,F)
-            }else{
-              alignmentRegion_results<<-alignment(imgtfilter_results$allData,input$regionAlignment,input$Germline,loaded_datasets,only_one_germline,use_genes_germline,input$cell=="T cell",input$AAorNtAlignment,clono$clono_allData,clono$clono_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$topNClonoAlignment,FtopN,input$thrClonoAlignment,Fthr,F)
+          if (length(highly_sim) == 0){
+            
+            if (input$AAorNtAlignment == "both"){
+              
+              print("V1")
+              alignmentRegion_results <<- alignment(imgtfilter_results$allData,
+                                                    input$regionAlignment,
+                                                    input$Germline,
+                                                    loaded_datasets,
+                                                    only_one_germline,
+                                                    use_genes_germline,
+                                                    input$cell == "T cell", "aa",
+                                                    clono$clono_allData,
+                                                    clono$clono_datasets,
+                                                    clono$view_specific_clonotype_allData,
+                                                    clono$view_specific_clonotype_datasets,
+                                                    input$topNClonoAlignment,
+                                                    FtopN, input$thrClonoAlignment, Fthr, F)
+              
+              print("V2")
+              alignmentRegion_results_nt <<- alignment(imgtfilter_results$allData,
+                                                       input$regionAlignment,
+                                                       input$Germline,
+                                                       loaded_datasets,
+                                                       only_one_germline,
+                                                       use_genes_germline,
+                                                       input$cell == "T cell", "nt",
+                                                       clono$clono_allData,
+                                                       clono$clono_datasets,
+                                                       clono$view_specific_clonotype_allData,
+                                                       clono$view_specific_clonotype_datasets,
+                                                       input$topNClonoAlignment, 
+                                                       FtopN, input$thrClonoAlignment, Fthr, F)
+              
+            } else {
+              
+              alignmentRegion_results <<- alignment(imgtfilter_results$allData,
+                                                    input$regionAlignment,
+                                                    input$Germline,
+                                                    loaded_datasets,
+                                                    only_one_germline,
+                                                    use_genes_germline,
+                                                    input$cell == "T cell",
+                                                    input$AAorNtAlignment,
+                                                    clono$clono_allData,
+                                                    clono$clono_datasets,
+                                                    clono$view_specific_clonotype_allData,
+                                                    clono$view_specific_clonotype_datasets,
+                                                    input$topNClonoAlignment,
+                                                    FtopN, input$thrClonoAlignment, Fthr, F)
+              
             }
-          }else{
-            if (input$AAorNtAlignment=="both"){
-              alignmentRegion_results<<-alignment(imgtfilter_results$allData,input$regionAlignment,input$Germline,loaded_datasets,only_one_germline,use_genes_germline,input$cell=="T cell","aa",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$topNClonoAlignment,FtopN,input$thrClonoAlignment,Fthr,T)
-              alignmentRegion_results_nt<<-alignment(imgtfilter_results$allData,input$regionAlignment,input$Germline,loaded_datasets,only_one_germline,use_genes_germline,input$cell=="T cell","nt",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$topNClonoAlignment,FtopN,input$thrClonoAlignment,Fthr.T)
-            }else{
-              alignmentRegion_results<<-alignment(imgtfilter_results$allData,input$regionAlignment,input$Germline,loaded_datasets,only_one_germline,use_genes_germline,input$cell=="T cell",input$AAorNtAlignment,highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$topNClonoAlignment,FtopN,input$thrClonoAlignment,Fthr,T)
+            
+          } else {
+            
+            if (input$AAorNtAlignment == "both"){
+              print("V3")
+              alignmentRegion_results <<- alignment(imgtfilter_results$allData,
+                                                    input$regionAlignment,
+                                                    input$Germline,
+                                                    loaded_datasets,
+                                                    only_one_germline,
+                                                    use_genes_germline,
+                                                    input$cell == "T cell", "aa", 
+                                                    highly_sim,
+                                                    highly_sim_datasets,
+                                                    clono$view_specific_clonotype_allData,
+                                                    clono$view_specific_clonotype_datasets,
+                                                    input$topNClonoAlignment,
+                                                    FtopN, input$thrClonoAlignment, Fthr, T)
+              
+              print("V4")
+              alignmentRegion_results_nt <<- alignment(imgtfilter_results$allData,
+                                                       input$regionAlignment,
+                                                       input$Germline,
+                                                       loaded_datasets,
+                                                       only_one_germline,
+                                                       use_genes_germline,
+                                                       input$cell == "T cell", "nt",
+                                                       highly_sim,highly_sim_datasets,
+                                                       clono$view_specific_clonotype_allData,
+                                                       clono$view_specific_clonotype_datasets,
+                                                       input$topNClonoAlignment,
+                                                       FtopN, input$thrClonoAlignment, Fthr, T)
+            } else {
+              
+              alignmentRegion_results <<- alignment(imgtfilter_results$allData,
+                                                    input$regionAlignment,
+                                                    input$Germline,
+                                                    loaded_datasets,
+                                                    only_one_germline,
+                                                    use_genes_germline,
+                                                    input$cell == "T cell", input$AAorNtAlignment,
+                                                    highly_sim,highly_sim_datasets,
+                                                    clono$view_specific_clonotype_allData,
+                                                    clono$view_specific_clonotype_datasets,
+                                                    input$topNClonoAlignment,
+                                                    FtopN, input$thrClonoAlignment, Fthr, T)
+            
             }
+            
           }
         }
         
@@ -3464,7 +3678,7 @@ shinyServer(
       })
     })
     
-    ########################################### Mutations ##############################################    
+    ############################### Mutations ###############################    
     observeEvent(input$Execute_pipeline_2nd_part, { 
       if (input$pipeline_mutations==F) return()
       
@@ -3743,13 +3957,13 @@ shinyServer(
       })
     })
     
-    ########################################### Length distance ########################################
+    ############################### Length distance ###############################
     output$uiSelectGene1Diff <- renderUI({
       if (input$pipeline_CDR3Diff1==F || length(imgtfilter_results$allData)==0) return()
       selectInput("selectGeneCDR3Diff1", "Select gene:",unique(imgtfilter_results$allData[[used_columns[["Summary"]][3]]]) , width="270px")
     })
     
-    ########################################### CDR3 1 length diff #####################################
+    ############################### CDR3 1 length diff ###############################
     observeEvent(input$Execute_pipeline_2nd_part, {
       if (input$pipeline_CDR3Diff1==F) return()
       
@@ -3789,7 +4003,7 @@ shinyServer(
       })
     })
     
-    ########################################### Overview  ############################################## ###########################################       
+    ############################### Overview ###############################       
     output$overview_data <- renderTable({
       if(!input$Execute) return()
       my_table=as.data.frame(c(paste0("Dataset uploaded: ",loaded_datasets),paste0("Selected files: ",input$inputFiles),paste0("Cell: ",input$cell)))
@@ -4114,7 +4328,7 @@ shinyServer(
         dev.off()
       }) 
     
-    ########################################### Download all png files into a .tar ################################# 
+    ############################### Download all png files into a .tar ############################### 
     output$downloadAllPlots <- downloadHandler(
       filename <- function() {
         paste("Analysis Plots ",Sys.time(), '.tar', sep='')}, #name the .tar file
@@ -4613,7 +4827,7 @@ shinyServer(
         tar(file,in.path)
       })
     
-    ########################################### Visualisation  ######################################### ###########################################    
+    ############################### Visualisation ###############################    
     observeEvent(input$Execute_pipeline, {
       output$nucleotides_per_clonotype_ui <- renderUI({
         checkboxGroupInput(inputId = "nucleotides_per_clonotype_Datasets", label = "Select Datasets", inline=TRUE, choices = loaded_datasets, selected = loaded_datasets)
@@ -4677,7 +4891,7 @@ shinyServer(
           #mutational_status_table_datasets<<-list()
           for (j in 1:(length(loaded_datasets)+1)){
             if (j==(length(loaded_datasets)+1)){
-              mut=filteredData_id %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+              mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
               freq=mut$N/nrow(filteredData_id)
               mutational_status_table_allData<<-data.frame(mut,freq)
             }else{
@@ -4704,7 +4918,7 @@ shinyServer(
                 }
                 data=temp
               }
-              mut=data %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+              mut=data %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
               freq=mut$N/nrow(data)
               mutational_status_table_datasets[[loaded_datasets[j]]]<<-data.frame(mut,freq)
             }
@@ -4753,7 +4967,7 @@ shinyServer(
           #mutational_status_table_datasets<<-list()
           for (j in 1:(length(loaded_datasets)+1)){
             if (j==(length(loaded_datasets)+1)){
-              mut=filteredData_id %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+              mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
               freq=mut$N/nrow(filteredData_id)
               mutational_status_table_allData<<-data.frame(mut,freq)
             }else{
@@ -4787,7 +5001,7 @@ shinyServer(
                 }
                 data=temp
               }
-              mut=data %>% group_by(Summary.V.REGION.identity..) %>% summarise(N=n())
+              mut=data %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
               freq=mut$N/nrow(data)
               mutational_status_table_datasets[[loaded_datasets[j]]]<<-data.frame(mut,freq)
             }
@@ -4931,7 +5145,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(clono$clono_allData)
                 colnames(d)=c("CDR3Length","n","Freq")
                 d$CDR3Length=as.numeric(d$CDR3Length)
@@ -4943,7 +5157,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
                 colnames(d)=c("CDR3Length","n","Freq")
                 d$CDR3Length=as.numeric(d$CDR3Length)
@@ -4965,7 +5179,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(highly_sim)
                 colnames(d)=c("CDR3Length","n","Freq")
                 d$CDR3Length=as.numeric(d$CDR3Length)
@@ -4984,7 +5198,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
                 colnames(d)=c("CDR3Length","n","Freq")
                 d$CDR3Length=as.numeric(d$CDR3Length)
@@ -5118,7 +5332,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(clono$clono_allData)
                 colnames(d)=c("Pi","n","Freq")
                 d$Pi=as.numeric(d$Pi)
@@ -5130,7 +5344,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
                 colnames(d)=c("Pi","n","Freq")
                 d$Pi=as.numeric(d$Pi)
@@ -5152,7 +5366,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(highly_sim)
                 colnames(d)=c("Pi","n","Freq")
                 d$Pi=as.numeric(d$Pi)
@@ -5171,7 +5385,7 @@ shinyServer(
                 }
                 d=as.data.frame(d,stringsAsFactors=F)
                 colnames(d)=var
-                d = d %>% group_by((d[[var]])) %>% summarise(n=n())
+                d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
                 d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
                 colnames(d)=c("Pi","n","Freq")
                 d$Pi=as.numeric(d$Pi)
@@ -5210,7 +5424,7 @@ shinyServer(
     })
     
     
-    ########################################### Download all tables into a .tar ################################# 
+    ############################### Download all tables into a .tar ###############################
     output$downloadAllTables <- downloadHandler(
       filename <- function() {
         paste("Analysis Tables ",Sys.time(), '.tar', sep='')
@@ -5551,6 +5765,9 @@ shinyServer(
     
     # }}) #login
     
+    
+    
+    
+    
   }
 )
-

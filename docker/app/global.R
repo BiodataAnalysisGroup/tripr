@@ -1,17 +1,57 @@
+# shiny::runApp(port=3168)
+
+# install.packages(c("shinyFiles", "shinyjs", "shinyBS", "DT","plyr","dplyr","pryr","data.table","stringr","tidyr","xtable","plot3D","gridExtra","stringdist","plotly"))
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("Biostrings")
+# source("https://bioconductor.org/biocLite.R") 
+# biocLite("motifStack")
+
+# library(motifStack)  
+library(shiny)
+library(shinyjs)
+library(shinycssloaders)
+library(shinyFiles)
+library(shinyBS)
+
+library(plyr)
+library(tidyverse)
+library(data.table)  
+
+library(DT)
+
+# library(stringr)
+
+library(Biostrings)
+library(stringdist)
+
+library(xtable)
+library(plot3D)
+library(gridExtra)
+library(RColorBrewer)
+library(plotly)
+
+library(parallel)
+library(rlist)
+
 enableBookmarking(store = "server")
 
-tmp_path<-"log_files"
+tmp_path<-getwd() #change it to "/tmp" for server
+
+num_of_cores <- detectCores(all.tests = FALSE, logical = TRUE) #change this to the custom number of threads
 
 #logfile
-logFile = paste0(tmp_path,"/log_file ",trunc(as.numeric(Sys.time())),".txt")
+if(!file.exists(paste0(tmp_path,"/log_files"))){ 
+  dir.create(paste0(tmp_path,"/log_files"))
+}
+logFile = paste0(tmp_path,"/log_files/log_file ",trunc(as.numeric(Sys.time())),".txt")
 cat(paste0("Function","\t","Parameters","\t","Num of input rows","\t","Num of input columns","\t","Start time","\t","End time","\t","Memory used"), file=logFile, append=FALSE, sep = "\n")
 
-use_only_useful_columns=T
+use_only_useful_columns = T
+save_lists_for_bookmark = F
+save_tables_individually_filter_in = F
+save_tables_individually = F
 
-save_lists_for_bookmark=F   
-
-save_tables_individually=F
-if (save_tables_individually || save_lists_for_bookmark){
+if (save_tables_individually | save_lists_for_bookmark){
   #output folder 
   output_folder=paste0(getwd(),"/output_tables ",trunc(as.numeric(Sys.time())))
   if(!file.exists(paste0(output_folder))){ 
