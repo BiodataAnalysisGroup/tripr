@@ -1,0 +1,10 @@
+# ignore logs
+log*/
+
+# ignore data
+data*/
+Analysis*/
+output_tables*/
+
+# ignore .Rhistory
+*.Rhistory
