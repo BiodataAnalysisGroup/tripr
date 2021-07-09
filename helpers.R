@@ -1521,6 +1521,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       distinctVGenes_CDR3 = allData %>%
                             dplyr::group_by(Genes = allData[[gene]], CDR3 = allData[[junction]]) %>%
                             dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
+      
+      distinctVGenes_CDR3 = as.data.frame(distinctVGenes_CDR3)
 
       # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
       
@@ -1564,6 +1566,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       distinctVGenes_CDR3 = allData %>%
                             dplyr::group_by(clonotype = allData[[junction]]) %>%
                             dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
+
+      distinctVGenes_CDR3 = as.data.frame(distinctVGenes_CDR3)
 
       # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
 
@@ -1695,6 +1699,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
                             dplyr::group_by(Genes = data[[gene]], 
                                             CDR3 = data[[junction]]) %>% 
                             dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
+
+      distinctVGenes_CDR3 = as.data.frame(distinctVGenes_CDR3)
       
       # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
       
@@ -1746,6 +1752,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       distinctVGenes_CDR3 = data %>% 
                             dplyr::group_by(clonotype=data[[junction]]) %>% 
                             dplyr::count(sort = TRUE) # dplyr::summarise(n=n())
+
+      distinctVGenes_CDR3 = as.data.frame(distinctVGenes_CDR3)
       
       # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
       
@@ -1824,7 +1832,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
                             clono_datasets[[name[j]]][,c('N','Freq','Convergent Evolution')])
         
         colnames(clono_write) = c('clonotype', 'CDR3', 'N', 'Freq', 'Convergent Evolution')
-        
       }
       
       #' Printing clonotypes file
@@ -1906,9 +1913,9 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
     print("C7")
     
     a = mclapply(1:length(name), one_run, mc.cores = detectCores(all.tests = FALSE, logical = TRUE), mc.preschedule = TRUE)
-    
+    # a = lapply(1:length(name), one_run) ## for debugging use lapply
+
     for(i in 1:length(name)){
-      
       view_specific_clonotype_datasets[[name[i]]] = a[[i]]$view_specific_clonotype_datasets
       clono_datasets[[name[i]]] = a[[i]]$clono_datasets
       # SHM_normal[[name[i]]] = a[[i]]$SHM_normal
@@ -1916,8 +1923,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       convergent_evolution_list_datasets_only_num[[name[i]]] = a[[i]]$convergent_evolution_list_datasets_only_num
       diagnosis[[name[i]]] = a[[i]]$Diagnosis
     }
-    
-  }
+}
   
   if(length(name) == 1){
     clono_allData = clono_datasets[[name[1]]]

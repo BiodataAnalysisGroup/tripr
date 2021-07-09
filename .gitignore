@@ -8,3 +8,6 @@ output_tables*/
 
 # ignore .Rhistory
 *.Rhistory
+
+# Not important scripts
+starting_Rstudio.R
