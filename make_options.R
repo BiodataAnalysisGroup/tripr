@@ -15,7 +15,7 @@ option_list <- list(
   make_option(
     opt_str=c("-a","--datapath"),
     action="store",
-    default="Datasets/nikolas/Tcell_sample/",
+    default="data/Tcell_short",
     help=paste0("The directory where the folders of the patients' data are located.")
   ),
   
@@ -137,7 +137,7 @@ option_list <- list(
   make_option(
     opt_str=c("-n","--pipeline"),
     action="store",
-    default="1,12",
+    default="1",
     help=paste0(
       "Pipeline options:\n",
       "1. Clonotypes Computation \n",
@@ -326,7 +326,6 @@ run_TRIP(datapath = opt$datapath,
          dgenes = opt$dgenes, 
          jgenes = opt$jgenes, 
          cdr3_length_range = opt$cdr3_length_range, 
-         aminoacid = opt$aminoacid,
          pipeline = opt$pipeline, 
          select_clonotype = opt$select_clonotype, 
          highly_sim_params = opt$highly_sim_params, 
