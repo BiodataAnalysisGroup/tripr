@@ -1,0 +1,12 @@
+body, 
+#selector, 
+.container, 
+.navbar-inner {
+    background-color: #cfcfcf !important;
+} 
+
+.navbar-static-top {
+  position: static;
+  margin-bottom: 0px;
+  background-color: #cfcfcf !important;
+}

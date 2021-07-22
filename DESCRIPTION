@@ -1,0 +1,65 @@
+Package: tripr
+Type: Package
+Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
+Version: 0.99.0
+Authors@R: c(
+        person("Maria", "Kotouza", email = "-", role = "aut"),
+        person("Iason", "Ofeidis", email = "jasonof75@gmail.com", role = "cre"),
+        person("Fotis E.", "Psomopoulos", email = "fpsom@certh.gr", role = "ctb")
+            )
+Description: TRIP is a software framework that provides analytics services on 
+    antigen receptor (B cell receptor immunoglobulin, BcR IG | T cell receptor, 
+    TR) gene sequence data. It is a web application written in R Shiny. It takes
+    as input the output files of the IMGT/HighV-Quest tool. Users can select to 
+    analyze the data from each of the input samples separately, or the combined 
+    data files from all samples and visualize the results accordingly.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    shinyjs,
+    shinyFiles,
+    shinyBS,
+    plyr,
+    data.table,
+    DT,
+    stringr,
+    stringdist,
+    plot3D, 
+    gridExtra,  
+    RColorBrewer,  
+    plotly,
+    dplyr,
+    pryr,
+    config (>= 0.3.1),
+    golem (>= 0.3.1),
+    shiny (>= 1.6.0), 
+    methods,
+    grDevices,
+    graphics,
+    stats,
+    utils
+Enhances: 
+    parallel
+Suggests:
+    BiocGenerics,
+    shinycssloaders,
+    motifStack,
+    tidyverse,
+    BiocManager,
+    Biostrings,
+    xtable,
+    rlist
+Collate:
+    "tripr-package.R"
+    "global.R"
+    "helpers.R"
+    "run_TRIP_without_ui.R"
+    "app_config.R"
+    "app_server.R"
+    "app_ui.R"
+    "run_app.R"
+URL: https://github.com/BiodataAnalysisGroup/TRIP
+BugReports: https://github.com/BiodataAnalysisGroup/TRIP/issues
+BiocType: Software
+RoxygenNote: 7.1.1
