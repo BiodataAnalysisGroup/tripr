@@ -12,10 +12,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   if(cell == "Bcell"){
     cell_id <- 2
-    Tcell <- F
+    Tcell <- FALSE
   } else {
     cell_id <- 1
-    Tcell <- T
+    Tcell <- TRUE
   }
   
   throughput <- "High Throughput"
@@ -93,146 +93,146 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   ########### Pipeline ###############
   pipeline <- as.numeric(strsplit(pipeline, ",")[[1]])
-  pipeline_clonotypes <- F
-  pipeline_highly_similar_clonotypes <- F
-  pipeline_public_clonotypes <- F
-  pipeline_highly_sim_public_clonotypes <- F
-  pipeline_Repertoires <- F
-  pipeline_HighlySim_Repertoires <- F
-  pipeline_repertoires_comparison <- F
-  pipeline_insert_identity_groups <- F
-  pipeline_mutational_status <- F
-  pipeline_cdr3_distribution <- F
-  pipeline_pi_distribution <- F
-  pipeline_Multiple_value_comparison <- F
-  pipeline_CDR3Diff1 <- F
-  pipeline_alignment <- F
-  pipeline_mutations <- F
-  pipeline_logo <- F
-  pipeline_SHM_normal <- F
-  pipeline_SHM_High_similarity <- F
-  pipeline_diagnosis <- F
+  pipeline_clonotypes <- FALSE
+  pipeline_highly_similar_clonotypes <- FALSE
+  pipeline_public_clonotypes <- FALSE
+  pipeline_highly_sim_public_clonotypes <- FALSE
+  pipeline_Repertoires <- FALSE
+  pipeline_HighlySim_Repertoires <- FALSE
+  pipeline_repertoires_comparison <- FALSE
+  pipeline_insert_identity_groups <- FALSE
+  pipeline_mutational_status <- FALSE
+  pipeline_cdr3_distribution <- FALSE
+  pipeline_pi_distribution <- FALSE
+  pipeline_Multiple_value_comparison <- FALSE
+  pipeline_CDR3Diff1 <- FALSE
+  pipeline_alignment <- FALSE
+  pipeline_mutations <- FALSE
+  pipeline_logo <- FALSE
+  pipeline_SHM_normal <- FALSE
+  pipeline_SHM_High_similarity <- FALSE
+  pipeline_diagnosis <- FALSE
   
   if (1 %in% pipeline){
-    pipeline_clonotypes <- T
+    pipeline_clonotypes <- TRUE
   }
   
   if (2 %in% pipeline){
-    pipeline_highly_similar_clonotypes <- T
+    pipeline_highly_similar_clonotypes <- TRUE
   }
   
   if (3 %in% pipeline){
-    pipeline_public_clonotypes <- T
+    pipeline_public_clonotypes <- TRUE
   }
   
   if (4 %in% pipeline){
-    pipeline_highly_sim_public_clonotypes <- T
+    pipeline_highly_sim_public_clonotypes <- TRUE
   }
   
   if (5 %in% pipeline){
-    pipeline_Repertoires <- T
+    pipeline_Repertoires <- TRUE
   }
   
   if (6 %in% pipeline){
-    pipeline_repertoires_comparison <- T
+    pipeline_repertoires_comparison <- TRUE
   }
   
   if (7 %in% pipeline){
-    pipeline_HighlySim_Repertoires <- T
+    pipeline_HighlySim_Repertoires <- TRUE
   }
   
   if (8 %in% pipeline){
-    pipeline_insert_identity_groups <- T
+    pipeline_insert_identity_groups <- TRUE
   }
   
   if (9 %in% pipeline){
-    pipeline_mutational_status <- T
+    pipeline_mutational_status <- TRUE
   }
   
   if (10 %in% pipeline){
-    pipeline_cdr3_distribution <- T
+    pipeline_cdr3_distribution <- TRUE
   }
   
   if (11 %in% pipeline){
-    pipeline_pi_distribution <- T
+    pipeline_pi_distribution <- TRUE
   }
   
   if (12 %in% pipeline){
-    pipeline_Multiple_value_comparison <- T
+    pipeline_Multiple_value_comparison <- TRUE
   }
   
   if (13 %in% pipeline){
-    pipeline_CDR3Diff1 <- T
+    pipeline_CDR3Diff1 <- TRUE
   }
   
   if (14 %in% pipeline){
-    pipeline_alignment <- T
+    pipeline_alignment <- TRUE
   }
   
   if (15 %in% pipeline){
-    pipeline_mutations <- T
+    pipeline_mutations <- TRUE
   }
   
   if (16 %in% pipeline){
-    pipeline_logo <- T
+    pipeline_logo <- TRUE
   }
   
   if(17 %in% pipeline){
-    pipeline_SHM_normal <- T
+    pipeline_SHM_normal <- TRUE
   }
   
   if(18 %in% pipeline){
-    pipeline_SHM_High_similarity <- T
+    pipeline_SHM_High_similarity <- TRUE
   }
   
   if(19 %in% pipeline){
-    pipeline_diagnosis <- T
+    pipeline_diagnosis <- TRUE
   }
   
   ############ Clonotypes ###############
   if (pipeline_clonotypes){
     if (select_clonotype=="V Gene + CDR3 Amino Acids"){
-      allele=F
+      allele=FALSE
       gene=used_columns[["Summary"]][3]
       junction=used_columns[["Summary"]][18]
     }else if (select_clonotype=="V Gene and Allele + CDR3 Amino Acids"){
-      allele=T
+      allele=TRUE
       gene=used_columns[["Summary"]][3]
       junction=used_columns[["Summary"]][18]
     }else if (select_clonotype=="V Gene + CDR3 Nucleotide"){
-      allele=F
+      allele=FALSE
       gene=used_columns[["Summary"]][3]
       junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
     }else if (select_clonotype=="V Gene and Allele + CDR3 Nucleotide"){
-      allele=T
+      allele=TRUE
       gene=used_columns[["Summary"]][3]
       junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
     }else if (select_clonotype=="J Gene + CDR3 Amino Acids"){
-      allele=F
+      allele=FALSE
       gene=used_columns[["Summary"]][8]
       junction=used_columns[["Summary"]][18]
     }else if (select_clonotype=="J Gene and Allele + CDR3 Amino Acids"){
-      allele=T
+      allele=TRUE
       gene=used_columns[["Summary"]][3]
       junction=used_columns[["Summary"]][18]
     }else if (select_clonotype=="J Gene + CDR3 Nucleotide"){
-      allele=F
+      allele=FALSE
       gene=used_columns[["Summary"]][8]
       junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
     }else if (select_clonotype=="J Gene and Allele + CDR3 Nucleotide"){
-      allele=T
+      allele=TRUE
       gene=used_columns[["Summary"]][8]
       junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
     }else if (select_clonotype=="CDR3 Amino Acids"){
-      allele=F
+      allele=FALSE
       junction=used_columns[["Summary"]][18]
       gene=c()
     }else if(select_clonotype == "Sequence"){
-      allele=F
+      allele=FALSE
       junction = used_columns[["Summary"]][20]
       gene = c()
     }else{
-      allele=F
+      allele=FALSE
       junction=used_columns[["IMGT.gapped.nt.sequences"]][9]
       gene=c()
     }
@@ -248,7 +248,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   if (pipeline_highly_similar_clonotypes){
     highly_sim_params <- strsplit(highly_sim_params, ",")[[1]]
-    missmatches_user <- strsplit(strsplit(highly_sim_params[1], " ")[[1]],"-", fixed = T)
+    missmatches_user <- strsplit(strsplit(highly_sim_params[1], " ")[[1]],"-", fixed = TRUE)
     missmatches_user2 <- as.data.frame(matrix(0, nrow = length(missmatches_user), ncol = 2))
     
     for (i in 1:length(missmatches_user)){
@@ -373,14 +373,14 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     take_gene_public_clono <- strsplit(shared_clonotypes_params, ",")[[1]][3]
     
     if (select_topN_or_reads_thr_shared_clono=="select_reads_thr_shared_clono"){
-      use_reads <- T
+      use_reads <- TRUE
       threshlod <- strsplit(shared_clonotypes_params, ",")[[1]][2]
     }else{
-      use_reads <- F
+      use_reads <- FALSE
       threshlod <- strsplit(shared_clonotypes_params, ",")[[1]][2]
     }
     
-    public_clonotypes_results <- public_clonotypes(clono$clono_allData,clono$clono_datasets,take_gene_public_clono,use_reads,threshlod,loaded_datasets,F)
+    public_clonotypes_results <- public_clonotypes(clono$clono_allData,clono$clono_datasets,take_gene_public_clono,use_reads,threshlod,loaded_datasets,FALSE)
     
   }
   
@@ -392,14 +392,14 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     take_gene_highly_sim_public_clono <- strsplit(highly_shared_clonotypes_params, ",")[[1]][3]
     
     if (select_topN_or_reads_thr_shared_clono=="select_reads_thr_shared_clono"){
-      use_reads <- T
+      use_reads <- TRUE
       thr_highly_sim_public_clono <- strsplit(highly_shared_clonotypes_params, ",")[[1]][2]
     }else{
-      use_reads <- F
+      use_reads <- FALSE
       thr_highly_sim_public_clono <- strsplit(highly_shared_clonotypes_params, ",")[[1]][2]
     }
-    highly_sim_public_clonotypes_results <- public_clonotypes(highly_sim,highly_sim_datasets,take_gene_highly_sim_public_clono,T,
-                                                              thr_highly_sim_public_clono,loaded_datasets,T)
+    highly_sim_public_clonotypes_results <- public_clonotypes(highly_sim,highly_sim_datasets,take_gene_highly_sim_public_clono,TRUE,
+                                                              thr_highly_sim_public_clono,loaded_datasets,TRUE)
     
   }
  
@@ -411,22 +411,22 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
     for (i in 1:length(insertedRepertoires)){
       if (insertedRepertoires[i] == 1){
-        allele <- F
+        allele <- FALSE
         gene <- used_columns[["Summary"]][3]
       }else if (insertedRepertoires[i] == 2){
-        allele <- T
+        allele <- TRUE
         gene <- used_columns[["Summary"]][3]
       }else if (insertedRepertoires[i] == 3){
-        allele <- F
+        allele <- FALSE
         gene <- used_columns[["Summary"]][8]
       }else if (insertedRepertoires[i] == 4){
-        allele <- T
+        allele <- TRUE
         gene <- used_columns[["Summary"]][8]
       }else if (insertedRepertoires[i] == 5){
-        allele <- F 
+        allele <- FALSE
         gene <- used_columns[["Summary"]][11]
       }else{
-        allele <- T
+        allele <- TRUE
         gene <- used_columns[["Summary"]][11]
       }
       
@@ -448,22 +448,22 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       HighlySim_repertories_results <- list()
       for (i in 1:length(insertedRepertoires)){
         if (insertedRepertoires[i] == 1){
-          allele <- F
+          allele <- FALSE
           gene <- used_columns[["Summary"]][3]
         }else if (insertedRepertoires[i] == 2){
-          allele <- T
+          allele <- TRUE
           gene <- used_columns[["Summary"]][3]
         }else if (insertedRepertoires[i] == 3){
-          allele <- F
+          allele <- FALSE
           gene <- used_columns[["Summary"]][8]
         }else if (insertedRepertoires[i] == 4){
-          allele <- T
+          allele <- TRUE
           gene <- used_columns[["Summary"]][8]
         }else if (insertedRepertoires[i] == 5){
-          allele <- F 
+          allele <- FALSE
           gene <- used_columns[["Summary"]][11]
         }else{
-          allele <- T
+          allele <- TRUE
           gene <- used_columns[["Summary"]][11]
         }
         HighlySim_repertories_results[[i]] <- repertoires_highly_similar(highly_sim,
@@ -486,11 +486,11 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     if (pipeline_repertoires_comparison){
       repertoires_comparison_results <- list()
       highly_sim_repertoires_comparison_results <- list()
-      pipeline_HighlySim_Repertoires <- T
+      pipeline_HighlySim_Repertoires <- TRUE
       for (i in 1:length(insertedRepertoires)){
-        repertoires_comparison_results[[i]] <- repertoires_comparison(repertories_results[[i]]$Repertoires_allData,repertories_results[[i]]$Repertoires_datasets,loaded_datasets,F,i)
-        if (pipeline_HighlySim_Repertoires==T){
-          highly_sim_repertoires_comparison_results[[i]] <- repertoires_comparison(HighlySim_repertories_results[[i]]$Repertoires_allData,HighlySim_repertories_results[[i]]$Repertoires_datasets,loaded_datasets,T,i)
+        repertoires_comparison_results[[i]] <- repertoires_comparison(repertories_results[[i]]$Repertoires_allData,repertories_results[[i]]$Repertoires_datasets,loaded_datasets,FALSE,i)
+        if (pipeline_HighlySim_Repertoires==TRUE){
+          highly_sim_repertoires_comparison_results[[i]] <- repertoires_comparison(HighlySim_repertories_results[[i]]$Repertoires_allData,HighlySim_repertories_results[[i]]$Repertoires_datasets,loaded_datasets,TRUE,i)
         }
       }
     }
@@ -504,15 +504,15 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       Identity_high_group <- as.numeric(strsplit(strsplit(identity_groups, ":")[[1]][2], ",")[[1]])
       select_clono_or_highly_for_mutational_status <- "initial_clonotypes"
       label=paste(Identity_low_group,Identity_high_group,sep="-")
-      identity_groups <- (data.frame(low=Identity_low_group,high=Identity_high_group, label=label,stringsAsFactors = F))
+      identity_groups <- (data.frame(low=Identity_low_group,high=Identity_high_group, label=label,stringsAsFactors = FALSE))
       if (pipeline_highly_similar_clonotypes){
         if (select_clono_or_highly_for_mutational_status=="initial_clonotypes"){
-          highly=F
+          highly=FALSE
         }else{
-          highly=T
+          highly=TRUE
         }
       }else{
-        highly=F
+        highly=FALSE
       }
       
       if (!highly){
@@ -533,7 +533,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           for (i in names(clono$view_specific_clonotype_allData)){
             d=c(d,median(clono$view_specific_clonotype_allData[[i]][[var]]))
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           
           filteredData_id<<-d
@@ -566,7 +566,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               for (i in names(clono$view_specific_clonotype_datasets[[name[j]]])){
                 d=c(d,median(clono$view_specific_clonotype_datasets[[name[j]]][[i]][[var]]))
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               temp=d
               data=d
@@ -609,7 +609,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=c(d,median(a[[var]]))
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           
           filteredData_id<<-d
@@ -649,7 +649,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                 }
                 d=c(d,median(a[[var]]))
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               temp=d
               data=d
@@ -706,9 +706,9 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                                                        c(val1, val2))
       
       if (select_clono_or_highly_for_Multiple_value_comparison == "initial_clonotypes"){
-        highly = F
+        highly = FALSE
       } else {
-        highly = T
+        highly = TRUE
       }
       
       if(highly)
@@ -738,16 +738,16 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   if (pipeline_logo){
     select_topN_clonotypes_for_freqTable <- "topN_clonotypes_for_alignment"
     if (select_topN_clonotypes_for_freqTable=="topN_clonotypes_for_alignment"){
-      FtopN=T
-      Fthr=F
+      FtopN=TRUE
+      Fthr=FALSE
     }else{
-      FtopN=F
-      Fthr=T
+      FtopN=FALSE
+      Fthr=TRUE
     }
-    pipeline_highly_similar_clonotypes <- T
+    pipeline_highly_similar_clonotypes <- TRUE
     topNFreqTable <- 20
     if (FtopN){
-      if (pipeline_highly_similar_clonotypes==F){
+      if (pipeline_highly_similar_clonotypes==FALSE){
         clono_allDataTopN=clono$clono_allData[1:topNFreqTable,] 
         if (is.null(clono$clono_allData)) return()
         clono_datasetsTopN<-list()
@@ -766,7 +766,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
     thrClonoLogos <- 0.1
     if (Fthr){
-      if (pipeline_highly_similar_clonotypes==F){
+      if (pipeline_highly_similar_clonotypes==FALSE){
         clono_allDataTopN=clono$clono_allData %>% dplyr::filter(Freq>thrClonoLogos)
         if (is.null(clono$clono_allData)) return()
         clono_datasetsTopN<-list()
@@ -784,10 +784,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
     regionFreqTable <- "CDR3"
     regionLengthFreq <- 12
-    FclonoLogoSeperately <- F
+    FclonoLogoSeperately <- FALSE
     frequenciesTables_results <- createFrequencyTableCDR3(regionFreqTable,imgtfilter_results$allData,loaded_datasets,regionLengthFreq,(FtopN || Fthr),clono_allDataTopN,clono_datasetsTopN,gene_clonotypes,junction_clonotypes,allele_clonotypes)
     if (FclonoLogoSeperately){
-      if (pipeline_highly_similar_clonotypes==F){
+      if (pipeline_highly_similar_clonotypes==FALSE){
         for (cl in 1:length(cl_ids_logos)){
           clono_datasets_cl<-list()
           for (i in 1:length(loaded_datasets)){
@@ -818,32 +818,32 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       regionAlignment <- "V.J.REGION"
     }
     if (strsplit(alignment_params, ",")[[1]][3] == "1"){
-      use_genes_germline <- F
-      only_one_germline <- F
+      use_genes_germline <- FALSE
+      only_one_germline <- FALSE
     }else if (strsplit(alignment_params, ",")[[1]][3] == "2"){
-      use_genes_germline <- T
-      only_one_germline <- F
+      use_genes_germline <- TRUE
+      only_one_germline <- FALSE
     }else{
-      use_genes_germline <- T
-      only_one_germline <- T
+      use_genes_germline <- TRUE
+      only_one_germline <- TRUE
     }
     
     Germline <- c()
     thrClonoAlignment <- 0.1
     topNClonoAlignment <- 20
-    Fthr <- F
-    FtopN <- F
+    Fthr <- FALSE
+    FtopN <- FALSE
     
     if (str_detect(strsplit(alignment_params, ",")[[1]][1], ":")){
       temp <- strsplit(strsplit(alignment_params, ",")[[1]][1], ":")[[1]]
       if (temp[1] == "2"){
-        Fthr <- F
-        FtopN <- T
+        Fthr <- FALSE
+        FtopN <- TRUE
         thrClonoAlignment <- 0.1
         topNClonoAlignment <- as.numeric(temp[2])
       }else{
-        Fthr <- T
-        FtopN <- F
+        Fthr <- TRUE
+        FtopN <- FALSE
         thrClonoAlignment <- as.numeric(temp[2])
         topNClonoAlignment <- 20
       }
@@ -852,31 +852,31 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     #if (length(highly_sim)==0){
     if (AAorNtAlignment=="both"){
       alignmentRegion_results <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-                                           use_genes_germline,Tcell==T,"aa",clono$clono_allData,clono$clono_datasets,
+                                           use_genes_germline,Tcell==TRUE,"aa",clono$clono_allData,clono$clono_datasets,
                                            clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,
-                                           topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,F)
+                                           topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,FALSE)
       alignmentRegion_results_nt <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-                                              use_genes_germline,Tcell==T,"nt",clono$clono_allData,clono$clono_datasets,
+                                              use_genes_germline,Tcell==TRUE,"nt",clono$clono_allData,clono$clono_datasets,
                                               clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,
-                                              topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,F)
+                                              topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,FALSE)
     }else{
       alignmentRegion_results <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-                                           use_genes_germline,Tcell==T,AAorNtAlignment,clono$clono_allData,clono$clono_datasets,
+                                           use_genes_germline,Tcell==TRUE,AAorNtAlignment,clono$clono_allData,clono$clono_datasets,
                                            clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,
-                                           topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,F)
+                                           topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,FALSE)
     }
     #}else{
     #  if (AAorNtAlignment=="both"){
     #    alignmentRegion_results <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-    #                                         use_genes_germline,Tcell==T,"aa",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
-    #                                         clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,T)
+    #                                         use_genes_germline,Tcell==TRUE,"aa",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
+    #                                         clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,TRUE)
     #    alignmentRegion_results_nt <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-    #                                            use_genes_germline,Tcell==T,"nt",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
-    #                                            clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,T)
+    #                                            use_genes_germline,Tcell==TRUE,"nt",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
+    #                                            clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,TRUE)
     #  }else{
     #    alignmentRegion_results <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,use_genes_germline,
-    #                                         Tcell==T,AAorNtAlignment,highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
-    #                                         clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,T)
+    #                                         Tcell==TRUE,AAorNtAlignment,highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
+    #                                         clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,TRUE)
     #  }
     #}
     
@@ -909,8 +909,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
     
     if (AAorNtMutations=="both"){ 
-      mutation_results <- mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,ThrAAMutations,"aa",loaded_datasets,topNClonoMutations, FtopN,F,0,Fthr,thrClonoMutations)
-      mutation_results_nt<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,ThrNtMutations,"nt",loaded_datasets, topNClonoMutations, FtopN,F,0,Fthr,thrClonoMutations)
+      mutation_results <- mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,ThrAAMutations,"aa",loaded_datasets,topNClonoMutations, FtopN,FALSE,0,Fthr,thrClonoMutations)
+      mutation_results_nt<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,ThrNtMutations,"nt",loaded_datasets, topNClonoMutations, FtopN,FALSE,0,Fthr,thrClonoMutations)
     }else{
       if (AAorNtMutations=="aa"){
         thr=ThrAAMutations 
@@ -927,10 +927,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           align_datasets=grouped_alignment_results_nt$grouped_alignment_datasets
         } 
       }
-      mutation_results<<-mutations(align_all,align_datasets,thr,AAorNtMutations,loaded_datasets,topNClonoMutations, FtopN,F,0,Fthr,thrClonoMutations)
+      mutation_results<<-mutations(align_all,align_datasets,thr,AAorNtMutations,loaded_datasets,topNClonoMutations, FtopN,FALSE,0,Fthr,thrClonoMutations)
     }
     
-    FclonoSeperately <- T
+    FclonoSeperately <- TRUE
     cl_ids_mutations <- c(1,2,3)
     mutation_results_cl <- list()
     mutation_results_nt_cl <- list()
@@ -938,8 +938,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     if (FclonoSeperately){
       for (cl in 1:length(cl_ids_mutations)){
         if (AAorNtMutations=="both"){ 
-          mutation_results_cl[[cl]] <- mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,ThrAAMutations,"aa",loaded_datasets,topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],F)
-          mutation_results_nt_cl[[cl]] <- mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,ThrNtMutations,"nt",loaded_datasets, topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],F)
+          mutation_results_cl[[cl]] <- mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,ThrAAMutations,"aa",loaded_datasets,topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
+          mutation_results_nt_cl[[cl]] <- mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,ThrNtMutations,"nt",loaded_datasets, topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
         }else{
           if (AAorNtMutations=="aa"){
             thr=ThrAAMutations 
@@ -956,7 +956,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               align_datasets=grouped_alignment_results_nt$grouped_alignment_datasets
             } 
           }
-          mutation_results_cl[[cl]] <- mutations(align_all,align_datasets,thr,AAorNtMutations,loaded_datasets,topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],F)
+          mutation_results_cl[[cl]] <- mutations(align_all,align_datasets,thr,AAorNtMutations,loaded_datasets,topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
         }
       }
     }
@@ -964,7 +964,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   ############ save png files  ############### 
   
-  clonotypes_barplot_select_range <- F
+  clonotypes_barplot_select_range <- FALSE
   clonotypes_barchart_threshold <- 0.1
   clonotypes_barchart_down_threshold <- 0.1
   clonotypes_barchart_up_threshold <- 1
@@ -986,7 +986,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       parameters = paste0("with_threshold",clonotypes_barchart_threshold)
     }
     
-    if(clonotypes_barplot_select_range==F){
+    if(clonotypes_barplot_select_range==FALSE){
       #Find the clonotypes that we want to draw for all the datasets
       cl <- c()
       a <- list()
@@ -1048,7 +1048,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   ############ Highly Similar clonotype plots  #######
   
-  higly_sim_clonotypes_barplot_select_range <- F
+  higly_sim_clonotypes_barplot_select_range <- FALSE
   higly_sim_clonotypes_barchart_up_threshold <- 1
   higly_sim_clonotypes_barchart_up_threshold <- 0.1
   higly_sim_clonotypes_barchart_threshold <- 0.1
@@ -1060,7 +1060,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       parameters=paste0("with_threshold",higly_sim_clonotypes_barchart_threshold)
     }
 
-    if (higly_sim_clonotypes_barplot_select_range==F){
+    if (higly_sim_clonotypes_barplot_select_range==FALSE){
       #Find the clonotypes that we want to draw for all the datasets
       cl<-c()
       a<-list()
@@ -1241,7 +1241,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         legend("topright", as.character(mutational_status_table_datasets[[loaded_datasets[j]]][[used_columns[["Summary"]][4]]]), cex = 0.8,
                fill = rainbow(length(mutational_status_table_datasets[[loaded_datasets[j]]]$N)))
         dev.off()
-        write.table(mutational_status_table_datasets[[loaded_datasets[j]]], paste0(in.path,"/","Mutational_Status_", loaded_datasets[j],".txt"), sep = "\t", row.names = F)
+        write.table(mutational_status_table_datasets[[loaded_datasets[j]]], paste0(in.path,"/","Mutational_Status_", loaded_datasets[j],".txt"), sep = "\t", row.names = FALSE)
       }
     }
   }
@@ -1256,12 +1256,12 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       var=used_columns[["Summary"]][15]
       if (pipeline_highly_similar_clonotypes){
         if (select_clono_or_highly_for_cdr3_distribution=="initial_clonotypes"){
-          highly=F
+          highly=FALSE
         }else{
-          highly=T
+          highly=TRUE
         }
       }else{
-        highly=F
+        highly=FALSE
       }
       if (!highly){
         for (j in 1:(length(loaded_datasets)+1)){
@@ -1270,7 +1270,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             for (i in names(clono$view_specific_clonotype_allData)){
               d=c(d,clono$view_specific_clonotype_allData[[i]][[var]][1])
             }
-            d=as.data.frame(d,stringsAsFactors=F)
+            d=as.data.frame(d,stringsAsFactors=FALSE)
             colnames(d)=var
             d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(clono$clono_allData)
@@ -1282,7 +1282,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])){
               d=c(d,clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
             }
-            d=as.data.frame(d,stringsAsFactors=F)
+            d=as.data.frame(d,stringsAsFactors=FALSE)
             colnames(d)=var
             d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
@@ -1304,7 +1304,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               }
               d=c(d,a[[var]][1])
             }
-            d=as.data.frame(d,stringsAsFactors=F)
+            d=as.data.frame(d,stringsAsFactors=FALSE)
             colnames(d)=var
             d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(highly_sim)
@@ -1323,7 +1323,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               }
               d=c(d,a[[var]][1])
             }
-            d=as.data.frame(d,stringsAsFactors=F)
+            d=as.data.frame(d,stringsAsFactors=FALSE)
             colnames(d)=var
             d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
             d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
@@ -1354,7 +1354,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         plot(d$CDR3Length,d$n,main=paste0("CDR3 IMGT length ", "All Data"), xlab="length",ylab="") # plots the results
         lines(spline(d$CDR3Length,d$n))
         dev.off()
-        write.table(cdr3_length_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","CDR3_Length_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = F)
+        write.table(cdr3_length_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","CDR3_Length_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = FALSE)
       }
     }
   }
@@ -1367,12 +1367,12 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
     if (pipeline_highly_similar_clonotypes){
       if (select_clono_or_highly_for_pi_distribution=="initial_clonotypes"){
-        highly=F
+        highly=FALSE
       }else{
-        highly=T
+        highly=TRUE
       }
     }else{
-      highly=F
+      highly=FALSE
     }
     
     if (!highly){
@@ -1432,12 +1432,12 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
     if (pipeline_highly_similar_clonotypes){
       if (select_clono_or_highly_for_pi_distribution=="initial_clonotypes"){
-        highly=F
+        highly=FALSE
       }else{
-        highly=T
+        highly=TRUE
       }
     }else{
-      highly=F
+      highly=FALSE
     }
     pi_distribution_dataset <- list()
     if (!highly){
@@ -1447,7 +1447,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           for (i in names(clono$view_specific_clonotype_allData)){
             d=c(d,clono$view_specific_clonotype_allData[[i]][[var]][1])
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(clono$clono_allData)
@@ -1459,7 +1459,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])){
             d=c(d,clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=dplyr::n())
           d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
@@ -1481,7 +1481,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=c(d,a[[var]][1])
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(highly_sim)
@@ -1500,7 +1500,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
             d=c(d,a[[var]][1])
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
           d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
@@ -1516,13 +1516,13 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   if (pipeline_pi_distribution){
     png(paste0(in.path,"/","Pi_Distribution_","All_Data",".png"),width=900, height=600)
-    boxplot(box_input, horizontal=F, main=" ")
+    boxplot(box_input, horizontal=FALSE, main=" ")
     dev.off()
     for (j in 1:(length(loaded_datasets)+1)){
       if (j==(length(loaded_datasets)+1)){
         write.table(pi_distribution, paste0(in.path,"/","Pi_Distribution_", "All_Data",".txt"), sep = "\t")
       }else{
-        write.table(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","Pi_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = F)
+        write.table(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","Pi_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = FALSE)
       }
     } 
   }
@@ -1534,10 +1534,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       for (j in 1:(length(loaded_datasets)+1)){
         if (j==(length(loaded_datasets)+1)){
           png(paste0(in.path,"/","logo_","CDR3","_","All_Data",".png"),width=1000, height=550)
-          logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+          logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
         }else{
           png(paste0(in.path,"/","logo_","CDR3","_",loaded_datasets[j],".png"),width=1000, height=550)
-          logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+          logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
         }
         table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
         index1=1
@@ -1568,10 +1568,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       for (j in 1:(length(loaded_datasets)+1)){
         if (j==(length(loaded_datasets)+1)){
           png(paste0(in.path,"/","logo_",regionFreqTable,"_","All_Data",".png"),width=1500, height=550)
-          logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+          logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
         }else{
           png(paste0(in.path,"/","logo_",regionFreqTable,"_",loaded_datasets[j],".png"),width=1000, height=550)
-          logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+          logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
         }
         table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
         index1=1
@@ -1594,11 +1594,11 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           i2=index_2[r]
           if (j==(length(loaded_datasets)+1)){
             png(paste0(in.path,"/","logo_",regions,"_","All_Data",".png"),width=1000, height=550)
-            logo_plot<<-plot(logo_per_region[[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(logo_per_region[[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
           }else{
             png(paste0(in.path,"/","logo_",regions,"_",Dataset[j],".png"),width=1000, height=550)
-            logo_plot<<-plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             table_count=frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][,2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
           }
           
@@ -1616,10 +1616,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       for (j in 1:(length(loaded_datasets)+1)){
         if (j==(length(loaded_datasets)+1)){
           png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regionFreqTable,"_","All_Data",".png"),width=1000, height=550)
-          logo_plot<<-plot(logo_result_cl[[cl]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+          logo_plot<<-plot(logo_result_cl[[cl]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
         }else{
           png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regionFreqTable,"_",loaded_datasets[j],".png"),width=1000, height=550)
-          logo_plot<<-plot(logo_result_cl[[cl]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+          logo_plot<<-plot(logo_result_cl[[cl]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
         }
         
         table_count=frequenciesTables_results_cl[[cl]]$table_count[,2:ncol(frequenciesTables_results_cl[[cl]]$table_count)]
@@ -1647,11 +1647,11 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             i2=index_2[r]
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regions,"_","All_Data",".png"),width=1000, height=550)
-              logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
               table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
             }else{
               png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regions,"_",Dataset[j],".png"),width=1000, height=550)
-              logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
               table_count=frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][,2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
             }
             
@@ -1669,10 +1669,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   fileNames=loaded_datasets
   nucleotides_per_clonotype_topN <- 20
-  nucleotides_per_clonotype <- F
+  nucleotides_per_clonotype <- FALSE
   topN=nucleotides_per_clonotype_topN
   if (clono$confirm!=""){
-    if ((nucleotides_per_clonotype==F) && is.null(fileNames)){
+    if ((nucleotides_per_clonotype==FALSE) && is.null(fileNames)){
       fileNames=loaded_datasets
       topN=10
     }

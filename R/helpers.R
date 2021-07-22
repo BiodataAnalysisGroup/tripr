@@ -21,9 +21,9 @@ testColumnNames <- function(name, files, datapath){
   
   # used columns
   if (use_only_useful_columns){
-    input <- read.csv("inst/extdata/param/used_columns_only_useful.csv", sep = ";", stringsAsFactors = FALSE, header = F)
+    input <- read.csv("inst/extdata/param/used_columns_only_useful.csv", sep = ";", stringsAsFactors = FALSE, header = FALSE)
   } else {
-    input <- read.csv("inst/extdata/param/used_columns.csv", sep = ";", stringsAsFactors = FALSE, header = F)
+    input <- read.csv("inst/extdata/param/used_columns.csv", sep = ";", stringsAsFactors = FALSE, header = FALSE)
   } 
   
   used_columns <- list()
@@ -80,8 +80,8 @@ testColumnNames <- function(name, files, datapath){
   # Load datasets individually
   for (i in 1:length(name)){
     #name[i]=strsplit(name[i],"_")[[1]][1]
-    firstSepData=T
-    if (strsplit(name[i],"_")[[1]][1]!=name[i] && as.numeric(strsplit(name[i],"_")[[1]][2])>1) firstSepData=F
+    firstSepData=TRUE
+    if (strsplit(name[i],"_")[[1]][1]!=name[i] && as.numeric(strsplit(name[i],"_")[[1]][2])>1) firstSepData=FALSE
     rawDataSet[[name[i]]] <- data.frame(dataName = strsplit(name[i],"_")[[1]][1])
     worng_columns_names_temp<-c()
     worng_columns_id_temp<-c()
@@ -148,7 +148,7 @@ testColumnNames <- function(name, files, datapath){
   
   for (i in 1:length(name)){
     #name[i]=strsplit(name[i],"_")[[1]][1]
-    firstSepData = T
+    firstSepData = TRUE
     
     if (strsplit(name[i],"_")[[1]][1]!=name[i] && as.numeric(strsplit(name[i],"_")[[1]][2])==0){
       newName=strsplit(name[i],"_")[[1]][1]
@@ -218,7 +218,7 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
   filter_column=c(used_columns[["Summary"]][3],used_columns[["Summary"]][18],used_columns[["Summary"]][2],used_columns[["Summary"]][18],used_columns[["Summary"]][4],used_columns[["Summary"]][3], used_columns[["Summary"]][8], used_columns[["Summary"]][11], used_columns[["Summary"]][15], used_columns[["Summary"]][18])
   
   #used columns
-  input<-read.csv("inst/extdata/param/used_columns.csv", sep=";", stringsAsFactors=FALSE,header=F)
+  input<-read.csv("inst/extdata/param/used_columns.csv", sep=";", stringsAsFactors=FALSE,header=FALSE)
   
   used_columns<-list()
   all_used_columns<-c()
@@ -1497,7 +1497,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
   
   print("C1")
   
-  if(allele == F){
+  if(allele == FALSE){
     g = stringr::str_replace(gene, ".and.allele", "")
   } else {
     g = gene
@@ -1527,7 +1527,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       
       print("C2")
 
-      if (allele == F){
+      if (allele == FALSE){
         # a2 = strsplit(allData[[gene]],"[*]")
         allData[[gene]] = stringr::str_split(allData[[gene]], "\\*", simplify = TRUE)[,1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
       }
@@ -1700,7 +1700,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
     
     if(length(gene) > 0){
       
-      if (allele == F){
+      if (allele == FALSE){
         # a2 = strsplit(data[[gene]],"[*]")
         data[[gene]] = stringr::str_split(data[[gene]], "\\*", simplify = TRUE)[,1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
       }
@@ -2123,9 +2123,9 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
     
     clonotypes_of_this_length=clono_allData_only_cdr3 %>% dplyr::filter(str_length(clono_allData_only_cdr3$clonotype)==(cdr3_lengths[i]+2))
     
-    end_process_for_this_length=F
+    end_process_for_this_length=FALSE
     
-    while(end_process_for_this_length==F){
+    while(end_process_for_this_length==FALSE){
       major_clonotype=clonotypes_of_this_length$clonotype[1]
       
       if (nrow(clonotypes_of_this_length)>0){
@@ -2153,18 +2153,18 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
             
           }
           if (nrow(not_matched_clonotypes)==0){
-            end_process_for_this_length=T
+            end_process_for_this_length=TRUE
           }else{
             clonotypes_of_this_length=not_matched_clonotypes
           }
         }else{
           #terminate the process for this length
-          end_process_for_this_length=T
+          end_process_for_this_length=TRUE
         }
         
       }else{
         #terminate the process for this length
-        end_process_for_this_length=T
+        end_process_for_this_length=TRUE
       }
     }
     
@@ -2189,7 +2189,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
         }
         prev_cluster=c(prev_cluster,prev_cluster_c)
       }
-      highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]=data.frame(clonotype,N,Freq,prev_cluster,stringsAsFactors = F) #I have this data frame for each length
+      highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]=data.frame(clonotype,N,Freq,prev_cluster,stringsAsFactors = FALSE) #I have this data frame for each length
       highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]$HS_cluster_id=as.numeric(row.names(highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]))
     }
     highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]]=do.call(rbind.data.frame, highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]])
@@ -2259,9 +2259,9 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
       
       clonotypes_of_this_length=clono_allData_only_cdr3 %>% dplyr::filter(str_length(clono_allData_only_cdr3$clonotype)==(cdr3_lengths[i]+2))
       
-      end_process_for_this_length=F
+      end_process_for_this_length=FALSE
       
-      while(end_process_for_this_length==F){
+      while(end_process_for_this_length==FALSE){
         major_clonotype=clonotypes_of_this_length$clonotype[1]
         if (nrow(clonotypes_of_this_length)>0){
           if (clonotypes_of_this_length$Freq[1]>clonotype_freq_thr_for_highly_sim){
@@ -2289,18 +2289,18 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
               
             }
             if (nrow(not_matched_clonotypes)==0){
-              end_process_for_this_length=T
+              end_process_for_this_length=TRUE
             }else{
               clonotypes_of_this_length=not_matched_clonotypes
             }
           }else{
             #terminate the process for this length
-            end_process_for_this_length=T
+            end_process_for_this_length=TRUE
           }
           
         }else{
           #terminate the process for this length
-          end_process_for_this_length=T
+          end_process_for_this_length=TRUE
         }
       }
       
@@ -2325,7 +2325,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
           }
           prev_cluster=c(prev_cluster,prev_cluster_c)
         }
-        highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]=data.frame(clonotype,N,Freq,prev_cluster,stringsAsFactors = F) #I have this data frame for each length
+        highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]=data.frame(clonotype,N,Freq,prev_cluster,stringsAsFactors = FALSE) #I have this data frame for each length
         highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]$HS_cluster_id=as.numeric(row.names(highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]))
       }
       highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]=do.call(rbind.data.frame, highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]])
@@ -2519,7 +2519,7 @@ public_clonotypes <- function(clono_allData,clono_datasets,take_gene,use_reads,p
     clono_allData <- clono_allData[1:public_clonotype_thr,]
   }
 
-  public_clono<-data.frame(clonotype=unique(clono_allData$clonotype),stringsAsFactors = F)
+  public_clono<-data.frame(clonotype=unique(clono_allData$clonotype),stringsAsFactors = FALSE)
   
   #for each dataset 
   for (n in name){
@@ -2599,7 +2599,7 @@ viewClonotypes <- function(allData,allele,gene,junction,val1,val2) {
   
   temp=allData
   if (length(gene)>0){
-    if (allele==F){
+    if (allele==FALSE){
       for (i in 1:nrow(temp)){
         temp[[gene]][i]=strsplit(temp[[gene]][i],"[*]")[[1]][1]
       }
@@ -2625,7 +2625,7 @@ viewClonotypes <- function(allData,allele,gene,junction,val1,val2) {
 ######################################################################################################################################
 
 repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gene,gene_clonotypes,name,view_specific_clonotype_allData,view_specific_clonotype_datasets,highly_sim){
-  if (allele==F){
+  if (allele==FALSE){
     g=stringr::str_replace(gene,".and.allele","")
   }else{
     g=gene
@@ -2690,7 +2690,7 @@ repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gen
     for (i in names(view_specific_clonotype_allData)){
       a=view_specific_clonotype_allData[[i]]
       #if ((allele==F) & (allele!=allele_clonotypes)){
-      if (allele==F){
+      if (allele==FALSE){
         if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
           a2=strsplit(a[[gene]],"[*]") 
           a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -2715,7 +2715,7 @@ repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gen
       freq_gene_name_datasets[[name[[j]]]]=data.frame()
       for (i in names(view_specific_clonotype_datasets[[name[j]]])){
         a=view_specific_clonotype_datasets[[name[j]]][[i]]
-        if (allele==F){
+        if (allele==FALSE){
           if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
             a2=strsplit(a[[gene]],"[*]") 
             a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -2776,7 +2776,7 @@ repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gen
 
 repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allele_clonotypes,gene,gene_clonotypes,name,view_specific_clonotype_allData,view_specific_clonotype_datasets,take_gene){
   #logfile
-  if (allele == F){
+  if (allele == FALSE){
     g = stringr::str_replace(gene,".and.allele","")
   }else{
     g = gene
@@ -2789,7 +2789,7 @@ repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allel
   cat(paste0(ncol(clono_allData),"\t"), file=logFile, append=TRUE)
   cat(paste0(Sys.time(),"\t"), file=logFile, append=TRUE)
   
-  if (allele==F){
+  if (allele==FALSE){
     g = stringr::str_replace(gene,".and.allele","")
   }else{
     g = gene
@@ -2852,7 +2852,7 @@ repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allel
       for (i in names(view_specific_clonotype_allData)){
         if (i %in% clono_allData_initial$clonotype){
           a=view_specific_clonotype_allData[[i]]
-          if (allele==F){
+          if (allele==FALSE){
             if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
               a2=strsplit(a[[gene]],"[*]") 
               a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -2883,7 +2883,7 @@ repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allel
         for (i in names(view_specific_clonotype_datasets[[name[j]]])){
           if (i %in% clono_datasets_initial[[name[j]]]$clonotype){
             a=view_specific_clonotype_datasets[[name[j]]][[i]]
-            if (allele==F){
+            if (allele==FALSE){
               if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
                 a2=strsplit(a[[gene]],"[*]") 
                 a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -2959,7 +2959,7 @@ repertoires_comparison <- function(Repertoires_allData,Repertoires_datasets,name
   cat(paste0(ncol(Repertoires_allData),"\t"), file=logFile, append=TRUE)
   cat(paste0(Sys.time(),"\t"), file=logFile, append=TRUE)
   
-  unique_repertoires<-data.frame(Gene=Repertoires_allData$Gene,stringsAsFactors = F)
+  unique_repertoires<-data.frame(Gene=Repertoires_allData$Gene,stringsAsFactors = FALSE)
   
   #for each dataset 
   for (n in name){
@@ -3092,7 +3092,7 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
         freq_gene_name<-data.frame()
         for (i in names(view_specific_clonotype_allData)){
           a=view_specific_clonotype_allData[[i]]
-          if ((stringr::str_detect(val_initial[vals],"allele")==F)){
+          if ((stringr::str_detect(val_initial[vals],"allele")==FALSE)){
             if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
               a2=strsplit(a[[gene]],"[*]") 
               a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -3113,7 +3113,7 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
           freq_gene_name<-data.frame()
           for (i in names(view_specific_clonotype_datasets[[name[j]]])){
             a=view_specific_clonotype_datasets[[name[j]]][[i]]
-            if ((stringr::str_detect(val_initial[vals],"allele")==F)){
+            if ((stringr::str_detect(val_initial[vals],"allele")==FALSE)){
               if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
                 a2=strsplit(a[[gene]],"[*]") 
                 a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -3195,7 +3195,7 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
     }
     
   }
-  multi_allData=data.frame(multi_allData,stringsAsFactors = F)
+  multi_allData=data.frame(multi_allData,stringsAsFactors = FALSE)
   
   Multiple_value_comparison_allData<- multi_allData %>% dplyr::group_by(multi_allData[[val1]],multi_allData[[val2]]) %>% dplyr::summarise(n=n())
   Multiple_value_comparison_allData=Multiple_value_comparison_allData[order(-Multiple_value_comparison_allData$n),]
@@ -3204,14 +3204,14 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
   
   ####################################### Seperate Datasets
   one_run<-function(j){
-    multi_datasets[[name[j]]]=data.frame(multi_datasets[[name[j]]],stringsAsFactors = F)
+    multi_datasets[[name[j]]]=data.frame(multi_datasets[[name[j]]],stringsAsFactors = FALSE)
     
     Multiple_value_comparison_datasets[[name[j]]]<- multi_datasets[[name[j]]] %>% dplyr::group_by(multi_datasets[[name[j]]][[val1]],multi_datasets[[name[j]]][[val2]]) %>% dplyr::summarise(n=n())
     Multiple_value_comparison_datasets[[name[j]]]=Multiple_value_comparison_datasets[[name[j]]][order(-Multiple_value_comparison_datasets[[name[j]]]$n),]
     Multiple_value_comparison_datasets[[name[j]]]=cbind(Multiple_value_comparison_datasets[[name[j]]],Freq=100*Multiple_value_comparison_datasets[[name[j]]]$n/nrow(multi_datasets[[name[j]]]))
     colnames(Multiple_value_comparison_datasets[[name[j]]])=c(val1_initial,val2_initial,"N","Freq")
     
-    Multiple_value_comparison_datasets[[name[j]]]=data.frame(Multiple_value_comparison_datasets[[name[j]]],stringsAsFactors = F)
+    Multiple_value_comparison_datasets[[name[j]]]=data.frame(Multiple_value_comparison_datasets[[name[j]]],stringsAsFactors = FALSE)
     
     if (save_tables_individually){
       filename=paste0(output_folder,"/","Multiple_value_comparison_",stringr::str_replace(val1_initial,"%",""),"_",stringr::str_replace(val2_initial,"%",""),"_",name[j],".txt")
@@ -3347,7 +3347,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
             for (cl in 2:length(prev_clono))
               a=rbind(a,view_specific_clonotype_allData[[prev_clono[cl]]])
           }
-          if ((stringr::str_detect(val_initial[vals],"allele")==F)){
+          if ((stringr::str_detect(val_initial[vals],"allele")==FALSE)){
             if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
               a2=strsplit(a[[gene]],"[*]") 
               a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -3373,7 +3373,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
               for (cl in 2:length(prev_clono))
                 a=rbind(a,view_specific_clonotype_datasets[[name[j]]][[prev_clono[cl]]])
             }
-            if ((stringr::str_detect(val_initial[vals],"allele")==F)){
+            if ((stringr::str_detect(val_initial[vals],"allele")==FALSE)){
               if (!all(!(stringr::str_detect(a[[gene]],"[*]")))){
                 a2=strsplit(a[[gene]],"[*]") 
                 a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -3471,7 +3471,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
     }
     
   }
-  multi_allData=data.frame(multi_allData,stringsAsFactors = F)
+  multi_allData=data.frame(multi_allData,stringsAsFactors = FALSE)
   
   Multiple_value_comparison_allData<- multi_allData %>% dplyr::group_by(multi_allData[[val1]],multi_allData[[val2]]) %>% dplyr::summarise(n=n())
   Multiple_value_comparison_allData=Multiple_value_comparison_allData[order(-Multiple_value_comparison_allData$n),]
@@ -3480,14 +3480,14 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
   
   ####################################### Seperate Datasets
   one_run<-function(j){
-    multi_datasets[[name[j]]]=data.frame(multi_datasets[[name[j]]],stringsAsFactors = F)
+    multi_datasets[[name[j]]]=data.frame(multi_datasets[[name[j]]],stringsAsFactors = FALSE)
     
     Multiple_value_comparison_datasets[[name[j]]]<- multi_datasets[[name[j]]] %>% dplyr::group_by(multi_datasets[[name[j]]][[val1]],multi_datasets[[name[j]]][[val2]]) %>% dplyr::summarise(n=n())
     Multiple_value_comparison_datasets[[name[j]]]=Multiple_value_comparison_datasets[[name[j]]][order(-Multiple_value_comparison_datasets[[name[j]]]$n),]
     Multiple_value_comparison_datasets[[name[j]]]=cbind(Multiple_value_comparison_datasets[[name[j]]],Freq=100*Multiple_value_comparison_datasets[[name[j]]]$n/nrow(multi_datasets[[name[j]]]))
     colnames(Multiple_value_comparison_datasets[[name[j]]])=c(val1_initial,val2_initial,"N","Freq")
     
-    Multiple_value_comparison_datasets[[name[j]]]=data.frame(Multiple_value_comparison_datasets[[name[j]]],stringsAsFactors = F)
+    Multiple_value_comparison_datasets[[name[j]]]=data.frame(Multiple_value_comparison_datasets[[name[j]]],stringsAsFactors = FALSE)
     
     if (save_tables_individually){
       filename=paste0(output_folder,"/","Multiple_value_comparison_highly_similar",stringr::str_replace(val1_initial,"%",""),"_",stringr::str_replace(val2_initial,"%",""),"_",name[j],".txt")
@@ -3866,13 +3866,13 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
   
   max_length_region = max(str_length(input[[region]]))
   
-  if (Tcell == F && only_one_germline == F){
+  if (Tcell == FALSE && only_one_germline == FALSE){
     
     type = strsplit(strsplit(as.character(input[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1]
     
     if((type == "IGK") | (type == "IGL")){
       germline_file = paste0("inst/extdata/param/", "Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
-      Tgermlines = read.csv(germline_file, sep = ";", stringsAsFactors = F, colClasses = c("character"))
+      Tgermlines = read.csv(germline_file, sep = ";", stringsAsFactors = FALSE, colClasses = c("character"))
       
       if (AAorNtAlignment == "aa"){
         Tgermlines[,113:117] = "."
@@ -3881,7 +3881,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       }
       
       germline_file = paste0("inst/extdata/param/", "Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
-      te = read.csv(germline_file, sep = ";", stringsAsFactors = F, colClasses = c("character"))
+      te = read.csv(germline_file, sep = ";", stringsAsFactors = FALSE, colClasses = c("character"))
       
       
       
@@ -3890,7 +3890,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       
     } else {
       germline_file = paste0("inst/extdata/param/", "Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
-      Tgermlines = read.csv(germline_file, sep = ";", stringsAsFactors = F, colClasses = c("character"))
+      Tgermlines = read.csv(germline_file, sep = ";", stringsAsFactors = FALSE, colClasses = c("character"))
     }
     
     Tgermlines = unique(Tgermlines)
@@ -3982,7 +3982,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                              J.GENE.and.allele = input[[used_columns[["Summary"]][8]]],
                              D.GENE.and.allele = input[[used_columns[["Summary"]][11]]],
                              V.GENE.and.allele = input[[used_columns[["Summary"]][3]]],
-                             region_split,stringsAsFactors = F)
+                             region_split,stringsAsFactors = FALSE)
     
     region_alignment$cluster_id = as.character(cluster_id)
     region_alignment$freq_cluster_id = as.character(freq_cluster_id)
@@ -3999,9 +3999,9 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     #region_alignment$Functionality="productive"
     if(only_one_germline){
       germline = strsplit(germline,"")[[1]]
-      germline = data.frame(t(germline),stringsAsFactors = F)
+      germline = data.frame(t(germline),stringsAsFactors = FALSE)
       germline = c("-","-","germline","-","-","-",germline)
-      germline = as.data.frame(germline,stringsAsFactors=F)
+      germline = as.data.frame(germline,stringsAsFactors=FALSE)
       colnames(germline) = colnames(region_alignment[,1:ncol(germline)])
       alignment_with_germline = rbind(germline,region_alignment[,1:ncol(germline)])
       #for (i in 3:length(alignment_with_germline)){
@@ -4207,7 +4207,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                                J.GENE.and.allele = input_tmp[[used_columns[["Summary"]][8]]],
                                D.GENE.and.allele = input_tmp[[used_columns[["Summary"]][11]]],
                                V.GENE.and.allele = input_tmp[[used_columns[["Summary"]][3]]], 
-                               region_split, stringsAsFactors = F)
+                               region_split, stringsAsFactors = FALSE)
       
       region_alignment$cluster_id = as.character(cluster_id)
       region_alignment$freq_cluster_id = as.character(freq_cluster_id)
@@ -4375,7 +4375,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
 ######################################################################################################################################
 
-mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,FtopN,FclonoSeperately,cl,Fthr,thrClono,FthrSep=T,thrSep){
+mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,FtopN,FclonoSeperately,cl,Fthr,thrClono,FthrSep=TRUE,thrSep){
   #logfile
   cat(paste0("mutations","\t"), file=logFile, append=TRUE)
   cat(paste0(paste("region",AAorNtMutations,sep=","),"\t"), file=logFile, append=TRUE)

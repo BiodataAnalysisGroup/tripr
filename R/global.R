@@ -11,10 +11,10 @@ if(!file.exists(paste0(tmp_path,"/inst/extdata/log_files"))){
 logFile = paste0(tmp_path,"/inst/extdata/log_files/log_file_",trunc(as.numeric(Sys.time())),".txt")
 cat(paste0("Function","\t","Parameters","\t","Num of input rows","\t","Num of input columns","\t","Start time","\t","End time","\t","Memory used"), file=logFile, append=FALSE, sep = "\n")
 
-use_only_useful_columns = T #libraries.R TRUE
-save_lists_for_bookmark = F #libraries.R FALSE
-save_tables_individually_filter_in = F #libraries.R TRUE
-save_tables_individually = F #libraries.R TRUE
+use_only_useful_columns = TRUE #libraries.R TRUE
+save_lists_for_bookmark = FALSE #libraries.R FALSE
+save_tables_individually_filter_in = FALSE #libraries.R TRUE
+save_tables_individually = FALSE #libraries.R TRUE
 
 if (save_tables_individually | save_lists_for_bookmark){
   #output folder 

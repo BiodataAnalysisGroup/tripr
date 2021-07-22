@@ -83,10 +83,10 @@ app_server <- function( input, output, session ) {
   mutational_status_table_datasets <- list() #delete from global 
   
   cl_ids_mutations <- c()
-  FclonoSeperately <- F
+  FclonoSeperately <- FALSE
   
   cl_ids_logos <- c()
-  FclonoLogoSeperately <- F
+  FclonoLogoSeperately <- FALSE
   
   countTables_per_region_datasets <- list()
   
@@ -124,21 +124,21 @@ app_server <- function( input, output, session ) {
   CDR3Diff1_results <- list()
   highly_similar_clonotypes_results <- list()
   
-  just_restored_session <- F
-  just_restored_session_cleaning <- F
-  just_restored_session_clonotypes <- F
-  just_restored_session_Repertoires <- F
-  just_restored_session_HighlySim_Repertoires <- F
-  just_restored_session_repertoires_comparison <- F
-  just_restored_session_Multiple_value_comparison <- F
-  just_restored_session_alignment <- F
-  just_restored_session_freqTables <- F
-  just_restored_session_logo <- F
-  just_restored_session_CDR3Diff1 <- F
-  just_restored_session_highly_similar_clonotypes <- F
-  just_restored_session_public_clonotypes <- F
-  just_restored_session_highly_sim_public_clonotypes <- F
-  just_restored_session_mutations <- F
+  just_restored_session <- FALSE
+  just_restored_session_cleaning <- FALSE
+  just_restored_session_clonotypes <- FALSE
+  just_restored_session_Repertoires <- FALSE
+  just_restored_session_HighlySim_Repertoires <- FALSE
+  just_restored_session_repertoires_comparison <- FALSE
+  just_restored_session_Multiple_value_comparison <- FALSE
+  just_restored_session_alignment <- FALSE
+  just_restored_session_freqTables <- FALSE
+  just_restored_session_logo <- FALSE
+  just_restored_session_CDR3Diff1 <- FALSE
+  just_restored_session_highly_similar_clonotypes <- FALSE
+  just_restored_session_public_clonotypes <- FALSE
+  just_restored_session_highly_sim_public_clonotypes <- FALSE
+  just_restored_session_mutations <- FALSE
   
   msgLoadData <- ""
   msgCleaning <- ""
@@ -308,7 +308,7 @@ app_server <- function( input, output, session ) {
   
   output$uiColumns <- renderUI({
     if (is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset) |is.null(input$LoadData)) return()
-    if (input$LoadData==F) return()
+    if (input$LoadData==FALSE) return()
     data <- dataInputColumns()
     if (data$message!="wrong column names"){return()}
     if (length(new_columns)>0){if (correctColumns=="yes"){return()}}
@@ -400,8 +400,8 @@ app_server <- function( input, output, session ) {
     state$values$grouped_alignment_results_nt<-grouped_alignment_results_nt
     state$values$dataInputColumns<-dataInputColumns()
     
-    if (input$Continue!=F)
-      state$values$newDataset<-F
+    if (input$Continue!=FALSE)
+      state$values$newDataset<-FALSE
     else
       state$values$newDataset<-newDataset
 
@@ -444,23 +444,23 @@ app_server <- function( input, output, session ) {
     mutation_results_cl<<-state$values$mutation_results_cl
     mutation_results_nt_cl<<-state$values$mutation_results_nt_cl
       
-    just_restored_session<<-T
-    just_restored_session_cleaning<<-T
-    just_restored_session_clonotypes<<-T
-    just_restored_session_public_clonotypes<<-T
-    just_restored_session_Repertoires<<-T
-    just_restored_session_HighlySim_Repertoires<<-T
-    just_restored_session_repertoires_comparison<<-T
-    just_restored_session_Multiple_value_comparison<<-T
-    just_restored_session_alignment<<-T
-    just_restored_session_mutations<<-T
-    just_restored_session_freqTables<<-T
-    just_restored_session_logo<<-T
-    just_restored_session_alignment<<-T
-    just_restored_session_highly_similar_clonotypes<<-T
+    just_restored_session<<-TRUE
+    just_restored_session_cleaning<<-TRUE
+    just_restored_session_clonotypes<<-TRUE
+    just_restored_session_public_clonotypes<<-TRUE
+    just_restored_session_Repertoires<<-TRUE
+    just_restored_session_HighlySim_Repertoires<<-TRUE
+    just_restored_session_repertoires_comparison<<-TRUE
+    just_restored_session_Multiple_value_comparison<<-TRUE
+    just_restored_session_alignment<<-TRUE
+    just_restored_session_mutations<<-TRUE
+    just_restored_session_freqTables<<-TRUE
+    just_restored_session_logo<<-TRUE
+    just_restored_session_alignment<<-TRUE
+    just_restored_session_highly_similar_clonotypes<<-TRUE
     
-    if (input$Continue!=F)
-      newDataset<-F
+    if (input$Continue!=FALSE)
+      newDataset<-FALSE
     else
       newDataset<-newDataset
     
@@ -487,7 +487,7 @@ app_server <- function( input, output, session ) {
       withBusyIndicatorUI(actionButton("Execute_pipeline", "Execute Pipeline", style="color: #fff; background-color: #5F021F; border-color: #fff"))
     })
     
-    newDataset<-F
+    newDataset<-FALSE
     
     #insert repertoires on pipeline tab
     if (length(insertedRepertoires)>0)
@@ -786,7 +786,7 @@ app_server <- function( input, output, session ) {
   })
   
   ############################### Cleaning ###############################
-  #newDataset=T when the dataset state is changed. When this happens the execute button has to disapear and cleaning must be applyed
+  #newDataset=TRUE when the dataset state is changed. When this happens the execute button has to disapear and cleaning must be applyed
   observeEvent(input$Dataset, {
     newDataset<<-TRUE
     
@@ -799,7 +799,7 @@ app_server <- function( input, output, session ) {
       
     newDataset<<-FALSE
     loaded_datasets<<-unique(t(data.frame(strsplit(input$Dataset,"_")))[,1])
-    if ((is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset)) && just_restored_session_cleaning==F) {
+    if ((is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset)) && just_restored_session_cleaning==FALSE) {
       validate(
         #"Please select a data set!"
       )
@@ -812,7 +812,7 @@ app_server <- function( input, output, session ) {
       return()
     }
     
-    if (just_restored_session_cleaning==F){
+    if (just_restored_session_cleaning==FALSE){
       #check the selected input 
       if(input$cell=="T cell"){
         cell_id=1
@@ -876,9 +876,9 @@ app_server <- function( input, output, session ) {
       }
       
       if (input$cell=="T cell"){
-        Tcell <- T
+        Tcell <- TRUE
       }else{
-        Tcell <- F
+        Tcell <- FALSE
       }
       
       if (input$throughput=="High Throughput"){
@@ -889,7 +889,7 @@ app_server <- function( input, output, session ) {
       
     }
     
-    just_restored_session_cleaning<<-F
+    just_restored_session_cleaning<<-FALSE
     
     cleaning_workflow<<-imgtcleaning_results$workflow
     
@@ -1043,7 +1043,7 @@ app_server <- function( input, output, session ) {
       filtering_parameters<<-c(filtering_parameters,paste0("CDR3 containing the amino-acid sequence: ",input$aminoacid_name))
     }
     
-    if (just_restored_session==F || length(imgtfilter_results)==0){
+    if (just_restored_session==FALSE || length(imgtfilter_results)==0){
       if (input$throughput=="High Throughput")
         imgtfilter_results<<-imgtfilter(imgtcleaning_results$cleaned_datasets,loaded_datasets, imgtcleaning_results$allData, cell_id, filter_id, " P| ORF", "[*]|X|#|[.]", "productive", start_char, end_char, as.numeric(input$identityLow), as.numeric(input$identityHigh), input$VGene_name, input$JGene_name, input$DGene_name, as.numeric(input$lengthLow), as.numeric(input$lengthHigh), input$aminoacid_name, seq1,seq2)
       else
@@ -1051,7 +1051,7 @@ app_server <- function( input, output, session ) {
       
     }
     
-    just_restored_session<<-F
+    just_restored_session<<-FALSE
     
     filtering_workflow<<-imgtfilter_results$workflow
     
@@ -1220,7 +1220,7 @@ app_server <- function( input, output, session ) {
   ############################### Error Msg ###############################
   observeEvent(input$Execute_pipeline, {
     if (input$pipeline_mutations){
-      if (input$pipeline_alignment==F) {
+      if (input$pipeline_alignment==FALSE) {
         validate(
           #"Please ckeck Alignment first!"
         )
@@ -1233,7 +1233,7 @@ app_server <- function( input, output, session ) {
         return()
       }
       
-      if (input$pipeline_alignment==T & input$AAorNtMutations=="both" & input$AAorNtAlignment !="both") {
+      if (input$pipeline_alignment==TRUE & input$AAorNtMutations=="both" & input$AAorNtAlignment !="both") {
         validate(
           #"Please ckeck Alignment both first!"
         )
@@ -1246,7 +1246,7 @@ app_server <- function( input, output, session ) {
         return()
       }
       
-      if (input$pipeline_alignment==T & input$AAorNtMutations=="aa" & input$AAorNtAlignment =="nt") {
+      if (input$pipeline_alignment==TRUE & input$AAorNtMutations=="aa" & input$AAorNtAlignment =="nt") {
         validate(
           #"Please ckeck Alignment both first!"
         )
@@ -1259,7 +1259,7 @@ app_server <- function( input, output, session ) {
         return()
       }
       
-      if (input$pipeline_alignment==T & input$AAorNtMutations=="nt" & input$AAorNtAlignment =="aa") {
+      if (input$pipeline_alignment==TRUE & input$AAorNtMutations=="nt" & input$AAorNtAlignment =="aa") {
         validate(
           #"Please ckeck Alignment nt first!"
         )
@@ -1278,7 +1278,7 @@ app_server <- function( input, output, session ) {
   
   observeEvent(input$Execute_pipeline, {
     
-    if (input$pipeline_clonotypes == F) return()
+    if (input$pipeline_clonotypes == FALSE) return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
@@ -1298,39 +1298,39 @@ app_server <- function( input, output, session ) {
       }
       
       if (input$select_clonotype=="V Gene + CDR3 Amino Acids"){
-        allele = F
+        allele = FALSE
         gene = used_columns[["Summary"]][3]
         junction = used_columns[["Summary"]][18]
       }else if (input$select_clonotype=="V Gene and Allele + CDR3 Amino Acids"){
-        allele = T
+        allele = TRUE
         gene = used_columns[["Summary"]][3]
         junction = used_columns[["Summary"]][18]
       }else if (input$select_clonotype=="V Gene + CDR3 Nucleotide"){
-        allele = F
+        allele = FALSE
         gene = used_columns[["Summary"]][3]
         junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
       }else if (input$select_clonotype=="V Gene and Allele + CDR3 Nucleotide"){
-        allele = T
+        allele = TRUE
         gene = used_columns[["Summary"]][3]
         junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
       }else if (input$select_clonotype=="J Gene + CDR3 Amino Acids"){
-        allele = F
+        allele = FALSE
         gene = used_columns[["Summary"]][8]
         junction = used_columns[["Summary"]][18]
       }else if (input$select_clonotype=="J Gene and Allele + CDR3 Amino Acids"){
-        allele = T
+        allele = TRUE
         gene = used_columns[["Summary"]][3]
         junction = used_columns[["Summary"]][18]
       }else if (input$select_clonotype=="J Gene + CDR3 Nucleotide"){
-        allele = F
+        allele = FALSE
         gene = used_columns[["Summary"]][8]
         junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
       }else if (input$select_clonotype=="J Gene and Allele + CDR3 Nucleotide"){
-        allele = T
+        allele = TRUE
         gene = used_columns[["Summary"]][8]
         junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
       }else if (input$select_clonotype=="CDR3 Amino Acids"){
-        allele = F
+        allele = FALSE
         junction = used_columns[["Summary"]][18]
         gene = c()
       }else if(input$select_clonotype=="Sequence"){
@@ -1338,7 +1338,7 @@ app_server <- function( input, output, session ) {
         gene = c()
         junction = used_columns[["Summary"]][20]
       }else{
-        allele = F
+        allele = FALSE
         junction = used_columns[["IMGT.gapped.nt.sequences"]][9]
         gene = c()
       }
@@ -1347,11 +1347,11 @@ app_server <- function( input, output, session ) {
       junction_clonotypes <<- junction
       allele_clonotypes <<- allele
       
-      if ((just_restored_session_clonotypes == F) & (input$select_load_or_compute_clonotypes != 'load_clonotypes')){
+      if ((just_restored_session_clonotypes == FALSE) & (input$select_load_or_compute_clonotypes != 'load_clonotypes')){
         clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis) # input$shm_normal,
       }
       
-      just_restored_session_clonotypes <<- F
+      just_restored_session_clonotypes <<- FALSE
       #convergent_evolution_list_datasets<<-clono$convergent_evolution_list_datasets
       
       msgClonotypes <<- clono$confirm
@@ -1460,7 +1460,7 @@ app_server <- function( input, output, session ) {
       output$clonotypes_bar_plot <- renderPlot({
         if(is.null(input$VisualisationDataset)) return()
         
-        if (input$clonotypes_barplot_select_range == F){
+        if (input$clonotypes_barplot_select_range == FALSE){
           #Find the clonotypes that we want to draw for all the datasets
           cl<-c()
           a<-list()
@@ -1580,7 +1580,7 @@ app_server <- function( input, output, session ) {
     
   ############################### Highly Similar Clonotypes ###############################
   observeEvent(input$pipeline_highly_similar_clonotypes, {
-    if((input$select_load_or_compute_clonotypes != 'load_clonotypes') & (just_restored_session_highly_similar_clonotypes == F)){
+    if((input$select_load_or_compute_clonotypes != 'load_clonotypes') & (just_restored_session_highly_similar_clonotypes == FALSE)){
       cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
       cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
       cdr3_lengths <<- sort(cdr3_lengths)
@@ -1639,9 +1639,9 @@ app_server <- function( input, output, session ) {
   })
   
   observeEvent(input$Execute_pipeline, {
-    if (input$pipeline_highly_similar_clonotypes == F) return()
+    if (input$pipeline_highly_similar_clonotypes == FALSE) return()
     
-    if (input$pipeline_clonotypes == F) {
+    if (input$pipeline_clonotypes == FALSE) {
       validate()
       showModal(modalDialog(title = "Error Message Highly Similar Clonotypes", "Please ckeck Clonotypes first!", easyClose = TRUE, footer = NULL))
       return()
@@ -1661,7 +1661,7 @@ app_server <- function( input, output, session ) {
         }
       }
       
-      if(just_restored_session_highly_similar_clonotypes == F){
+      if(just_restored_session_highly_similar_clonotypes == FALSE){
         highly_similar_clonotypes_results <<- highly_similar_clonotypes(clono$clono_allData,
                                                                         clono$clono_datasets,
                                                                         num_of_missmatches,
@@ -1672,7 +1672,7 @@ app_server <- function( input, output, session ) {
                                                                         loaded_datasets)
       }
       
-      just_restored_session_highly_similar_clonotypes <<- F
+      just_restored_session_highly_similar_clonotypes <<- FALSE
       filtered_High_SHM_similarity = list()
       msgHighlySim <<- highly_similar_clonotypes_results$confirm
       
@@ -1715,7 +1715,7 @@ app_server <- function( input, output, session ) {
           write.table(temp, paste0(output_folder,"/","highly_sim_all_clonotypes_",d,".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
           # save filter in + highly clono id
-          all_filter = read.csv(paste0(output_folder,"/","filterin_clono_",d,".txt"), sep = "\t", stringsAsFactors = F)
+          all_filter = read.csv(paste0(output_folder,"/","filterin_clono_",d,".txt"), sep = "\t", stringsAsFactors = FALSE)
           all_filter$highly_cluster_id = 0
           all_filter$highly_freq_cluster_id = 0
           
@@ -1790,7 +1790,7 @@ app_server <- function( input, output, session ) {
         write.table(temp, paste0(output_folder,"/","highly_sim_all_clonotypes_","All Data",".txt"),sep = "\t", row.names = FALSE, col.names = TRUE)
 
         # save filter in + highly clono id
-        all_filter <- read.csv(paste0(output_folder,"/","filterin_clono_","All_Data",".txt"), sep = "\t", stringsAsFactors = F)
+        all_filter <- read.csv(paste0(output_folder,"/","filterin_clono_","All_Data",".txt"), sep = "\t", stringsAsFactors = FALSE)
         all_filter$highly_cluster_id <- 0
         all_filter$highly_freq_cluster_id <- 0
         
@@ -1888,7 +1888,7 @@ app_server <- function( input, output, session ) {
       output$higly_sim_clonotypes_bar_plot <- renderPlot({
         if(is.null(input$VisualisationDataset)) return()
         
-        if (input$higly_sim_clonotypes_barplot_select_range==F){
+        if (input$higly_sim_clonotypes_barplot_select_range==FALSE){
           #Find the clonotypes that we want to draw for all the datasets
           cl<-c()
           a<-list()
@@ -1961,9 +1961,9 @@ app_server <- function( input, output, session ) {
   ############################### Shared Clonotypes ############################### 
   observeEvent(input$Execute_pipeline, {
     
-    if (input$pipeline_public_clonotypes==F) return()
+    if (input$pipeline_public_clonotypes==FALSE) return()
     
-    if (input$pipeline_clonotypes==F) {
+    if (input$pipeline_clonotypes==FALSE) {
       validate(
         #"Please ckeck Clonotypes first!"
       )
@@ -1979,17 +1979,17 @@ app_server <- function( input, output, session ) {
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
       if (input$select_topN_or_reads_thr_shared_clono=="select_reads_thr_shared_clono"){
-        use_reads <- T
+        use_reads <- TRUE
         threshlod <- input$thr_public_clono_reads
       }else{
-        use_reads <- F
+        use_reads <- FALSE
         threshlod <- input$thr_public_clono_topN
       }
       
-      if (just_restored_session_public_clonotypes==F)
-        public_clonotypes_results<<-public_clonotypes(clono$clono_allData,clono$clono_datasets,input$take_gene_public_clono,use_reads,threshlod,loaded_datasets,F)
+      if (just_restored_session_public_clonotypes==FALSE)
+        public_clonotypes_results<<-public_clonotypes(clono$clono_allData,clono$clono_datasets,input$take_gene_public_clono,use_reads,threshlod,loaded_datasets,FALSE)
       
-      just_restored_session_public_clonotypes<<-F
+      just_restored_session_public_clonotypes<<-FALSE
       #highly_sim_view_specific_clonotypes,highly_sim_clonotypes
       
       msgPublicClono<<-public_clonotypes_results$confirm
@@ -2016,9 +2016,9 @@ app_server <- function( input, output, session ) {
   ############################### Highly Similar Public Clonotypes ###############################  
   observeEvent(input$Execute_pipeline, {
     
-    if (input$pipeline_highly_sim_public_clonotypes==F) return()
+    if (input$pipeline_highly_sim_public_clonotypes==FALSE) return()
     
-    if (input$pipeline_highly_similar_clonotypes==F) {
+    if (input$pipeline_highly_similar_clonotypes==FALSE) {
       validate(
         #"Please ckeck Clonotypes first!"
       )
@@ -2033,10 +2033,10 @@ app_server <- function( input, output, session ) {
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
-      if (just_restored_session_public_clonotypes==F)
-        highly_sim_public_clonotypes_results<<-public_clonotypes(highly_sim,highly_sim_datasets,input$take_gene_highly_sim_public_clono,T,input$thr_highly_sim_public_clono,loaded_datasets,T)
+      if (just_restored_session_public_clonotypes==FALSE)
+        highly_sim_public_clonotypes_results<<-public_clonotypes(highly_sim,highly_sim_datasets,input$take_gene_highly_sim_public_clono,TRUE,input$thr_highly_sim_public_clono,loaded_datasets,TRUE)
       
-      just_restored_session_highly_sim_public_clonotypes<<-F
+      just_restored_session_highly_sim_public_clonotypes<<-FALSE
       #highly_sim_view_specific_clonotypes,highly_sim_clonotypes
       
       msgPublicClono<<-highly_sim_public_clonotypes_results$confirm
@@ -2092,12 +2092,12 @@ app_server <- function( input, output, session ) {
   })
   ############################### Repertoires ###############################
   observeEvent(input$Execute_pipeline, {
-    if (input$pipeline_Repertoires==F) return()
+    if (input$pipeline_Repertoires==FALSE) return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
       
-      if (input$pipeline_clonotypes==F) {
+      if (input$pipeline_clonotypes==FALSE) {
         validate(
           #"Please ckeck Clonotypes first!"
         )
@@ -2112,26 +2112,26 @@ app_server <- function( input, output, session ) {
       
       for (i in 1:length(insertedRepertoires)){
         if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="V Gene"){
-          allele=F
+          allele=FALSE
           gene=used_columns[["Summary"]][3]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="V Gene and allele"){
-          allele=T
+          allele=TRUE
           gene=used_columns[["Summary"]][3]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="J Gene"){
-          allele=F
+          allele=FALSE
           gene=used_columns[["Summary"]][8]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="J Gene and allele"){
-          allele=T
+          allele=TRUE
           gene=used_columns[["Summary"]][8]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="D Gene"){
-          allele=F 
+          allele=FALSE
           gene=used_columns[["Summary"]][11]
         }else{
-          allele=T
+          allele=TRUE
           gene=used_columns[["Summary"]][11]
         }
         
-        if (just_restored_session_Repertoires==F){
+        if (just_restored_session_Repertoires==FALSE){
           repertories_results[[i]]<<-repertoires(clono$clono_allData,clono$clono_datasets,allele,allele_clonotypes,gene,gene_clonotypes,loaded_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets)
         }
         
@@ -2139,7 +2139,7 @@ app_server <- function( input, output, session ) {
         
       }
       
-      just_restored_session_Repertoires<<-F
+      just_restored_session_Repertoires<<-FALSE
       
       
       output$RepertoiresResultUi <- renderUI({
@@ -2263,12 +2263,12 @@ app_server <- function( input, output, session ) {
   
   ############################### Repertoires Highly Similar ###############################   
   observeEvent(input$Execute_pipeline, {
-    if (input$pipeline_HighlySim_Repertoires==F) return()
+    if (input$pipeline_HighlySim_Repertoires==FALSE) return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
       
-      if (input$pipeline_highly_similar_clonotypes==F) {
+      if (input$pipeline_highly_similar_clonotypes==FALSE) {
         validate(
           #"Please ckeck Clonotypes first!"
         )
@@ -2283,26 +2283,26 @@ app_server <- function( input, output, session ) {
       
       for (i in 1:length(insertedRepertoires)){
         if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="V Gene"){
-          allele=F
+          allele=FALSE
           gene=used_columns[["Summary"]][3]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="V Gene and allele"){
-          allele=T
+          allele=TRUE
           gene=used_columns[["Summary"]][3]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="J Gene"){
-          allele=F
+          allele=FALSE
           gene=used_columns[["Summary"]][8]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="J Gene and allele"){
-          allele=T
+          allele=TRUE
           gene=used_columns[["Summary"]][8]
         }else if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="D Gene"){
-          allele=F 
+          allele=FALSE 
           gene=used_columns[["Summary"]][11]
         }else{
-          allele=T
+          allele=TRUE
           gene=used_columns[["Summary"]][11]
         }
         
-        if (just_restored_session_HighlySim_Repertoires==F){
+        if (just_restored_session_HighlySim_Repertoires==FALSE){
           HighlySim_repertories_results[[i]]<<-repertoires_highly_similar(highly_sim,highly_sim_datasets,allele,allele_clonotypes,gene,gene_clonotypes,loaded_datasets,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,input$take_gene_highly_similar)
         }
         
@@ -2311,7 +2311,7 @@ app_server <- function( input, output, session ) {
         
       }
       
-      just_restored_session_HighlySim_Repertoires<<-F
+      just_restored_session_HighlySim_Repertoires<<-FALSE
       
       output$HighlySim_RepertoiresResultUi <- renderUI({
         lapply(1:length(insertedRepertoires), function(i) {
@@ -2435,11 +2435,11 @@ app_server <- function( input, output, session ) {
   ############################### Repertoires Comparison ###############################
   observeEvent(input$Execute_pipeline, {
     
-    if (input$pipeline_repertoires_comparison==F) return() 
+    if (input$pipeline_repertoires_comparison==FALSE) return() 
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
-      if (input$pipeline_Repertoires==F) { 
+      if (input$pipeline_Repertoires==FALSE) { 
         validate(
           #"Please ckeck Clonotypes and Repertoires first!"
         )
@@ -2453,18 +2453,18 @@ app_server <- function( input, output, session ) {
       }
       
       for (i in 1:length(insertedRepertoires)){
-        if (just_restored_session_repertoires_comparison==F){
-          repertoires_comparison_results[[i]]<<-repertoires_comparison(repertories_results[[i]]$Repertoires_allData,repertories_results[[i]]$Repertoires_datasets,loaded_datasets,F,i)
-          if (input$pipeline_HighlySim_Repertoires==T){
-            highly_sim_repertoires_comparison_results[[i]]<<-repertoires_comparison(HighlySim_repertories_results[[i]]$Repertoires_allData,HighlySim_repertories_results[[i]]$Repertoires_datasets,loaded_datasets,T,i)
+        if (just_restored_session_repertoires_comparison==FALSE){
+          repertoires_comparison_results[[i]]<<-repertoires_comparison(repertories_results[[i]]$Repertoires_allData,repertories_results[[i]]$Repertoires_datasets,loaded_datasets,FALSE,i)
+          if (input$pipeline_HighlySim_Repertoires==TRUE){
+            highly_sim_repertoires_comparison_results[[i]]<<-repertoires_comparison(HighlySim_repertories_results[[i]]$Repertoires_allData,HighlySim_repertories_results[[i]]$Repertoires_datasets,loaded_datasets,TRUE,i)
           }
         }
         
       }
       
-      just_restored_session_repertoires_comparison<<-F
+      just_restored_session_repertoires_comparison<<-FALSE
       
-      if (input$pipeline_HighlySim_Repertoires==T){
+      if (input$pipeline_HighlySim_Repertoires==TRUE){
         msgRepertoiresComp<<-highly_sim_repertoires_comparison_results[[length(insertedRepertoires)]]$confirm
       }else{
         msgRepertoiresComp<<-repertoires_comparison_results[[length(insertedRepertoires)]]$confirm
@@ -2561,7 +2561,7 @@ app_server <- function( input, output, session ) {
     }
     label=paste(low,high,sep="-")
     
-    identity_groups<<-(data.frame(low=low,high=high,label=label,stringsAsFactors = F))
+    identity_groups<<-(data.frame(low=low,high=high,label=label,stringsAsFactors = FALSE))
     
   })
   
@@ -2612,7 +2612,7 @@ app_server <- function( input, output, session ) {
       columns_for_Multiple_value_comparison<<-c(columns_for_Multiple_value_comparison, "V-REGION identity %")
     }
     
-    if (just_restored_session_Multiple_value_comparison==F){
+    if (just_restored_session_Multiple_value_comparison==FALSE){
       addMultipleValues(id, btn, columns_for_Multiple_value_comparison)
       insertedMultiple_value_comparison <<- c(insertedMultiple_value_comparison,id)
     }
@@ -2633,7 +2633,7 @@ app_server <- function( input, output, session ) {
   Multiple_value_comparison_input_values<<-c()
   
   observeEvent(input$Execute_pipeline, {
-    if (input$pipeline_Multiple_value_comparison==F) return()
+    if (input$pipeline_Multiple_value_comparison==FALSE) return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline", {
@@ -2641,7 +2641,7 @@ app_server <- function( input, output, session ) {
       #Check if any combination has been selected
       if (length(insertedMultiple_value_comparison)==0) return()
       
-      if (input$pipeline_clonotypes==F) {
+      if (input$pipeline_clonotypes==FALSE) {
         validate(
           #"Please ckeck Clonotypes first!"
         )
@@ -2666,7 +2666,7 @@ app_server <- function( input, output, session ) {
       }
       
       label=paste(low,high,sep="-")
-      identity_groups<<-(data.frame(low=low,high=high,label=label,stringsAsFactors = F))
+      identity_groups<<-(data.frame(low=low,high=high,label=label,stringsAsFactors = FALSE))
       
       # Multiple_value_comparison_result<-list()
       
@@ -2682,12 +2682,12 @@ app_server <- function( input, output, session ) {
           Multiple_value_comparison_input_values<<-rbind(Multiple_value_comparison_input_values,c(val1,val2))
           if (input$pipeline_highly_similar_clonotypes){
             if (input$select_clono_or_highly_for_Multiple_value_comparison=="initial_clonotypes"){
-              highly=F
+              highly=FALSE
             }else{
-              highly=T
+              highly=TRUE
             }
           }else{
-            highly=F
+            highly=FALSE
           }
           if (highly)
             Multiple_value_comparison_result[[i]]<<-Multiple_value_comparison_highly_similar(highly_sim,highly_sim_datasets,allele_clonotypes,gene_clonotypes,clono$view_specific_clonotype_allData,clono$view_specific_clonotype_datasets,val1,val2,loaded_datasets,identity_groups)
@@ -2698,7 +2698,7 @@ app_server <- function( input, output, session ) {
         msgMultiple_value_comparison[i]<<-Multiple_value_comparison_result[[i]]$confirm
       }
       
-      just_restored_session_Multiple_value_comparison<<-F
+      just_restored_session_Multiple_value_comparison<<-FALSE
       
       # Multiple_value_comparison tab
       output$uiMultiple_value_comparisonTables <- renderUI({
@@ -2789,7 +2789,7 @@ app_server <- function( input, output, session ) {
   
   ############################### Logo plots ###############################
   observeEvent(input$Execute_pipeline_2nd_part, {
-    if (input$pipeline_logo==F) return()
+    if (input$pipeline_logo==FALSE) return()
     #if (msgFreqTables=="") return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
@@ -2797,15 +2797,15 @@ app_server <- function( input, output, session ) {
       
       if (input$select_topN_clonotypes_for_freqTable!="all_clonotypes"){
         if (input$select_topN_clonotypes_for_freqTable=="topN_clonotypes_for_alignment"){
-          FtopN=T
-          Fthr=F
+          FtopN=TRUE
+          Fthr=FALSE
         } 
         else {
-          FtopN=F
-          Fthr=T
+          FtopN=FALSE
+          Fthr=TRUE
         }
         
-        if (input$pipeline_clonotypes==F) {
+        if (input$pipeline_clonotypes==FALSE) {
           validate(
             #"Please ckeck Clonotypes first!"
           )
@@ -2818,12 +2818,12 @@ app_server <- function( input, output, session ) {
           return()
         }
       }else {
-        FtopN=F
-        Fthr=F
+        FtopN=FALSE
+        Fthr=FALSE
       }
       
       if (FtopN){
-        if (input$pipeline_highly_similar_clonotypes==F){
+        if (input$pipeline_highly_similar_clonotypes==FALSE){
           clono_allDataTopN=clono$clono_allData[1:input$topNFreqTable,] 
           if (is.null(clono$clono_allData)) return()
           clono_datasetsTopN<-list()
@@ -2843,7 +2843,7 @@ app_server <- function( input, output, session ) {
       }
       
       if (Fthr){
-        if (input$pipeline_highly_similar_clonotypes==F){
+        if (input$pipeline_highly_similar_clonotypes==FALSE){
           clono_allDataTopN=clono$clono_allData %>% filter(Freq>input$thrClonoLogos)
           if (is.null(clono$clono_allData)) return()
           clono_datasetsTopN<-list()
@@ -2863,15 +2863,15 @@ app_server <- function( input, output, session ) {
       }
       
       if (input$select_clonotypes_for_logo){
-        FclonoLogoSeperately<<-T
+        FclonoLogoSeperately<<-TRUE
         num_of_clusters = length(strsplit(input$clonotypes_for_logo,",")[[1]])
         cl_ids_logos<<-as.numeric(strsplit(input$clonotypes_for_logo,",")[[1]])
       }
       
-      if (just_restored_session_freqTables==F){
+      if (just_restored_session_freqTables==FALSE){
         frequenciesTables_results<<-createFrequencyTableCDR3(input$regionFreqTable,imgtfilter_results$allData,loaded_datasets,input$regionLengthFreq,(FtopN || Fthr),clono_allDataTopN,clono_datasetsTopN,gene_clonotypes,junction_clonotypes,allele_clonotypes)
         if (FclonoLogoSeperately){
-          if (input$pipeline_highly_similar_clonotypes==F){
+          if (input$pipeline_highly_similar_clonotypes==FALSE){
             for (cl in 1:length(cl_ids_logos)){
               clono_datasets_cl<-list()
               for (i in 1:length(loaded_datasets)){
@@ -2893,7 +2893,7 @@ app_server <- function( input, output, session ) {
         }
       }
       
-      just_restored_session_freqTables<<-F
+      just_restored_session_freqTables<<-FALSE
       
       freqTables_datasets<<-frequenciesTables_results$table_freq_datasets
       
@@ -3087,7 +3087,7 @@ app_server <- function( input, output, session ) {
       }
       
       #################################### Logo plots ##############################
-      if (just_restored_session_logo==F){
+      if (just_restored_session_logo==FALSE){
         if (input$regionFreqTable=="CDR3"){
           logo_result<<-createLogo(frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)],frequenciesTables_results$table_count_datasets,loaded_datasets)
         }else{
@@ -3121,7 +3121,7 @@ app_server <- function( input, output, session ) {
         }
       }
       
-      just_restored_session_logo=F
+      just_restored_session_logo=FALSE
       motif_datasets<<-logo_result$motif_datasets
       motif_all<<-logo_result$motif_all
       msgLogo<<-logo_result$confirm
@@ -3131,9 +3131,9 @@ app_server <- function( input, output, session ) {
         
         if (input$select_region_logo=="All V region" || input$regionFreqTable=='CDR3'){
           if (input$LogoDataset=="All Data"){
-            logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }else{
-            logo_plot<<-plot(motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }
           table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
           index1=1
@@ -3148,9 +3148,9 @@ app_server <- function( input, output, session ) {
           
         }else{
           if (input$LogoDataset=="All Data"){
-            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }else{
-            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }
           table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
           
@@ -3186,13 +3186,13 @@ app_server <- function( input, output, session ) {
             #cols=c("#1E90FF", "#BA55D3", "#0000FF", "#0000FF", "#0000FF", "#0000FF", "#C6E2FF", "#C6E2FF", "#FFD700", "#00EE00", "#C1FFC1", "#54FF9F", "#54FF9F", "#FF0000", "#FF0000", "#FF0000", "#FFD700", "#FFD700", "#ED9121", "#ED9121"))
             #ggseqlogo(frequenciesTables_results$region_with_specific_length, method = "prob", col_scheme=cs1)
             #write.table(frequenciesTables_results$region_with_specific_length,"fre.txt",sep="\t")
-            logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }else{
             # Create custom colour scheme
             #cs1 = make_col_scheme(chars=c("F","W","A","I","L","V","M","C","P","G","Y","T","S","H","K","R","E","D","Q","N"),
             #cols=c("#1E90FF", "#BA55D3", "#0000FF", "#0000FF", "#0000FF", "#0000FF", "#C6E2FF", "#C6E2FF", "#FFD700", "#00EE00", "#C1FFC1", "#54FF9F", "#54FF9F", "#FF0000", "#FF0000", "#FF0000", "#FFD700", "#FFD700", "#ED9121", "#ED9121"))
             #ggseqlogo(frequenciesTables_results$region_with_specific_length_dataset[[input$VisualisationDataset]], method = "prob", col_scheme=cs1)
-            logo_plot<<-plot(motif_datasets[[input$VisualisationDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(motif_datasets[[input$VisualisationDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }
           table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
           index1=1
@@ -3207,9 +3207,9 @@ app_server <- function( input, output, session ) {
           
         }else{
           if (input$VisualisationDataset=="All Data"){
-            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }else{
-            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_datasets[[input$VisualisationDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+            logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_datasets[[input$VisualisationDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
           }
           table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
           
@@ -3247,9 +3247,9 @@ app_server <- function( input, output, session ) {
           #multiplot(logo_plot)
           if (input$select_region_logo=="All V region" || input$regionFreqTable=='CDR3'){
             if (input$LogoDataset=="All Data"){
-              logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }else{
-              logo_plot<<-plot(motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }
             table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
             index1=1
@@ -3264,9 +3264,9 @@ app_server <- function( input, output, session ) {
             
           }else{
             if (input$LogoDataset=="All Data"){
-              logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }else{
-              logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(logo_per_region[[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }
             table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
             
@@ -3325,9 +3325,9 @@ app_server <- function( input, output, session ) {
             
             if (input$select_region_logo=="All V region" || input$regionFreqTable=='CDR3'){
               if (input$LogoDataset=="All Data"){
-                logo_plot<<-plot(logo_result_cl[[i]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                logo_plot<<-plot(logo_result_cl[[i]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
               }else{
-                logo_plot<<-plot(logo_result_cl[[i]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                logo_plot<<-plot(logo_result_cl[[i]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
               }
               table_count=frequenciesTables_results_cl[[i]]$table_count[,2:ncol(frequenciesTables_results_cl[[i]]$table_count)]
               index1=1
@@ -3342,9 +3342,9 @@ app_server <- function( input, output, session ) {
               
             }else{
               if (input$LogoDataset=="All Data"){
-                logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
               }else{
-                logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
               }
               table_count=frequenciesTables_results_cl[[i]]$table_count[,2:ncol(frequenciesTables_results_cl[[i]]$table_count)]
               
@@ -3376,9 +3376,9 @@ app_server <- function( input, output, session ) {
               png(file,width=1000, height=550)
               if (input$select_region_logo=="All V region" || input$regionFreqTable=='CDR3'){
                 if (input$LogoDataset=="All Data"){
-                  logo_plot<<-plot(logo_result_cl[[i]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                  logo_plot<<-plot(logo_result_cl[[i]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                 }else{
-                  logo_plot<<-plot(logo_result_cl[[i]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                  logo_plot<<-plot(logo_result_cl[[i]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                 }
                 table_count=frequenciesTables_results_cl[[i]]$table_count[,2:ncol(frequenciesTables_results_cl[[i]]$table_count)]
                 index1=1
@@ -3393,9 +3393,9 @@ app_server <- function( input, output, session ) {
                 
               }else{
                 if (input$LogoDataset=="All Data"){
-                  logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                  logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                 }else{
-                  logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                  logo_plot<<-plot(logo_per_region_cl[[i]][[input$select_region_logo]]$motif_datasets[[input$LogoDataset]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                 }
                 table_count=frequenciesTables_results_cl[[i]]$table_count[,2:ncol(frequenciesTables_results_cl[[i]]$table_count)]
                 
@@ -3432,28 +3432,28 @@ app_server <- function( input, output, session ) {
   
   ############################### Alignment ###############################    
   observeEvent(input$Execute_pipeline_2nd_part, {
-    if (input$pipeline_alignment == F) return()
+    if (input$pipeline_alignment == FALSE) return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline_2nd_part", {
       
       if (input$useGermline == "Insert Germline" && input$Germline == "") return()
       
-      if (input$useGermline == "Insert Germline") only_one_germline = T else only_one_germline = F
+      if (input$useGermline == "Insert Germline") only_one_germline = TRUE else only_one_germline = FALSE
       
-      if (input$useGermline == "Use Gene's germline") use_genes_germline = T else use_genes_germline = F
+      if (input$useGermline == "Use Gene's germline") use_genes_germline = TRUE else use_genes_germline = FALSE
       
       if (input$select_topN_clonotypes_for_alignment != "all_clonotypes"){
         
         if (input$select_topN_clonotypes_for_alignment == "topN_clonotypes_for_alignment"){
-          FtopN = T
-          Fthr = F
+          FtopN = TRUE
+          Fthr = FALSE
         } else {
-          FtopN = F
-          Fthr = T
+          FtopN = FALSE
+          Fthr = TRUE
         }
         
-        if (input$pipeline_clonotypes == F) {
+        if (input$pipeline_clonotypes == FALSE) {
           
           validate(
             #"Please ckeck Clonotypes first!"
@@ -3471,12 +3471,12 @@ app_server <- function( input, output, session ) {
         
       } else {
         
-        FtopN = F
-        Fthr = F
+        FtopN = FALSE
+        Fthr = FALSE
         
       }
       
-      if (just_restored_session_alignment == F){ 
+      if (just_restored_session_alignment == FALSE){ 
         #if (input$regionAlignment=="V.D.J.REGION" || input$regionAlignment=="V.J.REGION"){
         if (length(highly_sim) == 0){
           
@@ -3495,7 +3495,7 @@ app_server <- function( input, output, session ) {
                                                   clono$view_specific_clonotype_allData,
                                                   clono$view_specific_clonotype_datasets,
                                                   input$topNClonoAlignment,
-                                                  FtopN, input$thrClonoAlignment, Fthr, F)
+                                                  FtopN, input$thrClonoAlignment, Fthr, FALSE)
             
             print("V2")
             alignmentRegion_results_nt <<- alignment(imgtfilter_results$allData,
@@ -3510,7 +3510,7 @@ app_server <- function( input, output, session ) {
                                                       clono$view_specific_clonotype_allData,
                                                       clono$view_specific_clonotype_datasets,
                                                       input$topNClonoAlignment, 
-                                                      FtopN, input$thrClonoAlignment, Fthr, F)
+                                                      FtopN, input$thrClonoAlignment, Fthr, FALSE)
             
           } else {
             
@@ -3527,7 +3527,7 @@ app_server <- function( input, output, session ) {
                                                   clono$view_specific_clonotype_allData,
                                                   clono$view_specific_clonotype_datasets,
                                                   input$topNClonoAlignment,
-                                                  FtopN, input$thrClonoAlignment, Fthr, F)
+                                                  FtopN, input$thrClonoAlignment, Fthr, FALSE)
             
           }
           
@@ -3547,7 +3547,7 @@ app_server <- function( input, output, session ) {
                                                   clono$view_specific_clonotype_allData,
                                                   clono$view_specific_clonotype_datasets,
                                                   input$topNClonoAlignment,
-                                                  FtopN, input$thrClonoAlignment, Fthr, T)
+                                                  FtopN, input$thrClonoAlignment, Fthr, TRUE)
             
             print("V4")
             alignmentRegion_results_nt <<- alignment(imgtfilter_results$allData,
@@ -3561,7 +3561,7 @@ app_server <- function( input, output, session ) {
                                                       clono$view_specific_clonotype_allData,
                                                       clono$view_specific_clonotype_datasets,
                                                       input$topNClonoAlignment,
-                                                      FtopN, input$thrClonoAlignment, Fthr, T)
+                                                      FtopN, input$thrClonoAlignment, Fthr, TRUE)
           } else {
             
             alignmentRegion_results <<- alignment(imgtfilter_results$allData,
@@ -3575,14 +3575,14 @@ app_server <- function( input, output, session ) {
                                                   clono$view_specific_clonotype_allData,
                                                   clono$view_specific_clonotype_datasets,
                                                   input$topNClonoAlignment,
-                                                  FtopN, input$thrClonoAlignment, Fthr, T)
+                                                  FtopN, input$thrClonoAlignment, Fthr, TRUE)
           
           }
           
         }
       }
       
-      just_restored_session_alignment<<-F
+      just_restored_session_alignment<<-FALSE
       if (input$AAorNtAlignment=="both"){
         msgAlignment<<-alignmentRegion_results_nt$confirm
       }else{
@@ -3641,7 +3641,7 @@ app_server <- function( input, output, session ) {
         #groupedAlignmentRegion<-groupedAlignment(alignmentRegion)
       }
       
-      if (just_restored_session_alignment==F){ 
+      if (just_restored_session_alignment==FALSE){ 
         if (input$AAorNtAlignment=="both") n="aa" else n="nt"
         grouped_alignment_results <<- groupedAlignment(alignmentRegion_results$alignment_allData,alignmentRegion_results$alignment_datasets,loaded_datasets,n)
         if (input$AAorNtAlignment=="both"){
@@ -3650,7 +3650,7 @@ app_server <- function( input, output, session ) {
         
       }
       
-      just_restored_session_alignment<<-F
+      just_restored_session_alignment<<-FALSE
       msgGroupedAlignment<<-grouped_alignment_results$confirm
       if (input$AAorNtAlignment=="both"){
         msgGroupedAlignment<<-grouped_alignment_results_nt$confirm
@@ -3704,9 +3704,9 @@ app_server <- function( input, output, session ) {
   
   ############################### Mutations ###############################    
   observeEvent(input$Execute_pipeline_2nd_part, { 
-    if (input$pipeline_mutations==F) return()
+    if (input$pipeline_mutations==FALSE) return()
     
-    if (input$pipeline_alignment==F) {
+    if (input$pipeline_alignment==FALSE) {
       validate(
         #"Please ckeck Alignment first!"
       )
@@ -3719,7 +3719,7 @@ app_server <- function( input, output, session ) {
       return()
     }
     
-    if (input$pipeline_alignment==T & input$AAorNtMutations=="both" & input$AAorNtAlignment !="both") {
+    if (input$pipeline_alignment==TRUE & input$AAorNtMutations=="both" & input$AAorNtAlignment !="both") {
       validate(
         #"Please ckeck Alignment both first!"
       )
@@ -3732,7 +3732,7 @@ app_server <- function( input, output, session ) {
       return()
     }
     
-    if (input$pipeline_alignment==T & input$AAorNtMutations=="aa" & input$AAorNtAlignment =="nt") {
+    if (input$pipeline_alignment==TRUE & input$AAorNtMutations=="aa" & input$AAorNtAlignment =="nt") {
       validate(
         #"Please ckeck Alignment both first!"
       )
@@ -3745,7 +3745,7 @@ app_server <- function( input, output, session ) {
       return()
     }
     
-    if (input$pipeline_alignment==T & input$AAorNtMutations=="nt" & input$AAorNtAlignment =="aa") {
+    if (input$pipeline_alignment==TRUE & input$AAorNtMutations=="nt" & input$AAorNtAlignment =="aa") {
       validate(
         #"Please ckeck Alignment nt first!"
       )
@@ -3763,15 +3763,15 @@ app_server <- function( input, output, session ) {
       
       if (input$select_topN_clonotypes_for_mutations!="all_clonotypes"){
         if (input$select_topN_clonotypes_for_mutations=="topN_clonotypes_for_mutations"){
-          FtopN=T
-          Fthr=F
+          FtopN=TRUE
+          Fthr=FALSE
         } 
         else {
-          FtopN=F
-          Fthr=T
+          FtopN=FALSE
+          Fthr=TRUE
         }
         
-        if (input$pipeline_clonotypes==F) {
+        if (input$pipeline_clonotypes==FALSE) {
           validate(
             #"Please ckeck Clonotypes first!"
           )
@@ -3784,13 +3784,13 @@ app_server <- function( input, output, session ) {
           return()
         }
       }else{ 
-        FtopN=F
-        Fthr=F
+        FtopN=FALSE
+        Fthr=FALSE
       }
       
       if (input$select_clonotypes_for_mutations){
-        FclonoSeperately<<-T
-        if (input$pipeline_clonotypes==F) {
+        FclonoSeperately<<-TRUE
+        if (input$pipeline_clonotypes==FALSE) {
           validate(
             #"Please ckeck Clonotypes first!"
           )
@@ -3802,7 +3802,7 @@ app_server <- function( input, output, session ) {
           ))
           return()
         }
-      }else FclonoSeperately<<-F
+      }else FclonoSeperately<<-FALSE
       
       if (input$select_clonotypes_for_mutations){
         num_of_clusters = length(strsplit(input$clonotypes_for_mutations,",")[[1]])
@@ -3810,10 +3810,10 @@ app_server <- function( input, output, session ) {
       }
       
       
-      if (just_restored_session_mutations==F){ 
+      if (just_restored_session_mutations==FALSE){ 
         if (input$AAorNtMutations=="both"){ 
-          mutation_results<<-mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,input$ThrAAMutations,"aa",loaded_datasets,input$topNClonoMutations, FtopN,F,0,Fthr,input$thrClonoMutations)
-          mutation_results_nt<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,input$ThrNtMutations,"nt",loaded_datasets, input$topNClonoMutations, FtopN,F,0,Fthr,input$thrClonoMutations)
+          mutation_results<<-mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,input$ThrAAMutations,"aa",loaded_datasets,input$topNClonoMutations, FtopN,FALSE,0,Fthr,input$thrClonoMutations)
+          mutation_results_nt<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,input$ThrNtMutations,"nt",loaded_datasets, input$topNClonoMutations, FtopN,FALSE,0,Fthr,input$thrClonoMutations)
         }else{
           if (input$AAorNtMutations=="aa"){
             thr=input$ThrAAMutations 
@@ -3830,14 +3830,14 @@ app_server <- function( input, output, session ) {
               align_datasets=grouped_alignment_results_nt$grouped_alignment_datasets
             } 
           }
-          mutation_results<<-mutations(align_all,align_datasets,thr,input$AAorNtMutations,loaded_datasets,input$topNClonoMutations, FtopN,F,0,Fthr,input$thrClonoMutations)
+          mutation_results<<-mutations(align_all,align_datasets,thr,input$AAorNtMutations,loaded_datasets,input$topNClonoMutations, FtopN,FALSE,0,Fthr,input$thrClonoMutations)
         }
         
         if (FclonoSeperately){
           for (cl in 1:length(cl_ids_mutations)){
             if (input$AAorNtMutations=="both"){ 
-              mutation_results_cl[[cl]]<<-mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,input$ThrAAMutations,"aa",loaded_datasets,input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],F)
-              mutation_results_nt_cl[[cl]]<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,input$ThrNtMutations,"nt",loaded_datasets, input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],F)
+              mutation_results_cl[[cl]]<<-mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,input$ThrAAMutations,"aa",loaded_datasets,input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
+              mutation_results_nt_cl[[cl]]<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,input$ThrNtMutations,"nt",loaded_datasets, input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
             }else{
               if (input$AAorNtMutations=="aa"){
                 thr=input$ThrAAMutations 
@@ -3854,7 +3854,7 @@ app_server <- function( input, output, session ) {
                   align_datasets=grouped_alignment_results_nt$grouped_alignment_datasets
                 } 
               }
-              mutation_results_cl[[cl]]<<-mutations(align_all,align_datasets,thr,input$AAorNtMutations,loaded_datasets,input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],F)
+              mutation_results_cl[[cl]]<<-mutations(align_all,align_datasets,thr,input$AAorNtMutations,loaded_datasets,input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
             }
           }
           
@@ -3862,7 +3862,7 @@ app_server <- function( input, output, session ) {
         
       }
       
-      just_restored_session_mutations<<-F
+      just_restored_session_mutations<<-FALSE
       if (input$AAorNtMutations=="both"){
         msgMutation<<-mutation_results_nt$confirm
       }else{
@@ -3983,21 +3983,21 @@ app_server <- function( input, output, session ) {
   
   ############################### Length distance ###############################
   output$uiSelectGene1Diff <- renderUI({
-    if (input$pipeline_CDR3Diff1==F || length(imgtfilter_results$allData)==0) return()
+    if (input$pipeline_CDR3Diff1==FALSE || length(imgtfilter_results$allData)==0) return()
     selectInput("selectGeneCDR3Diff1", "Select gene:",unique(imgtfilter_results$allData[[used_columns[["Summary"]][3]]]) , width="270px")
   })
   
   ############################### CDR3 1 length diff ###############################
   observeEvent(input$Execute_pipeline_2nd_part, {
-    if (input$pipeline_CDR3Diff1==F) return()
+    if (input$pipeline_CDR3Diff1==FALSE) return()
     
     # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
     withBusyIndicatorServer("Execute_pipeline_2nd_part", {
       
-      if (just_restored_session_CDR3Diff1==F) 
+      if (just_restored_session_CDR3Diff1==FALSE) 
         CDR3Diff1_results<<-find_cdr3_diff1P(imgtfilter_results$allData,input$cdr3MaxLength1Diff,input$cdr3Position1Diff,loaded_datasets)
       
-      just_restored_session_CDR3Diff1<<-F
+      just_restored_session_CDR3Diff1<<-FALSE
       msgCDR3Diff1<<-CDR3Diff1_results$confirm
       
       output$CDR3Diff1Table <- renderDataTable({
@@ -4085,7 +4085,7 @@ app_server <- function( input, output, session ) {
       high=c(high,input[[paste0("Identity_high_group",i)]])
     }
     label=paste(low,high,sep="-")
-    identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = F))
+    identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = FALSE))
     for (i in 1:input$N_identity_groups){
       my_table=c(my_table,paste0("low: ",identity_groups$low[i],", high: ",identity_groups$high[i]))
     }
@@ -4149,7 +4149,7 @@ app_server <- function( input, output, session ) {
     if(!input$Execute) return()
     if (msgFreqTables=="") return()
     my_table=c(paste0("Region for Frequency Table: ",input$regionFreqTable),paste0("Region length: ",input$regionLengthFreq))
-    if (input$select_topN_clonotypes_for_freqTable == T) my_table=c(my_table,paste0("Use top ",input$topNFreqTable," clonotypes"))
+    if (input$select_topN_clonotypes_for_freqTable == TRUE) my_table=c(my_table,paste0("Use top ",input$topNFreqTable," clonotypes"))
     else my_table=c(my_table,paste0("Germline: ",input$useGermline))
     my_table=data.frame(Logo_Parameters=my_table)
     return(my_table)
@@ -4298,7 +4298,7 @@ app_server <- function( input, output, session ) {
           high=c(high,input[[paste0("Identity_high_group",i)]])
         }
         label=paste(low,high,sep="-")
-        identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = F))
+        identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = FALSE))
         for (i in 1:input$N_identity_groups){
           my_table=c(my_table,paste0("low: ",identity_groups$low[i],", high: ",identity_groups$high[i]))
         }
@@ -4342,7 +4342,7 @@ app_server <- function( input, output, session ) {
         plot(NA, xlim=c(0,5), ylim=c(0,5), bty='n', xaxt='n', yaxt='n', xlab='', ylab='')
         text(1,4,paste0("Frequency Table Parameters"), pos=4)
         my_table=c(paste0("Region for Frequency Table: ",input$regionFreqTable),paste0("Region length: ",input$regionLengthFreq))
-        if (input$select_topN_clonotypes_for_freqTable == T) my_table=c(my_table,paste0("Use top ",input$topNFreqTable," clonotypes"))
+        if (input$select_topN_clonotypes_for_freqTable == TRUE) my_table=c(my_table,paste0("Use top ",input$topNFreqTable," clonotypes"))
         else my_table=c(my_table,paste0("Germline: ",input$useGermline))
         my_table=data.frame(Freq_Table_Parameters=my_table)
         grid.table(my_table)
@@ -4372,7 +4372,7 @@ app_server <- function( input, output, session ) {
           parameters=paste0("with_threshold ",input$clonotypes_barchart_threshold)
         }
         
-        if (input$clonotypes_barplot_select_range==F){
+        if (input$clonotypes_barplot_select_range==FALSE){
           #Find the clonotypes that we want to draw for all the datasets
           cl<-c()
           a<-list()
@@ -4447,7 +4447,7 @@ app_server <- function( input, output, session ) {
           parameters=paste0("with_threshold ",input$higly_sim_clonotypes_barchart_threshold)
         }
         
-        if (input$higly_sim_clonotypes_barplot_select_range==F){
+        if (input$higly_sim_clonotypes_barplot_select_range==FALSE){
           #Find the clonotypes that we want to draw for all the datasets
           cl<-c()
           a<-list()
@@ -4625,7 +4625,7 @@ app_server <- function( input, output, session ) {
             legend("topright", as.character(mutational_status_table_datasets[[loaded_datasets[j]]][[used_columns[["Summary"]][4]]]), cex = 0.8,
                     fill = rainbow(length(mutational_status_table_datasets[[loaded_datasets[j]]]$N)))
             dev.off()
-            write.table(mutational_status_table_datasets[[loaded_datasets[j]]], paste0(in.path,"/","Mutational_Status_", loaded_datasets[j],".txt"), sep = "\t", row.names = F)
+            write.table(mutational_status_table_datasets[[loaded_datasets[j]]], paste0(in.path,"/","Mutational_Status_", loaded_datasets[j],".txt"), sep = "\t", row.names = FALSE)
           }
         }
       }
@@ -4646,7 +4646,7 @@ app_server <- function( input, output, session ) {
             plot(d$CDR3Length,d$n,main=paste0("CDR3 IMGT length ", "All Data"), xlab="length",ylab="") # plots the results
             lines(spline(d$CDR3Length,d$n))
             dev.off()
-            write.table(cdr3_length_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","CDR3_Length_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = F)
+            write.table(cdr3_length_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","CDR3_Length_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = FALSE)
           }
         }
       }
@@ -4654,13 +4654,13 @@ app_server <- function( input, output, session ) {
       #Pi Distribution #######  
       if (input$pipeline_pi_distribution){
         png(paste0(in.path,"/","Pi_Distribution ","All_Data",".png"),width=900, height=600)
-        boxplot(box_input, horizontal=F, main=" ")
+        boxplot(box_input, horizontal=FALSE, main=" ")
         dev.off()
         for (j in 1:(length(loaded_datasets)+1)){
           if (j==(length(loaded_datasets)+1)){
             write.table(pi_distribution, paste0(in.path,"/","Pi_Distribution_", "All_Data",".txt"), sep = "\t")
           }else{
-            write.table(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","Pi_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = F)
+            write.table(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path,"/","Pi_Distribution_", loaded_datasets[j],".txt"), sep = "\t", row.names = FALSE)
           }
         } 
       }
@@ -4672,10 +4672,10 @@ app_server <- function( input, output, session ) {
           for (j in 1:(length(loaded_datasets)+1)){
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_","CDR3","_","All_Data",".png"),width=1000, height=550)
-              logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }else{
               png(paste0(in.path,"/","logo_","CDR3","_",loaded_datasets[j],".png"),width=1000, height=550)
-              logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }
             table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
             index1=1
@@ -4706,10 +4706,10 @@ app_server <- function( input, output, session ) {
           for (j in 1:(length(loaded_datasets)+1)){
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_",input$regionFreqTable,"_","All_Data",".png"),width=1500, height=550)
-              logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }else{
               png(paste0(in.path,"/","logo_",input$regionFreqTable,"_",loaded_datasets[j],".png"),width=1000, height=550)
-              logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }
             table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
             index1=1
@@ -4732,11 +4732,11 @@ app_server <- function( input, output, session ) {
               i2=index_2[r]
               if (j==(length(loaded_datasets)+1)){
                 png(paste0(in.path,"/","logo_",regions,"_","All_Data",".png"),width=1000, height=550)
-                logo_plot<<-plot(logo_per_region[[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                logo_plot<<-plot(logo_per_region[[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                 table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
               }else{
                 png(paste0(in.path,"/","logo_",regions,"_",input$Dataset[j],".png"),width=1000, height=550)
-                logo_plot<<-plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                logo_plot<<-plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                 table_count=frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][,2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
               }
               
@@ -4754,10 +4754,10 @@ app_server <- function( input, output, session ) {
           for (j in 1:(length(loaded_datasets)+1)){
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",input$regionFreqTable,"_","All_Data",".png"),width=1000, height=550)
-              logo_plot<<-plot(logo_result_cl[[cl]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(logo_result_cl[[cl]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }else{
               png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",input$regionFreqTable,"_",loaded_datasets[j],".png"),width=1000, height=550)
-              logo_plot<<-plot(logo_result_cl[[cl]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+              logo_plot<<-plot(logo_result_cl[[cl]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
             }
             
             table_count=frequenciesTables_results_cl[[cl]]$table_count[,2:ncol(frequenciesTables_results_cl[[cl]]$table_count)]
@@ -4785,11 +4785,11 @@ app_server <- function( input, output, session ) {
                 i2=index_2[r]
                 if (j==(length(loaded_datasets)+1)){
                   png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regions,"_","All_Data",".png"),width=1000, height=550)
-                  logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                  logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                   table_count=frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)]
                 }else{
                   png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regions,"_",input$Dataset[j],".png"),width=1000, height=550)
-                  logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=F,yaxis=F)
+                  logo_plot<<-plot(logo_per_region_cl[[cl]][[regions]]$motif_datasets[[loaded_datasets[j]]],ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
                   table_count=frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][,2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
                 }
                 
@@ -4807,7 +4807,7 @@ app_server <- function( input, output, session ) {
       fileNames=input$nucleotides_per_clonotype_Datasets
       topN=input$nucleotides_per_clonotype_topN
       if (msgClonotypes!=""){
-        if ((input$nucleotides_per_clonotype==F) && is.null(fileNames)){
+        if ((input$nucleotides_per_clonotype==FALSE) && is.null(fileNames)){
           fileNames=loaded_datasets
           topN=10
         }
@@ -4866,16 +4866,16 @@ app_server <- function( input, output, session ) {
         high=c(high,input[[paste0("Identity_high_group",i)]])
       }
       label=paste(low,high,sep="-")
-      identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = F))
+      identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = FALSE))
       
       if (input$pipeline_highly_similar_clonotypes){
         if (input$select_clono_or_highly_for_mutational_status=="initial_clonotypes"){
-          highly=F
+          highly=FALSE
         }else{
-          highly=T
+          highly=TRUE
         }
       }else{
-        highly=F
+        highly=FALSE
       }
       
       if (!highly){
@@ -4896,7 +4896,7 @@ app_server <- function( input, output, session ) {
           for (i in names(clono$view_specific_clonotype_allData)){
             d=c(d,median(clono$view_specific_clonotype_allData[[i]][[var]]))
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           
           filteredData_id<<-d
@@ -4929,7 +4929,7 @@ app_server <- function( input, output, session ) {
               for (i in names(clono$view_specific_clonotype_datasets[[name[j]]])){
                 d=c(d,median(clono$view_specific_clonotype_datasets[[name[j]]][[i]][[var]]))
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               temp=d
               data=d
@@ -4972,7 +4972,7 @@ app_server <- function( input, output, session ) {
             }
             d=c(d,median(a[[var]]))
           }
-          d=as.data.frame(d,stringsAsFactors=F)
+          d=as.data.frame(d,stringsAsFactors=FALSE)
           colnames(d)=var
           
           filteredData_id<<-d
@@ -5012,7 +5012,7 @@ app_server <- function( input, output, session ) {
                 }
                 d=c(d,median(a[[var]]))
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               temp=d
               data=d
@@ -5154,12 +5154,12 @@ app_server <- function( input, output, session ) {
         var=used_columns[["Summary"]][15]
         if (input$pipeline_highly_similar_clonotypes){
           if (input$select_clono_or_highly_for_cdr3_distribution=="initial_clonotypes"){
-            highly=F
+            highly=FALSE
           }else{
-            highly=T
+            highly=TRUE
           }
         }else{
-          highly=F
+          highly=FALSE
         }
         if (!highly){
           for (j in 1:(length(loaded_datasets)+1)){
@@ -5168,7 +5168,7 @@ app_server <- function( input, output, session ) {
               for (i in names(clono$view_specific_clonotype_allData)){
                 d=c(d,clono$view_specific_clonotype_allData[[i]][[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(clono$clono_allData)
@@ -5180,7 +5180,7 @@ app_server <- function( input, output, session ) {
               for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])){
                 d=c(d,clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
@@ -5202,7 +5202,7 @@ app_server <- function( input, output, session ) {
                 }
                 d=c(d,a[[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(highly_sim)
@@ -5221,7 +5221,7 @@ app_server <- function( input, output, session ) {
                 }
                 d=c(d,a[[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
@@ -5275,12 +5275,12 @@ app_server <- function( input, output, session ) {
         
         if (input$pipeline_highly_similar_clonotypes){
           if (input$select_clono_or_highly_for_pi_distribution=="initial_clonotypes"){
-            highly=F
+            highly=FALSE
           }else{
-            highly=T
+            highly=TRUE
           }
         }else{
-          highly=F
+          highly=FALSE
         }
         
         if (!highly){
@@ -5340,12 +5340,12 @@ app_server <- function( input, output, session ) {
         
         if (input$pipeline_highly_similar_clonotypes){
           if (input$select_clono_or_highly_for_pi_distribution=="initial_clonotypes"){
-            highly=F
+            highly=FALSE
           }else{
-            highly=T
+            highly=TRUE
           }
         }else{
-          highly=F
+          highly=FALSE
         }
         
         if (!highly){
@@ -5355,7 +5355,7 @@ app_server <- function( input, output, session ) {
               for (i in names(clono$view_specific_clonotype_allData)){
                 d=c(d,clono$view_specific_clonotype_allData[[i]][[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(clono$clono_allData)
@@ -5367,7 +5367,7 @@ app_server <- function( input, output, session ) {
               for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])){
                 d=c(d,clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(clono$clono_datasets[[loaded_datasets[j]]])
@@ -5389,7 +5389,7 @@ app_server <- function( input, output, session ) {
                 }
                 d=c(d,a[[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(highly_sim)
@@ -5408,7 +5408,7 @@ app_server <- function( input, output, session ) {
                 }
                 d=c(d,a[[var]][1])
               }
-              d=as.data.frame(d,stringsAsFactors=F)
+              d=as.data.frame(d,stringsAsFactors=FALSE)
               colnames(d)=var
               d = d %>% dplyr::group_by((d[[var]])) %>% dplyr::summarise(n=n())
               d$Freq=100*d$n/nrow(highly_sim_datasets[[loaded_datasets[j]]])
@@ -5424,7 +5424,7 @@ app_server <- function( input, output, session ) {
       output$pI_distribution <- renderPlot({
         if(is.null(input$VisualisationDataset)) return()
         if ("6_Junction.txt" %in% input$inputFiles){
-          boxplot(box_input, horizontal=F, main=" ")
+          boxplot(box_input, horizontal=FALSE, main=" ")
         } 
         
       })
