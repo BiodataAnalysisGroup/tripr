@@ -4,8 +4,9 @@ Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
 Version: 0.99.0
 Authors@R: c(
         person("Maria", "Kotouza", email = "-", role = "aut"),
-        person("Iason", "Ofeidis", email = "jasonof75@gmail.com", role = "cre"),
-        person("Fotis E.", "Psomopoulos", email = "fpsom@certh.gr", role = "ctb")
+        person("Iason", "Ofeidis", email = "jasonof@certh.gr", role = "cre"),
+        person("Fotis E.", "Psomopoulos", email = "-", role = "ctb"),
+        person("Nikos", "Pechlivanis", email = "-", role = "ctb")
             )
 Description: TRIP is a software framework that provides analytics services on 
     antigen receptor (B cell receptor immunoglobulin, BcR IG | T cell receptor, 
@@ -15,11 +16,11 @@ Description: TRIP is a software framework that provides analytics services on
     data files from all samples and visualize the results accordingly.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+LazyData: false
+biocViews:
 Imports: 
     shinyjs,
     shinyFiles,
-    shinyBS,
     plyr,
     data.table,
     DT,
@@ -33,7 +34,6 @@ Imports:
     pryr,
     config (>= 0.3.1),
     golem (>= 0.3.1),
-    shiny (>= 1.6.0), 
     methods,
     grDevices,
     graphics,
@@ -44,12 +44,15 @@ Enhances:
 Suggests:
     BiocGenerics,
     shinycssloaders,
-    motifStack,
     tidyverse,
     BiocManager,
     Biostrings,
     xtable,
-    rlist
+    rlist,
+    motifStack
+Depends:
+    shinyBS,
+    shiny (>= 1.6.0)
 Collate:
     "tripr-package.R"
     "global.R"

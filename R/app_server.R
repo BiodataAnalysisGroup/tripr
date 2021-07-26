@@ -179,15 +179,16 @@ app_server <- function( input, output, session ) {
   
   ############################### Select Datasets ###############################
   
+  #TODO: Where should user put its files so they are available for dataset?
   # dir
-  shinyDirChoose(input, 'dir', roots = c(home = '.'), filetypes = c('', 'txt'))
+  shinyDirChoose(input, 'dir', roots = c(home = '..'), filetypes = c('', 'txt'))
   
   dir <- reactive(input$dir)
   output$dir <- renderPrint(dir())
   
   # path
   path <- reactive({
-    home <- normalizePath(".")
+    home <- normalizePath("..")
     file.path(home, paste(unlist(dir()$path[-1]), collapse = .Platform$file.sep))
   })
   
@@ -557,7 +558,6 @@ app_server <- function( input, output, session ) {
   
   ############################### Enable/Disable Tabs ###############################
   observeEvent(input$pipeline_alignment,{
-    print(561)
     if(input$pipeline_alignment){#If true enable, else disable
       shinyjs::js$enabletab("Alignment")
     }else{
@@ -1696,7 +1696,8 @@ app_server <- function( input, output, session ) {
 
         temp = temp[,c("Gene","CDR3","N","Freq","prev_cluster")]
         
-        write.table(temp, "for_high_shm_testing.txt", sep = "\t", row.names = FALSE)
+        # Creates unnecessary .txt
+        # write.table(temp, "for_high_shm_testing.txt", sep = "\t", row.names = FALSE)
 
         # if(input$high_shm_normal){
         #   all_filter <- clono$filterin_highly_clono[which(clono$filterin_highly_clono$dataName == d), ]
