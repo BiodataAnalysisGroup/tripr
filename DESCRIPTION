@@ -3,11 +3,19 @@ Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
 Version: 0.99.0
 Authors@R: c(
-        person("Maria", "Kotouza", email = "-", role = "aut"),
-        person("Iason", "Ofeidis", email = "jasonof@certh.gr", role = "cre"),
-        person("Fotis E.", "Psomopoulos", email = "-", role = "ctb"),
-        person("Nikos", "Pechlivanis", email = "-", role = "ctb")
-            )
+        person("Maria Th.", "Kotouza", email = "-", role = "aut"),
+        person("Katerina", "Gemenetzi", email = "-", role = "aut"),
+        person("Chrysi", "Galigalidou", email = "-", role = "aut"),
+        person("Elisavet", "Vlachonikola", email = "-", role = "aut"),
+        person("Nikolaos", "Pechlivanis", email = "-", role = "aut"),
+        person("Andreas", "Agathangelidis", email = "-", role = "aut"),
+        person("Raphael", "Sandaltzopoulos", email = "-", role = "aut"),
+        person("Pericles A.", "Mitkas", email = "-", role = "aut"),
+        person("Kostas", "Stamatopoulos", email = "-", role = "aut"),
+        person("Anastasia", "Chatzidimitriou", email = "-", role = "aut"),
+        person("Fotis E.", "Psomopoulos", email = "-", role = "aut"),
+        person("Iason", "Ofeidis", email = "jasonof@certh.gr", role = "cre")
+        )
 Description: TRIP is a software framework that provides analytics services on 
     antigen receptor (B cell receptor immunoglobulin, BcR IG | T cell receptor, 
     TR) gene sequence data. It is a web application written in R Shiny. It takes
@@ -49,10 +57,12 @@ Suggests:
     Biostrings,
     xtable,
     rlist,
-    motifStack
+    motifStack,
+    knitr,
+    rmarkdown
 Depends:
-    shinyBS,
-    shiny (>= 1.6.0)
+    shiny (>= 1.6.0),
+    shinyBS
 Collate:
     "tripr-package.R"
     "global.R"
@@ -66,3 +76,4 @@ URL: https://github.com/BiodataAnalysisGroup/TRIP
 BugReports: https://github.com/BiodataAnalysisGroup/TRIP/issues
 BiocType: Software
 RoxygenNote: 7.1.1
+VignetteBuilder: knitr

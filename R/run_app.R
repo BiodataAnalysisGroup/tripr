@@ -6,7 +6,13 @@
 #'
 #' @export
 #' @importFrom shiny shinyApp
-#' @importFrom golem with_golem_options 
+#' @importFrom golem with_golem_options
+#' 
+#' @return None
+#' @examples 
+#' \dontrun{
+#' run_app(options = list(launch.browser = FALSE)) 
+#' }
 run_app <- function(
   onStart = NULL,
   options = list(launch.browser = TRUE), 
