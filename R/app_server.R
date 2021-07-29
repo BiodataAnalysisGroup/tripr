@@ -19,7 +19,8 @@ app_server <- function( input, output, session ) {
   }
   "
   
-  shiny::includeHTML("inst/extdata/on_reload.html")
+  shiny::includeHTML(system.file("extdata", "on_reload.html", package = "tripr",
+                                mustWork = TRUE))
 
   options(shiny.maxRequestSize=3000*1024^2)
 
@@ -198,8 +199,6 @@ app_server <- function( input, output, session ) {
   # Load Data
   output$uiLoadData <- renderUI({
     if (is.null(input$inputFiles) | is.null(input$Dataset)) return()
-    print(input$inputFiles)
-    print(200)
     # Wrap the button in the function `withBusyIndicatorUI()`
     withBusyIndicatorUI(
       actionButton("LoadData", "Load Data", 
