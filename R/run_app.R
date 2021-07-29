@@ -10,7 +10,7 @@
 #' 
 #' @return None
 #' @examples 
-#' \dontrun{
+#' if (interactive()) {
 #' run_app(options = list(launch.browser = FALSE)) 
 #' }
 run_app <- function(

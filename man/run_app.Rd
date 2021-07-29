@@ -43,7 +43,7 @@ None
 Run the Shiny Application
 }
 \examples{
-\dontrun{
+if (interactive()) {
 run_app(options = list(launch.browser = FALSE)) 
 }
 }
