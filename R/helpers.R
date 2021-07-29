@@ -51,7 +51,9 @@ testColumnNames <- function(name, files, datapath){
   } 
   
   all_used_columns = c("dataName",all_used_columns)
-  all_used_columns <<- all_used_columns
+  # Instead of: 'all_used_columns <<- all_used_columns', use assign()
+  # Fixes 'cannot change value of locked binding for' error
+  assign("all_used_columns", all_used_columns,  envir = environment())
   used_columns <<- used_columns
   
   # save(used_columns,file=paste0(output_folder,"/used_columns.rData"))

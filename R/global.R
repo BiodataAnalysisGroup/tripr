@@ -24,8 +24,10 @@ if (save_tables_individually | save_lists_for_bookmark){
   }
 }
 
-used_columns<-list()
-all_used_columns<-c()
+## Instead of simple assignments (used_columns <- list(), etc.)
+## assign() fixes locked binding error when package is installed
+assign("used_columns", list(), inherits = TRUE, envir = parent.env(environment()))
+assign("all_used_columns", c(), inherits = TRUE, envir = parent.env(environment()))
 
 ##JS Code for enabling and diabling
 jscode <- "shinyjs.disabletab =function(name){
