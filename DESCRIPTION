@@ -25,7 +25,9 @@ Description: TRIP is a software framework that provides analytics services on
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: false
-biocViews:
+biocViews: 
+    SystemsBiology,
+    CellBiology
 Imports: 
     shinyjs,
     shinyFiles,
