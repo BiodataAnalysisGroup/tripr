@@ -310,7 +310,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
         }
 
-        filtered_High_SHM_similarity[[d]] = SHM_high_similarity(all_filter)
+        # filtered_High_SHM_similarity[[d]] = SHM_high_similarity(all_filter)
       }
 
       if (save_tables_individually){
@@ -351,7 +351,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
       }
     
-      filtered_High_SHM_similarity[["All Data"]] = SHM_high_similarity(all_filter)
+      # filtered_High_SHM_similarity[["All Data"]] = SHM_high_similarity(all_filter)
     }
     
     if (save_tables_individually){
