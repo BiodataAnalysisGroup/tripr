@@ -1369,13 +1369,13 @@ app_server <- function( input, output, session ) {
         
         colnames(my_table) = c(paste0("Clonotype (",input$select_clonotype,")"),'N','Freq','Convergent Evolution')
         
-        my_table[[paste0("Clonotype (",input$select_clonotype,")")]] <- sapply(my_table[[paste0("Clonotype (",input$select_clonotype,")")]], function(x) {
+        my_table[[paste0("Clonotype (",input$select_clonotype,")")]] <- vapply(my_table[[paste0("Clonotype (",input$select_clonotype,")")]], function(x) {
             as.character(tags$a(href = "#", onclick = sprintf(on_click_js,x), x))
-          })
+          }, character(1), USE.NAMES = FALSE)
         
-        my_table[['Convergent Evolution']] <- sapply(my_table[['Convergent Evolution']], function(x) {
+        my_table[['Convergent Evolution']] <- vapply(my_table[['Convergent Evolution']], function(x) {
             as.character(tags$a(href = "#", onclick = sprintf(on_click_js_convergent_evolution,x), x))
-          })
+          }, character(1), USE.NAMES = FALSE)
         
         return(my_table)
         
