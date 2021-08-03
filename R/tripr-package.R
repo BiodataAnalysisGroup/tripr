@@ -3,6 +3,10 @@
 #'
 #' T-cell Receptor/Immunoglobulin Profiler (TRIP)
 #'
+#' @details
+#' The only function you're likely to need from tripr is [run_app()]. 
+#' Otherwise refer to the vignettes for using tripr.
+#'
 #' @docType package
 #' @name tripr
 #' @import dplyr

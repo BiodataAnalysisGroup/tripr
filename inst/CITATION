@@ -1,0 +1,26 @@
+citHeader("To cite tripr in publications use:")
+
+citEntry(
+  entry    = "Article",
+  title    = "T-cell Receptor/Immunoglobulin Profiler (TRIP)",
+  author   = personList(as.person("Maria Th. Kotouza"),
+                        as.person("Katerina Gemenetzi"),
+                        as.person("Chrysi Galigalidou"),
+                        as.person("Elisavet Vlachonikola"),
+                        as.person("Nikolaos Pechlivanis"),
+                        as.person("Andreas Agathangelidis"),
+                        as.person("Raphael Sandaltzopoulos"),
+                        as.person("Pericles A. Mitkas"),
+                        as.person("Kostas Stamatopoulos"),
+                        as.person("Anastasia Chatzidimitriou"),
+                        as.person("Fotis E. Psomopoulos")
+                        ),
+  journal  = "BMC Bioinformatics",
+  year     = "2020",
+  volume   = "21",
+  number   = "422",
+  pages    = "-",
+  url      = "https://doi.org/10.1186/s12859-020-03669-1",
+  textVersion = paste("Kotouza, M.T., Gemenetzi, K., Galigalidou, C. et al.",
+        "TRIP - T cell receptor/immunoglobulin profiler. BMC Bioinformatics 21, 422 (2020).",         " https://doi.org/10.1186/s12859-020-03669-1")
+)

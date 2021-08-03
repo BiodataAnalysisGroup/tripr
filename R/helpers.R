@@ -21,11 +21,18 @@ testColumnNames <- function(name, files, datapath){
   
   # used columns
   if (use_only_useful_columns){
-    input <- read.csv("inst/extdata/param/used_columns_only_useful.csv", sep = ";", stringsAsFactors = FALSE, header = FALSE)
+    input <- read.csv(system.file("extdata/param", 
+                      "used_columns_only_useful.csv", package = "tripr", 
+                      mustWork = TRUE),
+                      sep = ";", stringsAsFactors = FALSE, header = FALSE)
   } else {
-    input <- read.csv("inst/extdata/param/used_columns.csv", sep = ";", stringsAsFactors = FALSE, header = FALSE)
-  } 
-  
+    input <- read.csv(system.file("extdata/param", 
+                      "used_columns.csv", package = "tripr", 
+                      mustWork = TRUE),
+                      sep = ";", stringsAsFactors = FALSE, header = FALSE)
+
+  }
+
   used_columns <- list()
   all_used_columns <- c()
   
@@ -44,7 +51,9 @@ testColumnNames <- function(name, files, datapath){
   } 
   
   all_used_columns = c("dataName",all_used_columns)
-  all_used_columns <<- all_used_columns
+  # Instead of: 'all_used_columns <<- all_used_columns', use assign()
+  # Fixes 'cannot change value of locked binding for' error
+  assign("all_used_columns", all_used_columns,  envir = environment())
   used_columns <<- used_columns
   
   # save(used_columns,file=paste0(output_folder,"/used_columns.rData"))
@@ -218,7 +227,9 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
   filter_column=c(used_columns[["Summary"]][3],used_columns[["Summary"]][18],used_columns[["Summary"]][2],used_columns[["Summary"]][18],used_columns[["Summary"]][4],used_columns[["Summary"]][3], used_columns[["Summary"]][8], used_columns[["Summary"]][11], used_columns[["Summary"]][15], used_columns[["Summary"]][18])
   
   #used columns
-  input<-read.csv("inst/extdata/param/used_columns.csv", sep=";", stringsAsFactors=FALSE,header=FALSE)
+  input<-read.csv(system.file("extdata/param", "used_columns.csv", 
+                              package = "tripr", mustWork = TRUE), 
+                  sep=";", stringsAsFactors=FALSE,header=FALSE)
   
   used_columns<-list()
   all_used_columns<-c()
@@ -3836,8 +3847,11 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     type = strsplit(strsplit(as.character(input[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1]
     
     if((type == "IGK") | (type == "IGL")){
-      germline_file = paste0("inst/extdata/param/", "Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
-      Tgermlines = read.csv(germline_file, sep = ";", stringsAsFactors = FALSE, colClasses = c("character"))
+      germline_file = paste0("Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
+      Tgermlines = read.csv(system.file("extdata/param", germline_file, 
+                                        package = "tripr", mustWork = TRUE),
+                            sep = ";", stringsAsFactors = FALSE, 
+                            colClasses = c("character"))
       
       if (AAorNtAlignment == "aa"){
         Tgermlines[,113:117] = "."
@@ -3845,8 +3859,11 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         Tgermlines[,336:351] = "."
       }
       
-      germline_file = paste0("inst/extdata/param/", "Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
-      te = read.csv(germline_file, sep = ";", stringsAsFactors = FALSE, colClasses = c("character"))
+      germline_file = paste0("Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
+      te = read.csv(system.file("extdata/param", germline_file, 
+                                package = "tripr", mustWork = TRUE),
+                     sep = ";", stringsAsFactors = FALSE, 
+                     colClasses = c("character"))
       
       
       
@@ -3854,8 +3871,11 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       Tgermlines = rbind(Tgermlines, te)
       
     } else {
-      germline_file = paste0("inst/extdata/param/", "Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
-      Tgermlines = read.csv(germline_file, sep = ";", stringsAsFactors = FALSE, colClasses = c("character"))
+      germline_file = paste0("Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
+      Tgermlines = read.csv(system.file("extdata/param", germline_file, 
+                                        package = "tripr", mustWork = TRUE),
+                             sep = ";", stringsAsFactors = FALSE, 
+                             colClasses = c("character"))
     }
     
     Tgermlines = unique(Tgermlines)

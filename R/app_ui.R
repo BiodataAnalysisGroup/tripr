@@ -57,7 +57,8 @@ app_ui <- function(request) {
       ################## Home ##########
       tabPanel("Home", value = "home", 
               tags$style(type="text/css", "body {padding-top: 70px;}"), #padding for navigation bar
-              includeHTML("inst/extdata/on_reload.html"),
+              includeHTML(system.file("extdata", "on_reload.html", 
+                                      package = "tripr", mustWork = TRUE)),
               tags$head(
                 tags$style(HTML('
                                 #sidebar {
