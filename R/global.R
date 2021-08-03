@@ -40,28 +40,28 @@ Dataset <- NULL
 logo_result_cl <- NULL
 logo_per_region_cl <- NULL
 
-tmp_path<-getwd() #change it to "/tmp" for server
+tmp_path <- getwd() # change it to "/tmp" for server
 
-num_of_cores <- parallel::detectCores(all.tests = FALSE, logical = TRUE) #change this to the custom number of threads
+num_of_cores <- parallel::detectCores(all.tests = FALSE, logical = TRUE) # change this to the custom number of threads
 
-#logfile
-if(!file.exists(paste0(tmp_path,"/inst/extdata/log_files"))){ 
-  dir.create(paste0(tmp_path,"/inst/extdata/log_files"))
+# logfile
+if (!file.exists(paste0(tmp_path, "/inst/extdata/log_files"))) {
+    dir.create(paste0(tmp_path, "/inst/extdata/log_files"))
 }
-logFile = paste0(tmp_path,"/inst/extdata/log_files/log_file_",trunc(as.numeric(Sys.time())),".txt")
-cat(paste0("Function","\t","Parameters","\t","Num of input rows","\t","Num of input columns","\t","Start time","\t","End time","\t","Memory used"), file=logFile, append=FALSE, sep = "\n")
+logFile <- paste0(tmp_path, "/inst/extdata/log_files/log_file_", trunc(as.numeric(Sys.time())), ".txt")
+cat(paste0("Function", "\t", "Parameters", "\t", "Num of input rows", "\t", "Num of input columns", "\t", "Start time", "\t", "End time", "\t", "Memory used"), file = logFile, append = FALSE, sep = "\n")
 
-use_only_useful_columns = TRUE #libraries.R TRUE
-save_lists_for_bookmark = FALSE #libraries.R FALSE
-save_tables_individually_filter_in = FALSE #libraries.R TRUE
-save_tables_individually = FALSE #libraries.R TRUE
+use_only_useful_columns <- TRUE # libraries.R TRUE
+save_lists_for_bookmark <- FALSE # libraries.R FALSE
+save_tables_individually_filter_in <- FALSE # libraries.R TRUE
+save_tables_individually <- FALSE # libraries.R TRUE
 
-if (save_tables_individually | save_lists_for_bookmark){
-  #output folder 
-  output_folder=paste0(getwd(),"/inst/extdata/output/output_tables_",trunc(as.numeric(Sys.time())))
-  if(!file.exists(paste0(output_folder))){ 
-    dir.create(paste0(output_folder))
-  }
+if (save_tables_individually | save_lists_for_bookmark) {
+    # output folder
+    output_folder <- paste0(getwd(), "/inst/extdata/output/output_tables_", trunc(as.numeric(Sys.time())))
+    if (!file.exists(paste0(output_folder))) {
+        dir.create(paste0(output_folder))
+    }
 }
 
 ## Instead of simple assignments (used_columns <- list(), etc.)
@@ -69,7 +69,7 @@ if (save_tables_individually | save_lists_for_bookmark){
 assign("used_columns", list(), inherits = TRUE, envir = parent.env(environment()))
 assign("all_used_columns", c(), inherits = TRUE, envir = parent.env(environment()))
 
-##JS Code for enabling and diabling
+## JS Code for enabling and diabling
 jscode <- "shinyjs.disabletab =function(name){
 $('ul li:has(a[data-value= name])').addClass('disabled');
 $('.nav li.disabled a').prop('disabled',true)
@@ -78,4 +78,4 @@ $('.nav li.disabled a').prop('disabled',true)
 shinyjs.enabletab =function(name){
 $('.nav li.disabled a').prop('disabled',false)
 $('ul li:has(a[data-value= name])').removeClass('disabled');
-} " 
+} "
