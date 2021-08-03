@@ -36,21 +36,13 @@ name: R-CMD-check-bioc
 env:
   has_testthat: 'false'
   run_covr: 'false'
+  ## run_pkgdown=TRUE for installing the pkg
   run_pkgdown: 'false'
   has_RUnit: 'false'
   cache-version: 'cache-v1'
   run_docker: 'false'
 
 jobs:
-  test:
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        run: export DISPLAY=:99.0
-
   build-check:
     runs-on: ${{ matrix.config.os }}
     name: ${{ matrix.config.os }} (${{ matrix.config.r }})
@@ -71,6 +63,8 @@ jobs:
       TZ: UTC
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      ## Essential for testing on headless server of Github CI
+      DISPLAY: :99.0
 
     steps:
       ## Set the R library to the directory matching the
