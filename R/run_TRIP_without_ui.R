@@ -251,7 +251,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     missmatches_user <- strsplit(strsplit(highly_sim_params[1], " ")[[1]],"-", fixed = TRUE)
     missmatches_user2 <- as.data.frame(matrix(0, nrow = length(missmatches_user), ncol = 2))
     
-    for (i in 1:length(missmatches_user)){
+    for (i in seq_len(length(missmatches_user))){
       missmatches_user2[i,] <- as.numeric(missmatches_user[[i]])
     }
     
@@ -261,7 +261,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     num_of_missmatches <- rep(1,length(cdr3_lengths))
     
     #if (select_highly_sim_num_of_missmatches != 'select_highly_sim_num_of_missmatches_number'){
-      for (i in 1:length(cdr3_lengths)){
+      for (i in seq_len(length(cdr3_lengths))){
         if (cdr3_lengths[i] %in% missmatches_user2[,1]){
           id_length <- which(missmatches_user2[,1] == cdr3_lengths[i])
           num_of_missmatches[i] <- missmatches_user2[id_length,2]
@@ -288,12 +288,12 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       row.names(temp)=NULL
       temp=temp[,c("clonotype", "N", "Freq", "prev_cluster")]
       temp=temp[order(-temp$N),]
-      row.names(temp)=1:nrow(temp)
+      row.names(temp)=seq_len(nrow(temp))
       highly_sim_datasets[[d]]<-temp
       temp$Gene=NA
       temp$CDR3=NA
       
-      for (cl in 1:nrow(temp)){
+      for (cl in seq_len(nrow(temp))){
         temp$Gene[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][1]
         temp$CDR3[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][2]
       }
@@ -304,7 +304,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         all_filter$highly_cluster_id <- 0
         all_filter$highly_freq_cluster_id <- 0
 
-        for (h in 1:nrow(temp)){
+        for (h in seq_len(nrow(temp))){
           prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
           all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
           all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
@@ -328,13 +328,13 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     row.names(highly_sim) = NULL
     highly_sim = highly_sim[,c("clonotype", "N", "Freq", "prev_cluster")]
     highly_sim = highly_sim[order(-highly_sim$N),]
-    row.names(highly_sim) = 1:nrow(highly_sim)
+    row.names(highly_sim) = seq_len(nrow(highly_sim))
     highly_sim <<- highly_sim
 
     temp = highly_sim
     temp$Gene = NA
     temp$CDR3 = NA
-    for (cl in 1:nrow(temp)){
+    for (cl in seq_len(nrow(temp))){
       temp$Gene[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][1]
       temp$CDR3[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][2]
     }
@@ -345,7 +345,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       all_filter <- clono$filterin_highly_clono
       all_filter$highly_cluster_id <- 0
       all_filter$highly_freq_cluster_id <- 0
-      for (h in 1:nrow(temp)){
+      for (h in seq_len(nrow(temp))){
         prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
         all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
         all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
@@ -409,7 +409,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     repertories_results <- list()
     insertedRepertoires <- as.numeric(strsplit(repertoires_params, ",")[[1]])
     
-    for (i in 1:length(insertedRepertoires)){
+    for (i in seq_len(length(insertedRepertoires))){
       if (insertedRepertoires[i] == 1){
         allele <- FALSE
         gene <- used_columns[["Summary"]][3]
@@ -446,7 +446,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     if (pipeline_HighlySim_Repertoires){
       take_gene_highly_similar <- "Yes"
       HighlySim_repertories_results <- list()
-      for (i in 1:length(insertedRepertoires)){
+      for (i in seq_len(length(insertedRepertoires))){
         if (insertedRepertoires[i] == 1){
           allele <- FALSE
           gene <- used_columns[["Summary"]][3]
@@ -487,7 +487,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       repertoires_comparison_results <- list()
       highly_sim_repertoires_comparison_results <- list()
       pipeline_HighlySim_Repertoires <- TRUE
-      for (i in 1:length(insertedRepertoires)){
+      for (i in seq_len(length(insertedRepertoires))){
         repertoires_comparison_results[[i]] <- repertoires_comparison(repertories_results[[i]]$Repertoires_allData,repertories_results[[i]]$Repertoires_datasets,loaded_datasets,FALSE,i)
         if (pipeline_HighlySim_Repertoires==TRUE){
           highly_sim_repertoires_comparison_results[[i]] <- repertoires_comparison(HighlySim_repertories_results[[i]]$Repertoires_allData,HighlySim_repertories_results[[i]]$Repertoires_datasets,loaded_datasets,TRUE,i)
@@ -521,7 +521,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           filteredData_id<<-imgtfilter_results$allData
           temp=filteredData_id[[used_columns[["Summary"]][4]]]
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
               else index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
               temp[index]=identity_groups$label[values]
@@ -539,7 +539,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           filteredData_id<<-d
           temp=d
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<=identity_groups[values,2])
               else index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<identity_groups[values,2])
               temp[index,1]=identity_groups$label[values]
@@ -550,7 +550,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         
         #Separate data
         mutational_status_table_datasets <- list()
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(filteredData_id)
@@ -572,7 +572,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               data=d
             }
             if (!is.null(identity_groups)){
-              for (values in 1:nrow(identity_groups)){
+              for (values in seq_len(nrow(identity_groups))){
                 if (values==nrow(identity_groups))  index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
                 else index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
                 temp[index,1]=identity_groups$label[values]
@@ -591,7 +591,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           filteredData_id<<-imgtfilter_results$allData
           temp=filteredData_id[[used_columns[["Summary"]][4]]]
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
               else index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
               temp[index]=identity_groups$label[values]
@@ -600,7 +600,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         }else{
           d=c()
           var=used_columns[["Summary"]][4]
-          for (i in 1:nrow(highly_sim)){
+          for (i in seq_len(nrow(highly_sim))){
             prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
             a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
             if(length(prev_clono)>1){
@@ -615,7 +615,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           filteredData_id<<-d
           temp=d
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<=identity_groups[values,2])
               else index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<identity_groups[values,2])
               temp[index,1]=identity_groups$label[values]
@@ -626,7 +626,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         
         #Separate data
         mutational_status_table_datasets <- list()
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(filteredData_id)
@@ -639,7 +639,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               var=used_columns[["Summary"]][4]
               name=loaded_datasets
               d=c()
-              for (i in 1:nrow(highly_sim_datasets[[name[j]]])){
+              for (i in seq_len(nrow(highly_sim_datasets[[name[j]]]))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[name[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[name[j]]]$prev_cluster[i])," ")[[1]])])
                 prev_clono=prev_clono[!is.na(prev_clono)]
                 a=clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[1]]]
@@ -655,7 +655,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
               data=d
             }
             if (!is.null(identity_groups)){
-              for (values in 1:nrow(identity_groups)){
+              for (values in seq_len(nrow(identity_groups))){
                 if (values==nrow(identity_groups))  index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
                 else index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
                 temp[index,1]=identity_groups$label[values]
@@ -690,7 +690,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                  "pI",
                  "V-REGION identity %")
     
-    for (i in 1:length(values)){
+    for (i in seq_len(length(values))){
       Multiple_value_comparison_input_values[1, i] <- options[as.numeric(strsplit(values[i], ":")[[1]][1])]
       Multiple_value_comparison_input_values[2, i] <- options[as.numeric(strsplit(values[i], ":")[[1]][2])]
     }
@@ -698,7 +698,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     # Multiple_value_comparison_input_values[1,] = c("V GENE", "J GENE") 
     # Multiple_value_comparison_input_values[2,] = c("J GENE", "CDR3-IMGT length")
     
-    for (i in 1:ncol(Multiple_value_comparison_input_values)){
+    for (i in seq_len(ncol(Multiple_value_comparison_input_values))){
       val1 <- Multiple_value_comparison_input_values[1, i]
       val2 <- Multiple_value_comparison_input_values[2, i]
       
@@ -748,18 +748,18 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     topNFreqTable <- 20
     if (FtopN){
       if (pipeline_highly_similar_clonotypes==FALSE){
-        clono_allDataTopN=clono$clono_allData[1:topNFreqTable,] 
+        clono_allDataTopN=clono$clono_allData[seq_len(topNFreqTable),] 
         if (is.null(clono$clono_allData)) return()
         clono_datasetsTopN<-list()
-        for (i in 1:length(loaded_datasets)){
-          clono_datasetsTopN[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]][1:topNFreqTable,]
+        for (i in seq_len(length(loaded_datasets))){
+          clono_datasetsTopN[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]][seq_len(topNFreqTable),]
         }
       }else{
-        clono_allDataTopN=highly_sim[1:topNFreqTable,] 
+        clono_allDataTopN=highly_sim[seq_len(topNFreqTable),] 
         if (is.null(highly_sim)) return()
         clono_datasetsTopN<-list()
-        for (i in 1:length(loaded_datasets)){
-          clono_datasetsTopN[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]][1:topNFreqTable,]
+        for (i in seq_len(length(loaded_datasets))){
+          clono_datasetsTopN[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]][seq_len(topNFreqTable),]
         }
       }
     }
@@ -770,14 +770,14 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         clono_allDataTopN=clono$clono_allData %>% dplyr::filter(Freq>thrClonoLogos)
         if (is.null(clono$clono_allData)) return()
         clono_datasetsTopN<-list()
-        for (i in 1:length(loaded_datasets)){
+        for (i in seq_len(length(loaded_datasets))){
           clono_datasetsTopN[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]] %>% dplyr::filter(Freq>thrClonoLogos)
         }
       }else{
         clono_allDataTopN=highly_sim %>% dplyr::filter(Freq>thrClonoLogos)
         if (is.null(highly_sim)) return()
         clono_datasetsTopN<-list()
-        for (i in 1:length(loaded_datasets)){
+        for (i in seq_len(length(loaded_datasets))){
           clono_datasetsTopN[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]] %>% dplyr::filter(Freq>thrClonoLogos)
         }
       }
@@ -788,17 +788,17 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     frequenciesTables_results <- createFrequencyTableCDR3(regionFreqTable,imgtfilter_results$allData,loaded_datasets,regionLengthFreq,(FtopN || Fthr),clono_allDataTopN,clono_datasetsTopN,gene_clonotypes,junction_clonotypes,allele_clonotypes)
     if (FclonoLogoSeperately){
       if (pipeline_highly_similar_clonotypes==FALSE){
-        for (cl in 1:length(cl_ids_logos)){
+        for (cl in seq_len(length(cl_ids_logos))){
           clono_datasets_cl<-list()
-          for (i in 1:length(loaded_datasets)){
+          for (i in seq_len(length(loaded_datasets))){
             clono_datasets_cl[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]][cl_ids_logos[cl],]
           }
           frequenciesTables_results_cl[[cl]]<<-createFrequencyTableCDR3(regionFreqTable,imgtfilter_results$allData,loaded_datasets,regionLengthFreq,FclonoLogoSeperately,clono$clono_allData[cl_ids_logos[cl],],clono_datasets_cl,gene_clonotypes,junction_clonotypes,allele_clonotypes)
         }
       }else{
-        for (cl in 1:length(cl_ids_logos)){
+        for (cl in seq_len(length(cl_ids_logos))){
           clono_datasets_cl<-list()
-          for (i in 1:length(loaded_datasets)){
+          for (i in seq_len(length(loaded_datasets))){
             clono_datasets_cl[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]][cl_ids_logos[cl],]
           }
           frequenciesTables_results_cl[[cl]]<<-createFrequencyTableCDR3(regionFreqTable,imgtfilter_results$allData,loaded_datasets,regionLengthFreq,FclonoLogoSeperately,highly_sim[cl_ids_logos[cl],],clono_datasets_cl,gene_clonotypes,junction_clonotypes,allele_clonotypes)
@@ -936,7 +936,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     mutation_results_nt_cl <- list()
     
     if (FclonoSeperately){
-      for (cl in 1:length(cl_ids_mutations)){
+      for (cl in seq_len(length(cl_ids_mutations))){
         if (AAorNtMutations=="both"){ 
           mutation_results_cl[[cl]] <- mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,ThrAAMutations,"aa",loaded_datasets,topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
           mutation_results_nt_cl[[cl]] <- mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,ThrNtMutations,"nt",loaded_datasets, topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
@@ -1018,9 +1018,9 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     data=c("allData",loaded_datasets)
     freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
     ki=0
-    for (i in 1:length(cl)){
-      for (j in 1:length(data)){
-        if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
+    for (i in seq_len(length(cl))){
+      for (j in seq_len(length(data))){
+        if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[seq_len((i-1)),j])
         else{
           if (length(which(a[[data[j]]]$clonotype == cl[i])) > 0){
             freq_mat[i,j] = a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype == cl[i])]
@@ -1093,9 +1093,9 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     data=c("allData",loaded_datasets)
     freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
     ki=0
-    for (i in 1:length(cl)){
-      for (j in 1:length(data)){
-        if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
+    for (i in seq_len(length(cl))){
+      for (j in seq_len(length(data))){
+        if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[seq_len((i-1)),j])
         else{
           if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
             freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
@@ -1134,8 +1134,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     if (repertories_results[[1]]$confirm!=""){
       if (is.null(repertories_pies_threshold)) thr=0 else thr=repertories_pies_threshold
       
-      for (k in 1:length(insertedRepertoires)){
-        for (j in 1:(length(loaded_datasets)+1)){
+      for (k in seq_len(length(insertedRepertoires))){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             
             #Genes that have percentage<threshold are grouped into one cell
@@ -1182,8 +1182,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     if (HighlySim_repertories_results[[1]]$confirm!=""){
       if (is.null(HighlySim_repertories_pies_threshold)) thr=0 else thr=HighlySim_repertories_pies_threshold
       
-      for (k in 1:length(insertedRepertoires)){
-        for (j in 1:(length(loaded_datasets)+1)){
+      for (k in seq_len(length(insertedRepertoires))){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             
             #Genes that have percentage<threshold are grouped into one cell
@@ -1227,7 +1227,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   
   regionFreqTable <- 'CDR3' 
   if (("1_Summary.txt" %in% files) & (pipeline_mutational_status)){
-    for (j in 1:(length(loaded_datasets)+1)){
+    for (j in seq_len((length(loaded_datasets)+1))){
       if (j==(length(loaded_datasets)+1)){
         png(paste0(in.path,"/","Mutational_status_","All_Data",".png"),width=900, height=600)
         pie(as.numeric(mutational_status_table_allData$N), labels = round(mutational_status_table_allData$freq*100,2), main = paste0("Mutational Status ", "All Data"),col = rainbow(length(mutational_status_table_allData$N)))
@@ -1264,7 +1264,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         highly=FALSE
       }
       if (!highly){
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             d=c()
             for (i in names(clono$view_specific_clonotype_allData)){
@@ -1292,10 +1292,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           }
         }
       }else{
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             d=c()
-            for (i in 1:nrow(highly_sim)){
+            for (i in seq_len(nrow(highly_sim))){
               prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
               a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
               if(length(prev_clono)>1){
@@ -1313,7 +1313,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             cdr3_length_distribution<<-d[order(d$CDR3Length),]
           }else{
             d=c()
-            for (i in 1:nrow(highly_sim_datasets[[loaded_datasets[j]]])){
+            for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))){
               prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]])])
               prev_clono=prev_clono[!is.na(prev_clono)]
               a=clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
@@ -1340,7 +1340,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   ############ CDR3 Length Distribution #######
   
   if (pipeline_cdr3_distribution){
-    for (j in 1:(length(loaded_datasets)+1)){
+    for (j in seq_len((length(loaded_datasets)+1))){
       if (j==(length(loaded_datasets)+1)){
         png(paste0(in.path,"/","CDR3_Length_Dist_","All_Data",".png"),width=900, height=600)
         d=cdr3_length_distribution
@@ -1376,7 +1376,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
     
     if (!highly){
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           d=c()
           for (i in names(clono$view_specific_clonotype_allData)){
@@ -1392,10 +1392,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         }
       }
     }else{
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           d=c()
-          for (i in 1:nrow(highly_sim)){
+          for (i in seq_len(nrow(highly_sim))){
             prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
             a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
             if(length(prev_clono)>1){
@@ -1407,7 +1407,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           box_input<<-cbind(box_input,d)
         }else{
           d=c()
-          for (i in 1:nrow(highly_sim_datasets[[loaded_datasets[j]]])){
+          for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))){
             prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]])])
             prev_clono=prev_clono[!is.na(prev_clono)]
             a=clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
@@ -1441,7 +1441,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
     pi_distribution_dataset <- list()
     if (!highly){
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           d=c()
           for (i in names(clono$view_specific_clonotype_allData)){
@@ -1469,10 +1469,10 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         }
       }
     }else{
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           d=c()
-          for (i in 1:nrow(highly_sim)){
+          for (i in seq_len(nrow(highly_sim))){
             prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
             a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
             if(length(prev_clono)>1){
@@ -1490,7 +1490,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
           pi_distribution<<-d[order(d$Pi),]
         }else{
           d=c()
-          for (i in 1:nrow(highly_sim_datasets[[loaded_datasets[j]]])){
+          for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))){
             prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]])])
             prev_clono=prev_clono[!is.na(prev_clono)]
             a=clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
@@ -1518,7 +1518,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     png(paste0(in.path,"/","Pi_Distribution_","All_Data",".png"),width=900, height=600)
     boxplot(box_input, horizontal=FALSE, main=" ")
     dev.off()
-    for (j in 1:(length(loaded_datasets)+1)){
+    for (j in seq_len((length(loaded_datasets)+1))){
       if (j==(length(loaded_datasets)+1)){
         write.table(pi_distribution, paste0(in.path,"/","Pi_Distribution_", "All_Data",".txt"), sep = "\t")
       }else{
@@ -1531,7 +1531,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
   msgLogo <- ""
   if (msgLogo!=""){
     if (regionFreqTable=='CDR3'){
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           png(paste0(in.path,"/","logo_","CDR3","_","All_Data",".png"),width=1000, height=550)
           logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
@@ -1565,7 +1565,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
       
       
     }else{
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           png(paste0(in.path,"/","logo_",regionFreqTable,"_","All_Data",".png"),width=1500, height=550)
           logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
@@ -1581,7 +1581,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         dev.off()
       }
       
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         region_names<-c("FR1-IMGT","CDR1-IMGT","FR2-IMGT","CDR2-IMGT","FR3-IMGT","CDR3-IMGT")
         index_1<-c(1,27,39,56,66,105)
         index_2<-c(26,38,55,65,104,114)
@@ -1612,8 +1612,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     }
   
   if (FclonoLogoSeperately){
-    for (cl in 1:length(cl_ids_logos)){
-      for (j in 1:(length(loaded_datasets)+1)){
+    for (cl in seq_len(length(cl_ids_logos))){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",regionFreqTable,"_","All_Data",".png"),width=1000, height=550)
           logo_plot<<-plot(logo_result_cl[[cl]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
@@ -1634,7 +1634,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         dev.off()
       }
       if (regionFreqTable!="CDR3"){
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           region_names<-c("FR1-IMGT","CDR1-IMGT","FR2-IMGT","CDR2-IMGT","FR3-IMGT","CDR3-IMGT")
           index_1<-c(1,27,39,56,66,105)
           index_2<-c(26,38,55,65,104,114)
@@ -1680,27 +1680,27 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     
     allData<-list()
     input_datasets=""
-    for (i in 1:length(fileNames)){
-      #clono$convergent_evolution_list_allData[1:nucleotides_per_clonotype_topN,]
-      nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[loaded_datasets[i]]][1:nucleotides_per_clonotype_topN]
+    for (i in seq_len(length(fileNames))){
+      #clono$convergent_evolution_list_allData[seq_len(nucleotides_per_clonotype_topN),]
+      nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[loaded_datasets[i]]][seq_len(nucleotides_per_clonotype_topN)]
       input_datasets=paste(input_datasets,fileNames[i], sep="_")
     }
     #plot
     png(paste0(in.path,"/","hist3D-nucleotides_top_",topN, "clonotypes_",input_datasets,".png"))
-    plot3D::hist3D(y = 1:length(fileNames), x = 1:topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+    plot3D::hist3D(y = seq_len(length(fileNames)), x = seq_len(topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
            zlab="Num of Nucleotides",ticktype="detailed",axes=TRUE, theta=50, phi=25, expand=0.75)
     dev.off()
     
     if (length(fileNames)>1){
       #plot
       png(paste0(in.path,"/","persp3D-nucleotides_top_",topN, "clonotypes_",input_datasets,".png"))
-      plot3D::persp3D(y = 1:length(fileNames), x = 1:topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+      plot3D::persp3D(y = seq_len(length(fileNames)), x = seq_len(topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
               zlab="Num of Nucleotides",ticktype="detailed",axes=TRUE, theta=50, phi=25, expand=0.75)
       dev.off()
       
       #plot
       png(paste0(in.path,"/","image2D-nucleotides_top_",topN, "clonotypes_",input_datasets,".png"))
-      plot3D::image2D(y = 1:length(fileNames), x = 1:topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+      plot3D::image2D(y = seq_len(length(fileNames)), x = seq_len(topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
               colkey = list(dist = 0, shift = 0.15,
                             side = 4, length = 0.5, width = 0.5,
                             cex.clab = 1, col.clab = "black", line.clab = 1.4,

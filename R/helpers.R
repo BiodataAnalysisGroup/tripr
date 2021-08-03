@@ -2,7 +2,7 @@ testColumnNames <- function(name, files, datapath){
   # Set Working Directory on level back
 
   d = "Datasets loaded:" 
-  # for (i in 1:length(name)){
+  # for (i in seq_len(length(name))){
   #   d = paste(d,name[i])
   # }
   
@@ -73,7 +73,7 @@ testColumnNames <- function(name, files, datapath){
                       used_columns[["Summary"]][18])
   }
   
-  # for (i in 1:length(name))
+  # for (i in seq_len(length(name)))
   # name[i]<-strsplit(name[i],"_")[[1]][1]
   
   # Log start time and memory currently used
@@ -87,7 +87,7 @@ testColumnNames <- function(name, files, datapath){
   wrong_dataset <- c()
   
   # Load datasets individually
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     #name[i]=strsplit(name[i],"_")[[1]][1]
     firstSepData=TRUE
     if (strsplit(name[i],"_")[[1]][1]!=name[i] && as.numeric(strsplit(name[i],"_")[[1]][2])>1) firstSepData=FALSE
@@ -97,7 +97,7 @@ testColumnNames <- function(name, files, datapath){
     
     num_initial_col=0
     
-    for (j in 1:length(files)){
+    for (j in seq_len(length(files))){
       b = strsplit(files[j],"_")
       b2 = gsub(".txt","",b[[1]][2])
       b2 = gsub("-",".",b2)
@@ -115,7 +115,7 @@ testColumnNames <- function(name, files, datapath){
       rawDataSet[[name[i]]] = data.frame(rawDataSet[[name[i]]], temp)
       
       #Check the column names
-      for (k in 1:length(used_columns[[b2]])){
+      for (k in seq_len(length(used_columns[[b2]]))){
         if ((used_columns[[b2]][k] %in% colnames(rawDataSet[[name[i]]])) || stringr::str_detect(used_columns[[b2]][k],".NA") || stringr::str_detect(used_columns[[b2]][k],".X")){
           #do nothing
         }else{
@@ -155,7 +155,7 @@ testColumnNames <- function(name, files, datapath){
     
   }
   
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     #name[i]=strsplit(name[i],"_")[[1]][1]
     firstSepData = TRUE
     
@@ -255,13 +255,13 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
   correct=0
 
   w=0
-  for (i in 1:length(wrong_dataset)){
+  for (i in seq_len(length(wrong_dataset))){
     w=w+length(worng_columns_id[[i]])
     #update columns
     #k=match(wrong_dataset,allDatasets)
     #wrong column names
 
-    for (j in 1:length(new_columns[[i]])){
+    for (j in seq_len(length(new_columns[[i]]))){
       #filter_column[worng_columns_id[i]]=new_columns[i]
       #return(wrong_dataset)
       if (length(which(names(rawDataSet[[wrong_dataset[i]]])==new_columns[[i]][j]))>0)
@@ -272,7 +272,7 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
   
   if (correct==w){
     correct="yes"
-    for (i in 1:length(name))
+    for (i in seq_len(length(name)))
       rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% select(all_used_columns)
   }else{
     correct="no"
@@ -292,7 +292,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
   
   
   a="Filter ids "
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     a=paste0(a,",",filter_id[i])
   }
   nr=0
@@ -337,7 +337,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
   
   #usedDatasetId=match(name,allDatasets)
   # Combine raw name
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     if (i==1){
       allData <- rawDataSet[[name[i]]];
     }else{
@@ -348,7 +348,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
   test_column = c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1] )
   
   #used_column=c("dataName")
-  #for (i in 1:length(filter_id)){
+  #for (i in seq_len(length(filter_id))){
   #used_column=c(used_column,filter_column[filter_id[i]])
   #}
   
@@ -366,7 +366,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
   workflow_datasets<-list()
   
   a=matrix(0,length(filter_id),3)
-  for (j in 1:length(name)){
+  for (j in seq_len(length(name))){
     workflow_datasets[[name[j]]]=a
   }
   
@@ -412,7 +412,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
     workflow[i,2] = nrow(filterOut[[1]])
     workflow[i,3] = nrow(allData)
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[1]])>0){
         filterOut_datasets = filterOut[[1]] %>% dplyr::filter(filterOut[[1]]$dataName==name[j])
       } else {
@@ -445,7 +445,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     workflow[i,3]=nrow(allData)
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[2]])>0) filterOut_datasets<-filterOut[[2]] %>% dplyr::filter(filterOut[[2]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[2]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -487,7 +487,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
     workflow[i,1]=filter_id[i]
     workflow[i,2]=nrow(filterOut[[3]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[3]])>0) filterOut_datasets<-filterOut[[3]] %>% dplyr::filter(filterOut[[3]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[3]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -527,7 +527,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
     workflow[i,2]=nrow(filterOut[[4]])
     workflow[i,3]=nrow(allData)
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[4]])>0) filterOut_datasets<-filterOut[[4]] %>% dplyr::filter(filterOut[[4]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[4]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -540,7 +540,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
   
   filterOutSum<-c()
   if (length(filter_id)>0)
-    for (i in 1:length(filter_id)){
+    for (i in seq_len(length(filter_id))){
       if (i==1)
         filterOutSum<-filterOut[[filter_id[1]]]
       else
@@ -557,20 +557,20 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter
   
   #Separate allData to different tables
   initial_datasets = list()
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     initial_datasets[[name[i]]]<- allDataInitial %>% dplyr::filter(allDataInitial$dataName==name[i])
   }
   
   cleaned_datasets = list()
   if (length(allData)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       cleaned_datasets[[name[i]]]<- allData %>% dplyr::filter(allData$dataName==name[i])
     }
   }
   
   cleaned_out_datasets = list()
   if (length(filterOutSum)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       cleaned_out_datasets[[name[i]]]<- filterOutSum %>% dplyr::filter(filterOutSum$dataName==name[i])
     }
   }
@@ -605,7 +605,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
   #logfile
   
   a="Filter ids "
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     a=paste0(a,",",filter_id[i])
   }
   cat(paste0("imgtfilter","\t"), file=logFile, append=TRUE)
@@ -630,7 +630,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
   test_column=c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1] )
   
   used_column=c("dataName")
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     used_column=c(used_column,filter_column[filter_id[i]])
   }
   
@@ -649,7 +649,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
   workflow_datasets<-list()
   
   a=matrix(0,length(filter_id),3)
-  for (j in 1:length(name)){
+  for (j in seq_len(length(name))){
     workflow_datasets[[name[j]]]=a
   }
   
@@ -676,7 +676,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[5]])>0) filterOut_datasets<-filterOut[[5]] %>% dplyr::filter(filterOut[[5]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[5]]
       if (i==1){ prev=nrow(rawDataSet[[name[j]]])
@@ -701,7 +701,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[6]])>0) filterOut_datasets<-filterOut[[6]] %>% dplyr::filter(filterOut[[6]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[6]] 
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -725,7 +725,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[7]])>0) filterOut_datasets<-filterOut[[7]] %>% dplyr::filter(filterOut[[7]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[7]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -749,7 +749,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[8]])>0) filterOut_datasets<-filterOut[[8]] %>% dplyr::filter(filterOut[[8]]$dataName==name[j])
       else  filterOut_datasets<-filterOut[[8]] 
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -774,7 +774,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[9]])>0) filterOut_datasets<-filterOut[[9]] %>% dplyr::filter(filterOut[[9]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[9]] 
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -798,7 +798,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[10]])>0) filterOut_datasets<-filterOut[[10]] %>% dplyr::filter(filterOut[[10]]$dataName==name[j])
       else  filterOut_datasets<-filterOut[[10]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -819,7 +819,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
   
   filterOutSum<-c()
   if (length(filter_id)>0)
-    for (i in 1:length(filter_id)){
+    for (i in seq_len(length(filter_id))){
       if (i==1)
         filterOutSum<-filterOut[[filter_id[1]]]
       else
@@ -860,13 +860,13 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
   
   #Separate allData to different tables
   initial_datasets<-list()
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     initial_datasets[[name[i]]]<- allDataInitial %>% dplyr::filter(allDataInitial$dataName==name[i])
   }
   
   filtered_datasets<-list()
   if (length(allData)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       filtered_datasets[[name[i]]]<- allData %>% dplyr::filter(allData$dataName==name[i])
       if (save_tables_individually_filter_in){
         write.table((filtered_datasets[[name[i]]]),paste0(output_folder,"/","filter_in_",name[i],".txt"),sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -876,13 +876,13 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
   
   filtered_out_datasets<-list()
   if (length(filterOutSum)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       filtered_out_datasets[[name[i]]]<- filterOutSum %>% dplyr::filter(filterOutSum$dataName==name[i])
     }
   }
   
   a=""
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     a=paste(a,name[i])
   }
   
@@ -918,7 +918,7 @@ imgtfilter <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(5,6,7,8,
 
 imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, filter_id=c(1,2,3,4,5,6,7,8,9,10), filter_out_char1=" P", filter_out_char2="[*]|X|#|[.]", filter_in_char="productive", filterStart="^*",filterEnd="*$", identityLow=95, identityHigh=100, VGene="", JGene="", DGene="", lengthLow=7, lengthHigh=15,  aminoacid="CASSPPDTGELFF", seq1=1,seq2=2,Tcell) {
   a="Filter ids "
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     a=paste0(a,",",filter_id[i])
   }
   nr=0
@@ -950,7 +950,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
   
   #usedDatasetId=match(name,allDatasets)
   # Combine raw name
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     if (i==1){
       allData <- rawDataSet[[name[i]]];
     }else{
@@ -961,7 +961,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
   test_column=c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1] )
   
   used_column=c("dataName")
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     used_column=c(used_column,filter_column[filter_id[i]])
   }
   
@@ -979,7 +979,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
   workflow_datasets<-list()
   
   a=matrix(0,length(filter_id),3)
-  for (j in 1:length(name)){
+  for (j in seq_len(length(name))){
     workflow_datasets[[name[j]]]=a
   }
   
@@ -1025,7 +1025,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
     workflow[i,1]=filter_id[i]
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[1]])>0) filterOut_datasets<-filterOut[[1]] %>% dplyr::filter(filterOut[[1]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[1]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1047,7 +1047,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
     workflow[i,1]=filter_id[i]
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[2]])>0) filterOut_datasets<-filterOut[[2]] %>% dplyr::filter(filterOut[[2]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[2]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1089,7 +1089,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
     workflow[i,1]=filter_id[i]
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[3]])>0) filterOut_datasets<-filterOut[[3]] %>% dplyr::filter(filterOut[[3]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[3]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1128,7 +1128,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
     workflow[i,1]=filter_id[i]
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[4]])>0) filterOut_datasets<-filterOut[[4]] %>% dplyr::filter(filterOut[[4]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[4]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1141,7 +1141,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
  
   filterOutSum<-c()
   if (length(filter_id)>0){
-    for (i in 1:length(filter_id)){
+    for (i in seq_len(length(filter_id))){
       if (i==1)
         filterOutSum<-filterOut[[filter_id[1]]]
       else
@@ -1167,20 +1167,20 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
   
   #Separate allData to different tables
   initial_datasets<-list()
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     initial_datasets[[name[i]]]<- allDataInitial %>% dplyr::filter(allDataInitial$dataName==name[i])
   }
   
   cleaned_datasets<-list()
   if (length(allData)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       cleaned_datasets[[name[i]]]<- allData %>% dplyr::filter(allData$dataName==name[i])
     }
   }
   
   cleaned_out_datasets<-list()
   if (length(filterOutSum)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       cleaned_out_datasets[[name[i]]]<- filterOutSum %>% dplyr::filter(filterOutSum$dataName==name[i])
     }
   }
@@ -1201,7 +1201,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id=1, fil
 imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3,4,5,6,7,8,9,10), filter_out_char1=" P", filter_out_char2="[:punct:]|X", filter_in_char="productive", filterStart="^*",filterEnd="*$", identityLow=95, identityHigh=100, VGene="", JGene="", DGene="", lengthLow=7, lengthHigh=15,  aminoacid="CASSPPDTGELFF", seq1=1,seq2=2) {
   #logfile
   a="Filter ids "
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     a=paste0(a,",",filter_id[i])
   }
   cat(paste0("imgtfilter","\t"), file=logFile, append=TRUE)
@@ -1226,7 +1226,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
   test_column=c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1] )
   
   used_column=c("dataName")
-  for (i in 1:length(filter_id)){
+  for (i in seq_len(length(filter_id))){
     used_column=c(used_column,filter_column[filter_id[i]])
   }
   
@@ -1245,7 +1245,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
   workflow_datasets<-list()
   
   a=matrix(0,length(filter_id),3)
-  for (j in 1:length(name)){
+  for (j in seq_len(length(name))){
     workflow_datasets[[name[j]]]=a
   }
   
@@ -1272,7 +1272,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[5]])>0) filterOut_datasets<-filterOut[[5]] %>% dplyr::filter(filterOut[[5]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[5]]
       if (i==1){ prev=nrow(rawDataSet[[name[j]]])
@@ -1297,7 +1297,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[6]])>0) filterOut_datasets<-filterOut[[6]] %>% dplyr::filter(filterOut[[6]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[6]] 
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1321,7 +1321,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[7]])>0) filterOut_datasets<-filterOut[[7]] %>% dplyr::filter(filterOut[[7]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[7]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1345,7 +1345,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[8]])>0) filterOut_datasets<-filterOut[[8]] %>% dplyr::filter(filterOut[[8]]$dataName==name[j])
       else  filterOut_datasets<-filterOut[[8]] 
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1370,7 +1370,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     workflow[i,3]=nrow(allDataInitial)-nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[9]])>0) filterOut_datasets<-filterOut[[9]] %>% dplyr::filter(filterOut[[9]]$dataName==name[j])
       else filterOut_datasets<-filterOut[[9]] 
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1394,7 +1394,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
     workflow[i,1]=filter_id[i]-4
     workflow[i,2]=nrow(filterOut[[filter_id[i]]])
     
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (nrow(filterOut[[10]])>0) filterOut_datasets<-filterOut[[10]] %>% dplyr::filter(filterOut[[10]]$dataName==name[j])
       else  filterOut_datasets<-filterOut[[10]]
       if (i==1) prev=nrow(rawDataSet[[name[j]]])
@@ -1414,7 +1414,7 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
   #mem_used() # log memory used after filtering (no significant change should be evident)
   filterOutSum<-c()
   if (length(filter_id)>0){
-    for (i in 1:length(filter_id)){
+    for (i in seq_len(length(filter_id))){
       if (i==1)
         filterOutSum<-filterOut[[filter_id[1]]]
       else
@@ -1461,20 +1461,20 @@ imgtfilterLow <- function(rawDataSet,name, allData, cell_id=1, filter_id=c(1,2,3
   
   #Separate allData to different tables
   initial_datasets<-list()
-  for (i in 1:length(name)){
+  for (i in seq_len(length(name))){
     initial_datasets[[name[i]]]<- allDataInitial %>% dplyr::filter(allDataInitial$dataName==name[i])
   }
   
   filtered_datasets<-list()
   if (length(allData)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       filtered_datasets[[name[i]]]<- allData %>% dplyr::filter(allData$dataName==name[i])
     }
   }
   
   filtered_out_datasets<-list()
   if (length(filterOutSum)>0){
-    for (i in 1:length(name)){
+    for (i in seq_len(length(name))){
       filtered_out_datasets[[name[i]]]<- filterOutSum %>% dplyr::filter(filterOutSum$dataName==name[i])
     }
   }
@@ -1543,7 +1543,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
                                             distinctVGenes_CDR3$CDR3,
                                             sep = " - ") # do.call(paste, c(distinctVGenes_CDR3[c("Genes", "CDR3")], sep = " - "))
 
-      for (i in 1:nrow(distinctVGenes_CDR3)){
+      for (i in seq_len(nrow(distinctVGenes_CDR3))){
         
         # Get specific clonotype data 
         inputVGenes_CDR3 = which((allData[[gene]] == distinctVGenes_CDR3$Genes[i]) & (allData[[junction]] == distinctVGenes_CDR3$CDR3[i]))
@@ -1578,7 +1578,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
 
       # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
 
-      for (i in 1:nrow(distinctVGenes_CDR3)){
+      for (i in seq_len(nrow(distinctVGenes_CDR3))){
         
         # Get specific clonotype data 
         inputVGenes_CDR3 = which(allData[[junction]] == distinctVGenes_CDR3$clonotype[i])
@@ -1719,7 +1719,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       
       group.freq.seq[[name[j]]] = data.table::as.data.table(group.freq.seq[[name[j]]])
       
-      for (i in 1:nrow(distinctVGenes_CDR3)){
+      for (i in seq_len(nrow(distinctVGenes_CDR3))){
         
         # Get specific clonotype data 
         inputVGenes_CDR3 = which((data[[gene]] == distinctVGenes_CDR3$Genes[i]) & (data[[junction]] == distinctVGenes_CDR3$CDR3[i]))
@@ -1755,7 +1755,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
       group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]] %>% dplyr::group_by(clonotype = group.freq.seq[[name[j]]][[junction]])
       group.freq.seq[[name[j]]] = data.table::as.data.table(group.freq.seq[[name[j]]])
       
-      for (i in 1:nrow(distinctVGenes_CDR3)){
+      for (i in seq_len(nrow(distinctVGenes_CDR3))){
         
         # Get specific clonotype data 
         inputVGenes_CDR3 = which(data[[junction]] == distinctVGenes_CDR3$clonotype[i])
@@ -1884,10 +1884,10 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
     print("C6")
     
     #cl <- makeCluster(num_of_cores)
-    #clono_datasets=clusterApply(cl=cl,1:length(name),one_run)
-    a = lapply(1:length(name), one_run)
+    #clono_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+    a = lapply(seq_len(length(name)), one_run)
     
-    for(i in 1:length(name)){
+    for(i in seq_len(length(name))){
       view_specific_clonotype_datasets[[name[i]]] = a[[i]]$view_specific_clonotype_datasets
       clono_datasets[[name[i]]] = a[[i]]$clono_datasets
       # SHM_normal[[name[i]]] = a[[i]]$SHM_normal
@@ -1900,10 +1900,10 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis){ # 
     
     print("C7")
     
-    a = parallel::mclapply(1:length(name), one_run, mc.cores = parallel::detectCores(all.tests = FALSE, logical = TRUE), mc.preschedule = TRUE)
-    # a = lapply(1:length(name), one_run) ## for debugging use lapply
+    a = parallel::mclapply(seq_len(length(name)), one_run, mc.cores = parallel::detectCores(all.tests = FALSE, logical = TRUE), mc.preschedule = TRUE)
+    # a = lapply(seq_len(length(name)), one_run) ## for debugging use lapply
 
-    for(i in 1:length(name)){
+    for(i in seq_len(length(name))){
       view_specific_clonotype_datasets[[name[i]]] = a[[i]]$view_specific_clonotype_datasets
       clono_datasets[[name[i]]] = a[[i]]$clono_datasets
       # SHM_normal[[name[i]]] = a[[i]]$SHM_normal
@@ -2026,7 +2026,7 @@ get_frequent_sequence = function(data){
   #   
   #   #################### Find the consensus Region2 that have the same Region1 ####################
   #   
-  #   for(z in 1:length(metrics)){
+  #   for(z in seq_len(length(metrics))){
   #     r1 = info.f2$Region1[1]
   #     grouping = info.f2[which(info.f2$Region1 == r1),]
   #     cons = stringr::str_split(grouping$Region2, pattern = "")
@@ -2082,7 +2082,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
   if (stringr::str_detect(clono_allData$clonotype[1]," - ") && take_gene=="No"){
     a2=strsplit(clono_allData$clonotype," - ") 
     clono_allData_only_cdr3$clonotype=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,2])
-    clono_allData_only_cdr3=data.table::as.data.table(clono_allData_only_cdr3[,1:3])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
+    clono_allData_only_cdr3=data.table::as.data.table(clono_allData_only_cdr3[,seq_len(3)])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
     clono_allData_only_cdr3=clono_allData_only_cdr3[order(-clono_allData_only_cdr3$N),]
   }
   
@@ -2099,7 +2099,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
   
   #for each cdr3 length
   highly_sim_view_specific_clonotypes<-list()
-  for (i in 1:length(cdr3_lengths)){
+  for (i in seq_len(length(cdr3_lengths))){
     highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]]=list()
     
     clonotypes_of_this_length=clono_allData_only_cdr3 %>% dplyr::filter(str_length(clono_allData_only_cdr3$clonotype)==(cdr3_lengths[i]+2))
@@ -2154,18 +2154,18 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
   ##### Results to tables
   highly_sim_clonotypes<-list()
   highly_sim_clonotypes_allGroups<-list()
-  for (i in 1:length(cdr3_lengths)){
+  for (i in seq_len(length(cdr3_lengths))){
     clonotype=names(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]])
     if (!(is.null(clonotype))){
       N=c()
       Freq=c()
       prev_cluster=c()
-      for (j in 1:length(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]])){
+      for (j in seq_len(length(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]]))){
         highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]][[clonotype[j]]]$HS_cluster_id=j
         N=c(N,sum(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]][[clonotype[j]]]$N))
         Freq=c(Freq,sum(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]][[clonotype[j]]]$Freq))
         prev_cluster_c<-""
-        for (k in 1:nrow(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]][[clonotype[j]]])){
+        for (k in seq_len(nrow(highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]][[clonotype[j]]]))){
           prev_cluster_c=paste(prev_cluster_c,highly_sim_view_specific_clonotypes[[paste0("length ",cdr3_lengths[i])]][[clonotype[j]]]$prev_cluster[k])
         }
         prev_cluster=c(prev_cluster,prev_cluster_c)
@@ -2186,7 +2186,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
     
     if (nrow(extra_clono)>0){
       extra_clono$prev_cluster=0
-      for (k in 1:nrow(extra_clono)){
+      for (k in seq_len(nrow(extra_clono))){
         temp=as.character(extra_clono[["Convergent Evolution"]][k])
         extra_clono$prev_cluster[k]=as.numeric(strsplit(strsplit(temp,"cluster ")[[1]][2]," :")[[1]][1])
       }
@@ -2194,13 +2194,13 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
       if (!(is.null(clonotype))){
         extra_clono$HS_cluster_id=(max(highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]$HS_cluster_id)+1):(max(highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]$HS_cluster_id)+nrow(extra_clono))
       }else{
-        extra_clono$HS_cluster_id=1:nrow(extra_clono)
+        extra_clono$HS_cluster_id=seq_len(nrow(extra_clono))
       }
       highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]]=rbind(highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]],extra_clono)
       highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]]=rbind(highly_sim_clonotypes[[paste0("length ",cdr3_lengths[i])]],extra_clono[,c("clonotype","N","Freq","prev_cluster","HS_cluster_id")])
     }
     
-    row.names(highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]])=1:nrow(highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]])
+    row.names(highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]])=seq_len(nrow(highly_sim_clonotypes_allGroups[[paste0("length ",cdr3_lengths[i])]]))
     
     if (save_tables_individually){
       filename=paste0(output_folder,"/","Highly_sim_Clonotypes_","All_Data_length_",cdr3_lengths[i],".txt")
@@ -2221,7 +2221,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
     if (stringr::str_detect(clono_datasets[[name[j]]]$clonotype[1]," - ") && take_gene=="No"){
       a2=strsplit(clono_datasets[[name[j]]]$clonotype," - ") 
       clono_allData_only_cdr3$clonotype=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,2])
-      clono_allData_only_cdr3=data.table::as.data.table(clono_allData_only_cdr3[,1:3])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
+      clono_allData_only_cdr3=data.table::as.data.table(clono_allData_only_cdr3[,seq_len(3)])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
       clono_allData_only_cdr3=clono_allData_only_cdr3[order(-clono_allData_only_cdr3$N),]
     }
     if (stringr::str_detect(clono_datasets[[name[j]]]$clonotype[1]," - ") && take_gene=="Yes"){
@@ -2235,7 +2235,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
     #### analysis
     #for each cdr3 length
     highly_sim_view_specific_clonotypes_datasets[[name[j]]]<-list()
-    for (i in 1:length(cdr3_lengths)){
+    for (i in seq_len(length(cdr3_lengths))){
       highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]=list()
       
       clonotypes_of_this_length=clono_allData_only_cdr3 %>% dplyr::filter(str_length(clono_allData_only_cdr3$clonotype)==(cdr3_lengths[i]+2))
@@ -2290,18 +2290,18 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
     ##### Results to tables
     highly_sim_clonotypes_datasets[[name[j]]]<-list()
     highly_sim_clonotypes_allGroups_datasets[[name[j]]]<-list()
-    for (i in 1:length(cdr3_lengths)){
+    for (i in seq_len(length(cdr3_lengths))){
       clonotype=names(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]])
       if (!(is.null(clonotype))){
         N=c()
         Freq=c()
         prev_cluster=c()
-        for (cl in 1:length(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]])){
+        for (cl in seq_len(length(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]))){
           highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]][[clonotype[cl]]]$HS_cluster_id=cl
           N=c(N,sum(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]][[clonotype[cl]]]$N))
           Freq=c(Freq,sum(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]][[clonotype[cl]]]$Freq))
           prev_cluster_c<-""
-          for (k in 1:nrow(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]][[clonotype[cl]]])){
+          for (k in seq_len(nrow(highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]][[clonotype[cl]]]))){
             prev_cluster_c=paste(prev_cluster_c,highly_sim_view_specific_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]][[clonotype[cl]]]$prev_cluster[k])
           }
           prev_cluster=c(prev_cluster,prev_cluster_c)
@@ -2322,19 +2322,19 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
       
       if (nrow(extra_clono)>0){
         extra_clono$prev_cluster=0
-        for (k in 1:nrow(extra_clono)){
+        for (k in seq_len(nrow(extra_clono))){
           temp=as.character(extra_clono[["Convergent Evolution"]][k])
           extra_clono$prev_cluster[k]=as.numeric(strsplit(strsplit(temp,"cluster ")[[1]][2]," :")[[1]][1])
         }
         if (!(is.null(clonotype))){
           extra_clono$HS_cluster_id=(max(highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]$HS_cluster_id)+1):(max(highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]$HS_cluster_id)+nrow(extra_clono))
         }else{
-          extra_clono$HS_cluster_id=1:nrow(extra_clono)
+          extra_clono$HS_cluster_id=seq_len(nrow(extra_clono))
         }
         highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]=rbind(highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]],extra_clono)
         highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]=rbind(highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]],extra_clono[,c("clonotype","N","Freq","prev_cluster","HS_cluster_id")])
         
-        row.names(highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]])=1:nrow(highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]])
+        row.names(highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]])=seq_len(nrow(highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ",cdr3_lengths[i])]]))
         
       }
       
@@ -2355,17 +2355,17 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
   } 
   
   if (Sys.info()[1] == "Windows"){
-    a=lapply(1:length(name),one_run)
-    for (i in 1:length(name)){
+    a=lapply(seq_len(length(name)),one_run)
+    for (i in seq_len(length(name))){
       highly_sim_clonotypes_allGroups_datasets[[name[i]]]=a[[i]]$highly_sim_clonotypes_allGroups_datasets
       clono_datasets[[name[i]]]=a[[i]]$clono_datasets
       highly_sim_clonotypes_datasets[[name[i]]]=a[[i]]$highly_sim_clonotypes_datasets
       highly_sim_view_specific_clonotypes_datasets[[name[i]]]=a[[i]]$highly_sim_view_specific_clonotypes_datasets
     }
   }else{
-    a=lapply(1:length(name),one_run)
-    #a=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
-    for (i in 1:length(name)){
+    a=lapply(seq_len(length(name)),one_run)
+    #a=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+    for (i in seq_len(length(name))){
       highly_sim_clonotypes_allGroups_datasets[[name[i]]]=a[[i]]$highly_sim_clonotypes_allGroups_datasets
       clono_datasets[[name[i]]]=a[[i]]$clono_datasets
       highly_sim_clonotypes_datasets[[name[i]]]=a[[i]]$highly_sim_clonotypes_datasets
@@ -2432,7 +2432,7 @@ highly_similar_clonotypes <- function(clono_allData,clono_datasets,num_of_mismat
   #   
   #   #################### Find the consensus Region2 that have the same Region1 ####################
   #   
-  #   for(z in 1:length(metrics)){
+  #   for(z in seq_len(length(metrics))){
   #     r1 = info.f2$Region1[1]
   #     grouping = info.f2[which(info.f2$Region1 == r1),]
   #     cons = stringr::str_split(grouping$Region2, pattern = "")
@@ -2485,7 +2485,7 @@ public_clonotypes <- function(clono_allData,clono_datasets,take_gene,use_reads,p
   if (stringr::str_detect(clono_allData$clonotype[1]," - ") && take_gene=="No"){
     a2=strsplit(clono_allData$clonotype," - ") 
     clono_allData$clonotype=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,2])
-    clono_allData=data.table::as.data.table(clono_allData[,1:3])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
+    clono_allData=data.table::as.data.table(clono_allData[,seq_len(3)])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
     clono_allData=clono_allData[order(-clono_allData$N),]
   }
   
@@ -2497,7 +2497,7 @@ public_clonotypes <- function(clono_allData,clono_datasets,take_gene,use_reads,p
   if (use_reads){
     clono_allData <- clono_allData %>% dplyr::filter(N>public_clonotype_thr)
   }else{
-    clono_allData <- clono_allData[1:public_clonotype_thr,]
+    clono_allData <- clono_allData[seq_len(public_clonotype_thr),]
   }
 
   public_clono<-data.frame(clonotype=unique(clono_allData$clonotype),stringsAsFactors = FALSE)
@@ -2507,14 +2507,14 @@ public_clonotypes <- function(clono_allData,clono_datasets,take_gene,use_reads,p
     if (stringr::str_detect(clono_datasets[[n]]$clonotype[1]," - ") && take_gene=="No"){
       a2=strsplit(clono_datasets[[n]]$clonotype," - ") 
       clono_datasets[[n]]$clonotype=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,2])
-      clono_datasets[[n]]=data.table::as.data.table(clono_datasets[[n]][,1:3])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
+      clono_datasets[[n]]=data.table::as.data.table(clono_datasets[[n]][,seq_len(3)])[, lapply(.SD, sum), by = .(clonotype=clonotype)]
       clono_datasets[[n]]=clono_datasets[[n]][order(-clono_datasets[[n]]$N),]
     }
     
     if (use_reads){
       clono_datasets[[n]] <- clono_datasets[[n]] %>% dplyr::filter(N>public_clonotype_thr)
     }else{
-      clono_datasets[[n]] <- clono_datasets[[n]][1:public_clonotype_thr,]
+      clono_datasets[[n]] <- clono_datasets[[n]][seq_len(public_clonotype_thr),]
     }
     
     ids_dataset=which(clono_datasets[[n]]$clonotype %in% public_clono$clonotype) 
@@ -2576,11 +2576,11 @@ viewClonotypes <- function(allData,allele,gene,junction,val1,val2) {
   temp=allData
   if (length(gene)>0){
     if (allele==FALSE){
-      for (i in 1:nrow(temp)){
+      for (i in seq_len(nrow(temp))){
         temp[[gene]][i]=strsplit(temp[[gene]][i],"[*]")[[1]][1]
       }
     }else{
-      for (i in 1:nrow(temp)){
+      for (i in seq_len(nrow(temp))){
         temp[[gene]][i]=strsplit(temp[[gene]][i],"(see comment)")[[1]][1]
       }
     }
@@ -2614,16 +2614,16 @@ repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gen
   cat(paste0(ncol(clono_allData),"\t"), file=logFile, append=TRUE)
   cat(paste0(Sys.time(),"\t"), file=logFile, append=TRUE)
   
-  #for (i in 1:nrow(clono_allData)){
+  #for (i in seq_len(nrow(clono_allData))){
   #my_table <- viewClonotypes(clono_allData,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
   #}
   
-  for (i in 1:nrow(clono_allData)){
+  for (i in seq_len(nrow(clono_allData))){
     clono_allData[i,1]=strsplit(as.character(clono_allData[i,1])," - ")[[1]][1]
   }
   
-  for (j in 1:length(name)){
-    for (i in 1:nrow(clono_datasets[[name[j]]])){
+  for (j in seq_len(length(name))){
+    for (i in seq_len(nrow(clono_datasets[[name[j]]]))){
       clono_datasets[[name[j]]][i,1]=strsplit(as.character(clono_datasets[[name[j]]][i,1])," - ")[[1]][1]   
     }
   }
@@ -2652,10 +2652,10 @@ repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gen
     
     if (Sys.info()[1] == "Windows"){
       #cl <- makeCluster(num_of_cores)
-      #Repertoires_datasets=clusterApply(cl=cl,1:length(name),one_run)
-      Repertoires_datasets=lapply(1:length(name),one_run)
+      #Repertoires_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+      Repertoires_datasets=lapply(seq_len(length(name)),one_run)
     }else{
-      Repertoires_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+      Repertoires_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
     
     names(Repertoires_datasets)=name
@@ -2718,10 +2718,10 @@ repertoires<- function(clono_allData,clono_datasets,allele,allele_clonotypes,gen
     
     if (Sys.info()[1] == "Windows"){
       #cl <- makeCluster(num_of_cores)
-      #freq_gene_name_datasets=clusterApply(cl=cl,1:length(name),one_run)
-      freq_gene_name_datasets = lapply(1:length(name),one_run)
+      #freq_gene_name_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+      freq_gene_name_datasets = lapply(seq_len(length(name)),one_run)
     } else {
-      freq_gene_name_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+      freq_gene_name_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
     
     names(freq_gene_name_datasets) = name
@@ -2771,19 +2771,19 @@ repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allel
     g = gene
   }
   
-  #for (i in 1:nrow(clono_allData)){
+  #for (i in seq_len(nrow(clono_allData))){
   #my_table <- viewClonotypes(clono_allData,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
   #}
   
   clono_allData_initial<-clono_allData
   clono_datasets_initial<-clono_datasets
   
-  for (i in 1:nrow(clono_allData)){
+  for (i in seq_len(nrow(clono_allData))){
     clono_allData[i,1]=strsplit(as.character(clono_allData[i,1])," - ")[[1]][1]
   }
   
-  for (j in 1:length(name)){
-    for (i in 1:nrow(clono_datasets[[name[j]]])){
+  for (j in seq_len(length(name))){
+    for (i in seq_len(nrow(clono_datasets[[name[j]]]))){
       clono_datasets[[name[j]]][i,1]=strsplit(as.character(clono_datasets[[name[j]]][i,1])," - ")[[1]][1]   
     }
   }
@@ -2811,9 +2811,9 @@ repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allel
     } 
     
     if (Sys.info()[1] == "Windows"){
-      Repertoires_datasets=lapply(1:length(name),one_run)
+      Repertoires_datasets=lapply(seq_len(length(name)),one_run)
     }else{
-      Repertoires_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+      Repertoires_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
     
     names(Repertoires_datasets)=name
@@ -2888,9 +2888,9 @@ repertoires_highly_similar <- function(clono_allData,clono_datasets,allele,allel
     
     if (Sys.info()[1] == "Windows"){
       #cl <- makeCluster(num_of_cores)
-      freq_gene_name_datasets=lapply(1:length(name),one_run)
+      freq_gene_name_datasets=lapply(seq_len(length(name)),one_run)
     }else{
-      freq_gene_name_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+      freq_gene_name_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
     
     names(freq_gene_name_datasets)=name
@@ -3020,12 +3020,12 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
   
   Multiple_value_comparison_datasets<-list()
   
-  for (i in 1:nrow(clono_allData)){
+  for (i in seq_len(nrow(clono_allData))){
     clono_allData[i,1]=strsplit(as.character(clono_allData[i,1])," - ")[[1]][1]
   }
   
-  for (j in 1:length(name)){
-    for (i in 1:nrow(clono_datasets[[name[j]]])){
+  for (j in seq_len(length(name))){
+    for (i in seq_len(nrow(clono_datasets[[name[j]]]))){
       clono_datasets[[name[j]]][i,1]=strsplit(as.character(clono_datasets[[name[j]]][i,1])," - ")[[1]][1]   
     }
   }
@@ -3036,7 +3036,7 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
   
   multi_datasets<-list()
   
-  for (vals in 1:2){
+  for (vals in seq_len(2)){
     if (stringr::str_detect(val[vals],"GENE")){
       gene=val[vals]
       
@@ -3055,10 +3055,10 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
         
         if (Sys.info()[1] == "Windows"){
           #cl <- makeCluster(num_of_cores)
-          #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-          multi_datasets=lapply(1:length(name),one_run)
+          #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+          multi_datasets=lapply(seq_len(length(name)),one_run)
         }else{
-          multi_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+          multi_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
         
         names(multi_datasets)=name
@@ -3110,10 +3110,10 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
         
         if (Sys.info()[1] == "Windows"){
           #cl <- makeCluster(num_of_cores)
-          #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-          multi_datasets=lapply(1:length(name),one_run)
+          #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+          multi_datasets=lapply(seq_len(length(name)),one_run)
         }else{
-          multi_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+          multi_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
         
         names(multi_datasets)=name
@@ -3126,7 +3126,7 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
       if ((!is.null(identity_groups)) && (val[vals]==used_columns[["Summary"]][4])){
         a=as.numeric(a)
         temp=a
-        for (values in 1:nrow(identity_groups)){
+        for (values in seq_len(nrow(identity_groups))){
           if (values==nrow(identity_groups))  index=which(a>=identity_groups[values,1] & a<=identity_groups[values,2])
           else index=which(a>=identity_groups[values,1] & a<identity_groups[values,2])
           temp[index]=identity_groups$label[values]
@@ -3146,7 +3146,7 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
         if ((!is.null(identity_groups)) && (val[vals]==used_columns[["Summary"]][4])){
           a=as.numeric(a)
           temp=a
-          for (values in 1:nrow(identity_groups)){
+          for (values in seq_len(nrow(identity_groups))){
             if (values==nrow(identity_groups))  index=which(a>=identity_groups[values,1] & a<=identity_groups[values,2])
             else index=which(a>=identity_groups[values,1] & a<identity_groups[values,2])
             temp[index]=identity_groups$label[values]
@@ -3161,10 +3161,10 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
       
       if (Sys.info()[1] == "Windows"){
         #cl <- makeCluster(num_of_cores)
-        #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-        multi_datasets=lapply(1:length(name),one_run)
+        #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+        multi_datasets=lapply(seq_len(length(name)),one_run)
       }else{
-        multi_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+        multi_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
       }
       
       names(multi_datasets)=name
@@ -3199,10 +3199,10 @@ Multiple_value_comparison <- function(clono_allData,clono_datasets,allele_clonot
   
   if (Sys.info()[1] == "Windows"){
     #cl <- makeCluster(num_of_cores)
-    #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-    Multiple_value_comparison_datasets=lapply(1:length(name),one_run)
+    #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+    Multiple_value_comparison_datasets=lapply(seq_len(length(name)),one_run)
   }else{
-    Multiple_value_comparison_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+    Multiple_value_comparison_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
   }
   
   names(Multiple_value_comparison_datasets)=name
@@ -3269,12 +3269,12 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
   
   Multiple_value_comparison_datasets<-list()
   
-  for (i in 1:nrow(clono_allData)){
+  for (i in seq_len(nrow(clono_allData))){
     clono_allData[i,1]=strsplit(as.character(clono_allData[i,1])," - ")[[1]][1]
   }
   
-  for (j in 1:length(name)){
-    for (i in 1:nrow(clono_datasets[[name[j]]])){
+  for (j in seq_len(length(name))){
+    for (i in seq_len(nrow(clono_datasets[[name[j]]]))){
       clono_datasets[[name[j]]][i,1]=strsplit(as.character(clono_datasets[[name[j]]][i,1])," - ")[[1]][1]   
     }
   }
@@ -3285,7 +3285,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
   
   multi_datasets<-list()
   
-  for (vals in 1:2){
+  for (vals in seq_len(2)){
     if (stringr::str_detect(val[vals],"GENE")){
       gene=val[vals]
       
@@ -3304,10 +3304,10 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
         
         if (Sys.info()[1] == "Windows"){
           #cl <- makeCluster(num_of_cores)
-          #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-          multi_datasets=lapply(1:length(name),one_run)
+          #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+          multi_datasets=lapply(seq_len(length(name)),one_run)
         }else{
-          multi_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+          multi_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
         
         names(multi_datasets)=name
@@ -3316,7 +3316,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
         ####################################### All Data
         freq_gene_name<-data.frame()
         id=0
-        for (i in 1:nrow(clono_allData)){
+        for (i in seq_len(nrow(clono_allData))){
           prev_clono=as.numeric(strsplit(as.character(clono_allData$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(clono_allData$prev_cluster[i])," ")[[1]])])
           a=view_specific_clonotype_allData[[prev_clono[1]]]
           if(length(prev_clono)>1){
@@ -3341,7 +3341,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
         ####################################### Seperate Datasets
         one_run<-function(j){
           freq_gene_name<-data.frame()
-          for (i in 1:nrow(clono_datasets[[name[j]]])){
+          for (i in seq_len(nrow(clono_datasets[[name[j]]]))){
             prev_clono=as.numeric(strsplit(as.character(clono_datasets[[name[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(clono_datasets[[name[j]]]$prev_cluster[i])," ")[[1]])])
             prev_clono=prev_clono[!is.na(prev_clono)]
             a=view_specific_clonotype_datasets[[name[j]]][[prev_clono[1]]]
@@ -3369,17 +3369,17 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
         
         if (Sys.info()[1] == "Windows"){
           #cl <- makeCluster(num_of_cores)
-          #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-          multi_datasets=lapply(1:length(name),one_run)
+          #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+          multi_datasets=lapply(seq_len(length(name)),one_run)
         }else{
-          multi_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+          multi_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
         
         names(multi_datasets)=name
       }
     }else{
       a=c()
-      for (i in 1:nrow(clono_allData)){
+      for (i in seq_len(nrow(clono_allData))){
         prev_clono=as.numeric(strsplit(as.character(clono_allData$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(clono_allData$prev_cluster[i])," ")[[1]])])
         prev_clono=prev_clono[!is.na(prev_clono)]
         view=view_specific_clonotype_allData[[prev_clono[1]]]
@@ -3393,7 +3393,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
       if ((!is.null(identity_groups)) && (val[vals]==used_columns[["Summary"]][4])){
         a=as.numeric(a)
         temp=a
-        for (values in 1:nrow(identity_groups)){
+        for (values in seq_len(nrow(identity_groups))){
           if (values==nrow(identity_groups))  index=which(a>=identity_groups[values,1] & a<=identity_groups[values,2])
           else index=which(a>=identity_groups[values,1] & a<identity_groups[values,2])
           temp[index]=identity_groups$label[values]
@@ -3408,7 +3408,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
       one_run<-function(j){
         a=c()
         id=0
-        for (i in 1:nrow(clono_datasets[[name[j]]])){
+        for (i in seq_len(nrow(clono_datasets[[name[j]]]))){
           prev_clono=as.numeric(strsplit(as.character(clono_datasets[[name[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(clono_datasets[[name[j]]]$prev_cluster[i])," ")[[1]])])
           prev_clono=prev_clono[!is.na(prev_clono)]
           view=view_specific_clonotype_datasets[[name[j]]][[prev_clono[1]]]
@@ -3422,7 +3422,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
         if ((!is.null(identity_groups)) && (val[vals]==used_columns[["Summary"]][4])){
           a=as.numeric(a)
           temp=a
-          for (values in 1:nrow(identity_groups)){
+          for (values in seq_len(nrow(identity_groups))){
             if (values==nrow(identity_groups))  index=which(a>=identity_groups[values,1] & a<=identity_groups[values,2])
             else index=which(a>=identity_groups[values,1] & a<identity_groups[values,2])
             temp[index]=identity_groups$label[values]
@@ -3437,10 +3437,10 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
       
       if (Sys.info()[1] == "Windows"){
         #cl <- makeCluster(num_of_cores)
-        #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-        multi_datasets=lapply(1:length(name),one_run)
+        #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+        multi_datasets=lapply(seq_len(length(name)),one_run)
       }else{
-        multi_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+        multi_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
       }
       
       names(multi_datasets)=name
@@ -3475,10 +3475,10 @@ Multiple_value_comparison_highly_similar <- function(clono_allData,clono_dataset
   
   if (Sys.info()[1] == "Windows"){
     #cl <- makeCluster(num_of_cores)
-    #Multiple_value_comparison_datasets=clusterApply(cl=cl,1:length(name),one_run)
-    Multiple_value_comparison_datasets=lapply(1:length(name),one_run)
+    #Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
+    Multiple_value_comparison_datasets=lapply(seq_len(length(name)),one_run)
   }else{
-    Multiple_value_comparison_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+    Multiple_value_comparison_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
   }
   
   names(Multiple_value_comparison_datasets)=name
@@ -3515,7 +3515,7 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
   if (FtopN){
     #################################combine all conent of the top N clonotypes
     input_topN<-c()
-    for (i in 1:nrow(topClonotypesAlldata)){
+    for (i in seq_len(nrow(topClonotypesAlldata))){
       cl=strsplit(topClonotypesAlldata$clonotype[i]," - ")
       if (is.na(cl[[1]][1])){
         cl[[1]][1]=""
@@ -3546,7 +3546,7 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
   
   new_list<-list()
   k=0
-  for (i in 1:length(region_split)){
+  for (i in seq_len(length(region_split))){
     if (length(region_split[[i]])==regionLength){
       k=k+1
       new_list[[k]]<-region_split[[i]]
@@ -3580,8 +3580,8 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
     table_freq=table_count
     table_freq[,2:ncol(table_count)]<-100*table_count[,2:ncol(table_count)]/k
     
-    colnames(table_freq)=c('AA',1:(ncol(table_freq)-1))
-    colnames(table_count)=c('AA',1:(ncol(table_count)-1))
+    colnames(table_freq)=c('AA',seq_len((ncol(table_freq)-1)))
+    colnames(table_count)=c('AA',seq_len((ncol(table_count)-1)))
     
     if (region_name==paste0("IMGT.gapped.AA.sequences.","CDR3.IMGT")){
       if ((ncol(table_count)-1)==13) a=105:117
@@ -3609,7 +3609,7 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
   table_freq_datasets<-list()
   region_with_specific_length_dataset<-list()
   
-  for (j in 1:length(name)){
+  for (j in seq_len(length(name))){
     namej=name[j]
     input_dataset=input_initial %>% dplyr::filter(input_initial$dataName==name[j])
     
@@ -3621,7 +3621,7 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
       #thhe function should take allele,gene,junction as input!!!!!!!!!!!!
       
       input_topN<-c()
-      for (i in 1:nrow(topClonotypesDatasets[[name[j]]])){
+      for (i in seq_len(nrow(topClonotypesDatasets[[name[j]]]))){
         cl=strsplit(topClonotypesDatasets[[name[j]]]$clonotype[i]," - ")
         if (is.na(cl[[1]][1])){
           cl[[1]][1]=""
@@ -3643,7 +3643,7 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
     #take the region with length=region
     new_list<-list()
     k=0
-    for (i in 1:length(region_split)){
+    for (i in seq_len(length(region_split))){
       if (length(region_split[[i]])==regionLength){
         k=k+1
         new_list[[k]]<-region_split[[i]]
@@ -3677,8 +3677,8 @@ createFrequencyTableCDR3 <- function(region_name,input,name,regionLength,FtopN,t
       table_freq_datasets[[name[j]]]<-table_count_datasets[[name[j]]]
       table_freq_datasets[[name[j]]][,2:ncol(table_count_datasets[[name[j]]])]<-100*table_count_datasets[[name[j]]][,2:ncol(table_count_datasets[[name[j]]])]/k
       
-      colnames(table_count_datasets[[name[j]]])=c('AA',1:(ncol(table_count_datasets[[name[j]]])-1))
-      colnames(table_freq_datasets[[name[j]]])=c('AA',1:(ncol(table_freq_datasets[[name[j]]])-1))
+      colnames(table_count_datasets[[name[j]]])=c('AA',seq_len((ncol(table_count_datasets[[name[j]]])-1)))
+      colnames(table_freq_datasets[[name[j]]])=c('AA',seq_len((ncol(table_freq_datasets[[name[j]]])-1)))
       
       if (region_name==paste0("IMGT.gapped.AA.sequences.","CDR3.IMGT")){
         if ((ncol(table_count_datasets[[name[j]]])-1)==13) a=105:117
@@ -3763,7 +3763,7 @@ createLogo <- function(table_count,table_count_datasets,name){
   if (!is.null(table_count)){
     p=motifStack::pcm2pfm(table_count)
     color_set<-c()
-    for (i in 1:length(rownames(p))){
+    for (i in seq_len(length(rownames(p)))){
       color=which(mat[,1]==rownames(p)[i])
       color_set=c(color_set,mat[color,2])
     }
@@ -3775,14 +3775,14 @@ createLogo <- function(table_count,table_count_datasets,name){
     motif_all$color<-color_set
     
     motif_datasets<-list()
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       if (!is.null(table_count_datasets[[name[j]]])){
         if ("AA" %in% colnames(table_count_datasets[[name[j]]])){
           table_count_datasets[[name[j]]]=table_count_datasets[[name[j]]][,2:ncol(table_count_datasets[[name[j]]])]
         }
         p=motifStack::pcm2pfm(table_count_datasets[[name[j]]])
         color_set<-c()
-        for (i in 1:length(rownames(p))){
+        for (i in seq_len(length(rownames(p)))){
           color=which(mat[,1]==rownames(p)[i])
           color_set=c(color_set,mat[color,2])
         }
@@ -3879,7 +3879,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     }
     
     Tgermlines = unique(Tgermlines)
-    colnames(Tgermlines) = c("V1",1:(ncol(Tgermlines)-1))
+    colnames(Tgermlines) = c("V1",seq_len((ncol(Tgermlines)-1)))
     
     a2 = strsplit(Tgermlines$V1," or|,| [(]see| OR") 
     Tgermlines$V1 = as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
@@ -3888,7 +3888,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     if (max_length_region > (ncol(Tgermlines) - 1)){
       extra_dots = matrix(".", nrow(Tgermlines), max_length_region - ncol(Tgermlines)) 
       Tgermlines = cbind(Tgermlines,extra_dots)
-      colnames(Tgermlines) = c("V1",1:(max_length_region-1))
+      colnames(Tgermlines) = c("V1",seq_len((max_length_region-1)))
       Tgermlines[Tgermlines == ""] = "."
       Tgermlines[is.na(Tgermlines)] = "."
     }
@@ -3905,13 +3905,13 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     cluster_id = c()
     freq_cluster_id = c()
     if(length(view_specific_clonotype_allData) == 0){
-      cluster_id[1:nrow(input)] = 0
-      freq_cluster_id[1:nrow(input)] = 0
+      cluster_id[seq_len(nrow(input))] = 0
+      freq_cluster_id[seq_len(nrow(input))] = 0
     } else {
       
       if (!highly){
         
-        for (i in 1:length(view_specific_clonotype_allData)){
+        for (i in seq_len(length(view_specific_clonotype_allData))){
           #index=as.numeric(row.names(view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]]))
           index = which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
           if (index[1] > 0) {
@@ -3922,7 +3922,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         
       } else {
         
-        for (i in 1:nrow(clono_allData)){
+        for (i in seq_len(nrow(clono_allData))){
           prev_clono = as.numeric(strsplit(as.character(clono_allData$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(clono_allData$prev_cluster[i])," ")[[1]])])
           view = view_specific_clonotype_allData[[prev_clono[1]]]
           
@@ -3946,9 +3946,9 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     region_split = strsplit(input[[region]], "")
 
     
-    for (i in 1:length(region_split)){
+    for (i in seq_len(length(region_split))){
       if (length(region_split[[i]]) > max_length_region)
-        region_split[[i]] = region_split[[i]][1:max_length_region]
+        region_split[[i]] = region_split[[i]][seq_len(max_length_region)]
       if (length(region_split[[i]]) < max_length_region)
         region_split[[i]][length(region_split[[i]]):max_length_region] = "."
     }
@@ -3987,8 +3987,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       germline = data.frame(t(germline),stringsAsFactors = FALSE)
       germline = c("-","-","germline","-","-","-",germline)
       germline = as.data.frame(germline,stringsAsFactors=FALSE)
-      colnames(germline) = colnames(region_alignment[,1:ncol(germline)])
-      alignment_with_germline = rbind(germline,region_alignment[,1:ncol(germline)])
+      colnames(germline) = colnames(region_alignment[,seq_len(ncol(germline))])
+      alignment_with_germline = rbind(germline,region_alignment[,seq_len(ncol(germline))])
       #for (i in 3:length(alignment_with_germline)){
       #  alignment_with_germline[,i] = factor(alignment_with_germline[,i], levels=c(levels(alignment_with_germline[,i]), "-"))
       #}
@@ -3996,7 +3996,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       a = t(apply(alignment_with_germline[2:nrow(alignment_with_germline),3:length(alignment_with_germline)],1, function(x){x==alignment_with_germline[1,3:length(alignment_with_germline)] & x!="."} )) #x: a row of input[count,XColumns]
       temp = replace(alignment_with_germline[2:nrow(alignment_with_germline),3:length(alignment_with_germline)],a==TRUE,"-")
       #add the first and the second columns
-      temp2 = cbind(alignment_with_germline[2:nrow(alignment_with_germline),1:2],temp)
+      temp2 = cbind(alignment_with_germline[2:nrow(alignment_with_germline),seq_len(2)],temp)
       #add the last columns
       # print((length(alignment_with_germline)+1):length(region_alignment))
       if ((length(alignment_with_germline)+1) < length(region_alignment))
@@ -4015,13 +4015,13 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       
       if (use_genes_germline){
         Tgermlines = Tgermlines %>% dplyr::filter(stringr::str_detect(Tgermlines$V1,"[*]01 F"))
-        for (i in 1:nrow(Tgermlines)){
+        for (i in seq_len(nrow(Tgermlines))){
           Tgermlines$V1[i] = strsplit(Tgermlines$V1,"[*]")[[i]][1]
         }
         
         region_alignment = region_alignment 
         
-        for (i in 1:nrow(region_alignment)){
+        for (i in seq_len(nrow(region_alignment))){
           region_alignment$V.GENE.and.allele[i] = strsplit(region_alignment$V.GENE.and.allele[i],"[*]")[[1]][1]
         }
       }
@@ -4033,7 +4033,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         alignment_with_germline = rbind(germlines, region_alignment)  
       } else {
         germlines = cbind("-", 0, "germline", "-", "-", Tgermlines)
-        germlines = germlines[,1:ncol(region_alignment)]
+        germlines = germlines[,seq_len(ncol(region_alignment))]
         colnames(germlines) = colnames(region_alignment)
         
         alignment_with_germline = rbind(germlines,region_alignment)
@@ -4045,7 +4045,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       germline = c()
       output = c()  
       a = c()
-      XColumns = 1:(ncol(region_alignment)-6)
+      XColumns = seq_len((ncol(region_alignment)-6))
       XColumns = as.character(XColumns)
       
       alignment_with_germline = data.table::as.data.table(alignment_with_germline)
@@ -4078,7 +4078,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
           
           temp = replace(y[productive, ..XColumns], a == TRUE, "-")
           
-          temp.names = colnames(alignment_with_germline[,1:6])
+          temp.names = colnames(alignment_with_germline[,seq_len(6)])
           
           temp2 = cbind(y[productive, ..temp.names], temp)
           
@@ -4108,7 +4108,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       #            
       #            temp = replace(y[productive, ..XColumns], a == TRUE, "-")
       #            
-      #            temp.names = colnames(alignment_with_germline[,1:6])
+      #            temp.names = colnames(alignment_with_germline[,seq_len(6)])
       #            
       #            temp2 = cbind(y[productive, ..temp.names], temp)
       #            
@@ -4133,12 +4133,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       
       if (length(view_specific_clonotype_allData) == 0){
         
-        cluster_id[1:nrow(input_tmp)] = 0
-        freq_cluster_id[1:nrow(input)] = 0
+        cluster_id[seq_len(nrow(input_tmp))] = 0
+        freq_cluster_id[seq_len(nrow(input))] = 0
         
       } else {
         if(!highly){
-          for (i in 1:length(view_specific_clonotype_datasets[[name[j]]])){
+          for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))){
             index = which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
             #index=as.numeric(row.names(view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]]))
             if(index[1] > 0) {
@@ -4147,7 +4147,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
           }
         } else {
-          for(i in 1:nrow(clono_datasets[[name[j]]])){
+          for(i in seq_len(nrow(clono_datasets[[name[j]]]))){
             
             prev_clono = as.numeric(strsplit(as.character(clono_datasets[[name[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(clono_datasets[[name[j]]]$prev_cluster[i])," ")[[1]])])
             prev_clono = prev_clono[!is.na(prev_clono)]
@@ -4170,10 +4170,10 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       
       #########################################
       region_split = strsplit(input_tmp[[region]],"")
-      for(i in 1:length(region_split)){
+      for(i in seq_len(length(region_split))){
         
         if (length(region_split[[i]]) > max_length_region)
-          region_split[[i]] = region_split[[i]][1:max_length_region]
+          region_split[[i]] = region_split[[i]][seq_len(max_length_region)]
         
         if (length(region_split[[i]]) < max_length_region)
           region_split[[i]][length(region_split[[i]]):max_length_region] = "."
@@ -4212,7 +4212,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       
       if(only_one_germline){
         # print(germline)
-        alignment_with_germline = rbind(germline,region_alignment[,1:length(germline)])
+        alignment_with_germline = rbind(germline,region_alignment[,seq_len(length(germline))])
         #for (i in 3:length(alignment_with_germline)){
         #  alignment_with_germline[,i] = factor(alignment_with_germline[,i], levels=c(levels(alignment_with_germline[,i]), "-"))
         #}
@@ -4220,7 +4220,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         a = t(apply(alignment_with_germline[2:nrow(alignment_with_germline),3:length(alignment_with_germline)],1, function(x){x==alignment_with_germline[1,3:length(alignment_with_germline)] & x!="."} )) #x: a row of input[count,XColumns]
         temp = replace(alignment_with_germline[2:nrow(alignment_with_germline),3:length(alignment_with_germline)],a==TRUE,"-")
         #add the first and the second columns
-        temp2 = cbind(alignment_with_germline[2:nrow(alignment_with_germline),1:2],temp)
+        temp2 = cbind(alignment_with_germline[2:nrow(alignment_with_germline),seq_len(2)],temp)
         #add the last columns
         if ((length(alignment_with_germline)+1) < length(region_alignment))
           temp2 = rbind(temp2,region_alignment[,(length(alignment_with_germline) + 1):length(region_alignment)])
@@ -4233,7 +4233,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       } else {
         
         if (use_genes_germline){
-          for (i in 1:nrow(region_alignment)){
+          for (i in seq_len(nrow(region_alignment))){
             region_alignment$V.GENE.and.allele[i] = strsplit(region_alignment$V.GENE.and.allele[i],"[*]")[[1]][1]
           }
           
@@ -4248,7 +4248,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         germline = c()
         output = c()  
         a = c()
-        XColumns = 1:(ncol(region_alignment) - 6)
+        XColumns = seq_len((ncol(region_alignment) - 6))
         XColumns = as.character(XColumns)
         
         alignment_with_germline = data.table::as.data.table(alignment_with_germline)
@@ -4278,7 +4278,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             
             temp = replace(y[productive, ..XColumns], a == TRUE, "-")
             
-            temp.names = colnames(alignment_with_germline[,1:6])
+            temp.names = colnames(alignment_with_germline[,seq_len(6)])
             
             temp2 = cbind(y[productive, ..temp.names], temp)
             
@@ -4297,7 +4297,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         #          if (length(germline) > 0 && length(productive) > 0){
         #            a = t(apply(y[productive, ..XColumns], 1, function(x){ x == y[germline, ..XColumns] & x != "."} )) #x: a row of input[count,XColumns]
         #            temp = replace(y[productive, ..XColumns], a == TRUE, "-")
-        #            temp.names = colnames(alignment_with_germline[,1:6])
+        #            temp.names = colnames(alignment_with_germline[,seq_len(6)])
         #            temp2 = cbind(y[productive, ..temp.names], temp)
         #            temp.names = c(temp.names, XColumns)
         #            output <<- rbind(output, y[germline, ..temp.names], temp2)
@@ -4321,7 +4321,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       if(length(name) == 1){
         alignment_datasets[[name]] = alignment_allData
       } else {
-        alignment_datasets = lapply(1:length(name), one_run)
+        alignment_datasets = lapply(seq_len(length(name)), one_run)
       }
       
     } else {
@@ -4329,7 +4329,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
       if(length(name) == 1){
         alignment_datasets[[name]] = alignment_allData
       } else {
-        alignment_datasets = parallel::mclapply(1:length(name), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        alignment_datasets = parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
       }
       
     }
@@ -4369,7 +4369,7 @@ mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,Ft
   cat(paste0(Sys.time(),"\t"), file=logFile, append=TRUE)
   
   if (FtopN){
-    align=dplyr::filter(align, cluster_id %in% c("-",as.character(1:topNClono)))
+    align=dplyr::filter(align, cluster_id %in% c("-",as.character(seq_len(topNClono))))
   }
   
   if (Fthr){
@@ -4446,7 +4446,7 @@ mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,Ft
            mc$new_physico=c()
            mc$Change_in_physicochemical_properties=c()
            if (length(mc)>0){
-             for (r in 1:length(region_names)){
+             for (r in seq_len(length(region_names))){
                mc[which(mc$pos>=index_1[r] & mc$pos<=index_2[r]),5]=region_names[r]
              }
              
@@ -4479,7 +4479,7 @@ mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,Ft
   
   one_run<-function(j){
     if (FtopN)
-      align_datasets[[name[j]]]=dplyr::filter(align_datasets[[name[j]]], cluster_id %in% c("-",as.character(1:topNClono)))
+      align_datasets[[name[j]]]=dplyr::filter(align_datasets[[name[j]]], cluster_id %in% c("-",as.character(seq_len(topNClono))))
     
     if (FclonoSeperately){
       align_datasets[[name[j]]]=dplyr::filter(align_datasets[[name[j]]], cluster_id %in% c("-",as.character(cl)))
@@ -4525,7 +4525,7 @@ mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,Ft
              mc$new_physico=c()
              mc$Change_in_physicochemical_properties=c()
              if (length(mc)>0){
-               for (r in 1:length(region_names)){
+               for (r in seq_len(length(region_names))){
                  mc[which(mc$pos>=index_1[r] & mc$pos<=index_2[r]),5]=region_names[r]
                }
                
@@ -4560,9 +4560,9 @@ mutations <- function(align,align_datasets,thr,AAorNtMutations,name,topNClono,Ft
   } 
   
   if (Sys.info()[1] == "Windows"){
-    mutation_change_datasets=lapply(1:length(name),one_run)
+    mutation_change_datasets=lapply(seq_len(length(name)),one_run)
   }else{
-    mutation_change_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+    mutation_change_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
   }
   
   names(mutation_change_datasets)=name
@@ -4597,18 +4597,18 @@ groupedAlignment <- function(alignment_allData,alignment_datasets,name,AAorNtAli
   
   input<- data.table(alignment_allData)
   
-  XColumns=1:(ncol(alignment_allData)-6)
+  XColumns=seq_len((ncol(alignment_allData)-6))
   XColumns=as.character(XColumns)
   XColumns=c("V.GENE.and.allele","cluster_id","freq_cluster_id",XColumns)
   
   distinct_changes=input[,list(Freq =.N), by=XColumns]
-  grouped_alignment_allData=cbind(N=distinct_changes$Freq,distinct_changes[,1:(ncol(distinct_changes)-1)])
+  grouped_alignment_allData=cbind(N=distinct_changes$Freq,distinct_changes[,seq_len((ncol(distinct_changes)-1))])
   
   grouped_alignment_datasets<-list()
   one_run<-function(j){
     input<- data.table(alignment_datasets[[name[j]]])
     distinct_changes=input[,list(Freq =.N), by=XColumns]
-    grouped_alignment_datasets[[name[j]]]=cbind(N=distinct_changes$Freq,distinct_changes[,1:(ncol(distinct_changes)-1)])
+    grouped_alignment_datasets[[name[j]]]=cbind(N=distinct_changes$Freq,distinct_changes[,seq_len((ncol(distinct_changes)-1))])
     if (save_tables_individually){
       filename=paste0(output_folder,"/","Grouped Alignment_",AAorNtAlignment,"_","All_Data",".txt")
       write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -4621,9 +4621,9 @@ groupedAlignment <- function(alignment_allData,alignment_datasets,name,AAorNtAli
   } 
   
   if (Sys.info()[1] == "Windows"){
-    grouped_alignment_datasets=lapply(1:length(name),one_run)
+    grouped_alignment_datasets=lapply(seq_len(length(name)),one_run)
   }else{
-    grouped_alignment_datasets=parallel::mclapply(1:length(name),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+    grouped_alignment_datasets=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
   }
   
   names(grouped_alignment_datasets)=name
@@ -4662,7 +4662,7 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
   unique_genes=unique(allData[[gene]])
   cdr3_diff1P_allData=c()
   
-  for (i in 1:length(unique_genes)){
+  for (i in seq_len(length(unique_genes))){
     gene_name=unique_genes[i]
     allData_temp=allData %>% dplyr::filter(allData[[gene]]==gene_name)
     
@@ -4670,7 +4670,7 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
     distinctVGenes_CDR3<-cbind(distinctVGenes_CDR3, cluster_id=row.names(distinctVGenes_CDR3))
     
     clono_datasets<-list()
-    for (j in 1:length(name)){
+    for (j in seq_len(length(name))){
       data=allData_temp %>% dplyr::filter(allData_temp$dataName==name[j])
       clono_datasets[[name[j]]]=data %>% dplyr::group_by(JUNCTION=data[[junction]]) %>% dplyr::summarise(Freq=n())
       clono_datasets[[name[j]]]=cbind(clono_datasets[[name[j]]], cluster_id=row.names(clono_datasets[[name[j]]]))
@@ -4684,7 +4684,7 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
     cdr3_split<- strsplit(distinctVGenes_CDR3$JUNCTION,"")
     cdr3_split_new<-c()
     k=0
-    for (j in 1:length(cdr3_split)){
+    for (j in seq_len(length(cdr3_split))){
       if (length(cdr3_split[[j]])==max_length_cdr3){
         k=k+1
         used_rows=c(used_rows,j)
@@ -4716,12 +4716,12 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
         temp=cdr3_split_new[,list(Freq_sub_cluster =.N), by=VColumns]
         
         v_cdr3_cluster_id<-c()
-        for (j in 1:nrow(distinctVGenes_CDR3)){
-          v_cdr3_cluster_id[j]=which((do.call(paste0,cdr3_split_new[j,])==do.call(paste0,temp[,1:max_length_cdr3])))
+        for (j in seq_len(nrow(distinctVGenes_CDR3))){
+          v_cdr3_cluster_id[j]=which((do.call(paste0,cdr3_split_new[j,])==do.call(paste0,temp[,seq_len(max_length_cdr3)])))
         }
         
         multiple_objects_id<-c()
-        for (j in 1:length(v_cdr3_cluster_id)){
+        for (j in seq_len(length(v_cdr3_cluster_id))){
           if (length(which(v_cdr3_cluster_id==v_cdr3_cluster_id[j]))>1) multiple_objects_id<-c(multiple_objects_id,j)
         }
         
@@ -4742,12 +4742,12 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
   
   ################################### Separate Datasets ######################################
   cdr3_diff1P_datasets<-list()
-  for (n in 1:length(name)){
+  for (n in seq_len(length(name))){
     data_dataset=allData %>% dplyr::filter(allData$dataName==name[n])
     unique_genes=unique(data_dataset[[gene]])
     cdr3_diff1P_datasets[[name[n]]]=c()
     
-    for (i in 1:length(unique_genes)){
+    for (i in seq_len(length(unique_genes))){
       gene_name=unique_genes[i]
       allData_temp=data_dataset %>% dplyr::filter(data_dataset[[gene]]==gene_name)
       
@@ -4755,7 +4755,7 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
       distinctVGenes_CDR3<-cbind(distinctVGenes_CDR3, cluster_id=row.names(distinctVGenes_CDR3))
       
       clono_datasets<-list()
-      for (j in 1:length(name)){
+      for (j in seq_len(length(name))){
         data=allData_temp %>% dplyr::filter(allData_temp$dataName==name[j])
         clono_datasets[[name[j]]]=data %>% dplyr::group_by(JUNCTION=data[[junction]]) %>% dplyr::summarise(Freq=n())
         clono_datasets[[name[j]]]=cbind(clono_datasets[[name[j]]], cluster_id=row.names(clono_datasets[[name[j]]]))
@@ -4769,7 +4769,7 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
       cdr3_split<- strsplit(distinctVGenes_CDR3$JUNCTION,"")
       cdr3_split_new<-c()
       k=0
-      for (j in 1:length(cdr3_split)){
+      for (j in seq_len(length(cdr3_split))){
         if (length(cdr3_split[[j]])==max_length_cdr3){
           k=k+1
           used_rows=c(used_rows,j)
@@ -4801,12 +4801,12 @@ find_cdr3_diff1P <- function(allData,max_length_cdr3,position,name){
           temp=cdr3_split_new[,list(Freq_sub_cluster =.N), by=VColumns]
           
           v_cdr3_cluster_id<-c()
-          for (j in 1:nrow(distinctVGenes_CDR3)){
-            v_cdr3_cluster_id[j]=which((do.call(paste0,cdr3_split_new[j,])==do.call(paste0,temp[,1:max_length_cdr3])))
+          for (j in seq_len(nrow(distinctVGenes_CDR3))){
+            v_cdr3_cluster_id[j]=which((do.call(paste0,cdr3_split_new[j,])==do.call(paste0,temp[,seq_len(max_length_cdr3)])))
           }
           
           multiple_objects_id<-c()
-          for (j in 1:length(v_cdr3_cluster_id)){
+          for (j in seq_len(length(v_cdr3_cluster_id))){
             if (length(which(v_cdr3_cluster_id==v_cdr3_cluster_id[j]))>1) multiple_objects_id<-c(multiple_objects_id,j)
           }
           

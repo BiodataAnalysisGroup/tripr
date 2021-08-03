@@ -259,8 +259,8 @@ app_server <- function( input, output, session ) {
   observeEvent(input$Dataset,{
     if (is.null(input$Dataset)) return()
     file_size<<-0
-    for (i in 1:length(input$Dataset)){
-      for (j in 1:length(input$inputFiles)){
+    for (i in seq_len(length(input$Dataset))){
+      for (j in seq_len(length(input$inputFiles))){
         file_size<<-file_size+file.size(paste0(path(),"/",input$Dataset[i],"/",input$inputFiles[j]))
       }
     }
@@ -284,7 +284,7 @@ app_server <- function( input, output, session ) {
   dataModal <- function(failed = FALSE) {
     data <- dataInputColumns()
     modalDialog(
-      lapply(1:length(data$worng_columns_id), function(i) {
+      lapply(seq_len(length(data$worng_columns_id)), function(i) {
         fluidPage(
           #width = 9,
           h4(paste0(" Wrong column names for Dataset ",data$wrong_dataset[i]," : ", toString(data$worng_columns_names[[i]]),". Complete the new column names.")),
@@ -322,7 +322,7 @@ app_server <- function( input, output, session ) {
   observeEvent(input$ok, {
     data <- dataInputColumns()
     # Take the input values for the new column names.
-    for (i in 1:length(data$worng_columns_id)){
+    for (i in seq_len(length(data$worng_columns_id))){
       col<-input[[paste0("column_name",i)]]
       if (length(col)==0) return()
       if (col=="") return()
@@ -330,7 +330,7 @@ app_server <- function( input, output, session ) {
       new_columns_files=strsplit(toString(data$worng_columns_names[[i]]),":")[[1]]
       
       new_columns_temp<-c()
-      for (j in 1:length(new_columns_names)){
+      for (j in seq_len(length(new_columns_names))){
         b=strsplit(new_columns_files[j],"_")
         b2<-gsub(".txt","",b[[1]][2])
         b2<-gsub("-",".",b2)
@@ -491,7 +491,7 @@ app_server <- function( input, output, session ) {
     
     #insert repertoires on pipeline tab
     if (length(insertedRepertoires)>0)
-      for (i in 1:length(insertedRepertoires)){
+      for (i in seq_len(length(insertedRepertoires))){
         btn <- paste0('selectRepertoires_',insertedRepertoires[i])
         id <- insertedRepertoires[i]
         addRepertoryFct(id, btn)
@@ -499,7 +499,7 @@ app_server <- function( input, output, session ) {
     
     #insert Multiple_value_comparison on pipeline tab
     if (length(insertedMultiple_value_comparison)>0)
-      for (i in 1:length(insertedMultiple_value_comparison)){
+      for (i in seq_len(length(insertedMultiple_value_comparison))){
         btn <- strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2]
         id <- paste0('MultipleValues_', btn)
         addMultipleValues(id, btn, columns_for_Multiple_value_comparison,Multiple_value_comparison_input_values[i,1],Multiple_value_comparison_input_values[i,2])
@@ -514,7 +514,7 @@ app_server <- function( input, output, session ) {
       #save the date that each bookmarked folder was created
       dates_of_files=lapply(list.files('shiny_bookmarks'),function(x) file.mtime(paste0("shiny_bookmarks/",x)))
       dates_as_char<-c()
-      for (j in 1:length(dates_of_files)){
+      for (j in seq_len(length(dates_of_files))){
         dates_as_char=c(dates_as_char,as.character(dates_of_files[[j]]))
       }
       dates_as_char_ordered<-dates_as_char[order(dates_as_char)]
@@ -530,7 +530,7 @@ app_server <- function( input, output, session ) {
       dates_of_files=lapply(list.files('shiny_bookmarks'),function(x) file.mtime(paste0("shiny_bookmarks/",x)))
       
       #find the session id selected by the user
-      for (j in 1:length(dates_of_files)){
+      for (j in seq_len(length(dates_of_files))){
         if (strsplit(as.character(dates_of_files[[j]])," [+]")[[1]][1]==input$prevSession){
           session_id=all_session_ids[j] 
           break
@@ -843,7 +843,7 @@ app_server <- function( input, output, session ) {
         else{
           k=strsplit(as.character(input$start_char),"|")[[1]]
           start_char=""
-          for (j in 1:length(k)){
+          for (j in seq_len(length(k))){
             if (j%%2==1){
               start_char = paste0(start_char,paste0("^", k[j]))
             }else{
@@ -859,7 +859,7 @@ app_server <- function( input, output, session ) {
         else{
           k = strsplit(as.character(input$end_char),"|")[[1]]
           end_char=""
-          for (j in 1:length(k)){
+          for (j in seq_len(length(k))){
             if (j%%2 == 1){
               end_char = paste0(end_char, paste0(k[j], "$"))
             } else {
@@ -1157,9 +1157,9 @@ app_server <- function( input, output, session ) {
   observeEvent(input$Execute_pipeline, {
     msgClonotypes<<-""
     if (length(insertedRepertoires)>0)
-      for (i in 1:length(insertedRepertoires)) msgRepertoires[i]<<-""
+      for (i in seq_len(length(insertedRepertoires))) msgRepertoires[i]<<-""
       if (length(msgMultiple_value_comparison)>0)
-        for (i in 1:length(insertedMultiple_value_comparison)) msgMultiple_value_comparison[i]<<-""
+        for (i in seq_len(length(insertedMultiple_value_comparison))) msgMultiple_value_comparison[i]<<-""
         msgAlignment<<-""
         msgGroupedAlignment<<-""
         msgFreqTables<<-""
@@ -1389,7 +1389,7 @@ app_server <- function( input, output, session ) {
             if(input$select_clonotype!="Sequence"){
               clono$clono_allData$CDR3=clono$clono_allData[,1]
               clono$clono_allData=clono$clono_allData[,c(1,5,2:4)]
-              for (i in 1:nrow(clono$clono_allData)){
+              for (i in seq_len(nrow(clono$clono_allData))){
                 clono$clono_allData[i,2]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][2]
                 clono$clono_allData[i,1]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][1]
               }
@@ -1398,7 +1398,7 @@ app_server <- function( input, output, session ) {
             if(input$select_clonotype!="Sequence"){
               clono$clono_datasets[[input$clonotypesDataset]]$CDR3=clono$clono_datasets[[input$clonotypesDataset]][,1]
               clono$clono_datasets[[input$clonotypesDataset]]=clono$clono_datasets[[input$clonotypesDataset]][,c(1,5,2:4)]
-              for (i in 1:nrow(clono$clono_datasets[[input$clonotypesDataset]])){
+              for (i in seq_len(nrow(clono$clono_datasets[[input$clonotypesDataset]]))){
                 clono$clono_datasets[[input$clonotypesDataset]][i,2]=strsplit(as.character(clono$clono_datasets[[input$clonotypesDataset]][i,1])," - ")[[1]][2] 
                 clono$clono_datasets[[input$clonotypesDataset]][i,1]=strsplit(as.character(clono$clono_datasets[[input$clonotypesDataset]][i,1])," - ")[[1]][1]   
               }
@@ -1492,9 +1492,9 @@ app_server <- function( input, output, session ) {
         data=c("allData",loaded_datasets)
         freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
         ki=0
-        for (i in 1:length(cl)){
-          for (j in 1:length(data)){
-            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
+        for (i in seq_len(length(cl))){
+          for (j in seq_len(length(data))){
+            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[seq_len((i-1)),j])
             else{
               if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
                 freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
@@ -1588,13 +1588,13 @@ app_server <- function( input, output, session ) {
       cdr3_lengths <<- cdr3_lengths
     }
 
-    lapply(1:length(cdr3_lengths), function(i) {
+    lapply(seq_len(length(cdr3_lengths)), function(i) {
       output[[paste0("num_of_mismatches_length", i)]] <- renderUI({
         numericInput(paste0("num_of_missmatches_cdr3_length_",i),paste0("CDR3 Length ",cdr3_lengths[i]), 1,  min = 1, max = 100, width="140px")
       })
     })
     
-    lapply(1:length(cdr3_lengths), function(i) {
+    lapply(seq_len(length(cdr3_lengths)), function(i) {
       output[[paste0("num_of_mismatches_length_thr", i)]] <- renderUI({
         numericInput(paste0("num_of_mismatches_thr_cdr3_length_",i),paste0("CDR3 Length ",cdr3_lengths[i]), 20,  min = 1, max = 100, width="140px")
       })
@@ -1610,14 +1610,14 @@ app_server <- function( input, output, session ) {
         
         conditionalPanel(
           condition = "input.select_highly_sim_num_of_missmatches == 'select_highly_sim_num_of_missmatches_number'",
-          lapply(1:length(cdr3_lengths), function(i) { 
+          lapply(seq_len(length(cdr3_lengths)), function(i) { 
             column(2,uiOutput(paste0("num_of_mismatches_length", i)))
           })
         ),
         
         conditionalPanel(
           condition = "input.select_highly_sim_num_of_missmatches == 'select_highly_sim_num_of_missmatches_thr'",
-          lapply(1:length(cdr3_lengths), function(i) { 
+          lapply(seq_len(length(cdr3_lengths)), function(i) { 
             column(2,uiOutput(paste0("num_of_mismatches_length_thr", i)))
           })
         ),
@@ -1651,11 +1651,11 @@ app_server <- function( input, output, session ) {
       num_of_missmatches <- c()
       
       if(input$select_highly_sim_num_of_missmatches == 'select_highly_sim_num_of_missmatches_number'){
-        for (i in 1:length(cdr3_lengths)){
+        for (i in seq_len(length(cdr3_lengths))){
           num_of_missmatches=c(num_of_missmatches,input[[paste0("num_of_missmatches_cdr3_length_",i)]])
         }
       } else {
-        for(i in 1:length(cdr3_lengths)){
+        for(i in seq_len(length(cdr3_lengths))){
           num_of_missmatches=c(num_of_missmatches,round(cdr3_lengths[i]*input[[paste0("num_of_mismatches_thr_cdr3_length_",i)]]/100,0))
         }
       }
@@ -1684,11 +1684,11 @@ app_server <- function( input, output, session ) {
         row.names(temp) = NULL
         temp = temp[,c("clonotype", "N", "Freq", "prev_cluster")]
         temp = temp[order(-temp$N),]
-        row.names(temp) = 1:nrow(temp)
+        row.names(temp) = seq_len(nrow(temp))
         highly_sim_datasets[[d]] <<- temp
         temp$Gene = NA
         temp$CDR3 = NA
-        for (cl in 1:nrow(temp)){
+        for (cl in seq_len(nrow(temp))){
           temp$Gene[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][1]
           temp$CDR3[cl]=strsplit(temp$clonotype[cl]," - ")[[1]][2]
         }
@@ -1702,7 +1702,7 @@ app_server <- function( input, output, session ) {
         #   all_filter <- clono$filterin_highly_clono[which(clono$filterin_highly_clono$dataName == d), ]
         #   all_filter$highly_cluster_id <- 0
         #   all_filter$highly_freq_cluster_id <- 0
-        #   for (h in 1:nrow(temp)){
+        #   for (h in seq_len(nrow(temp)){
         #     prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
         #     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
         #     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
@@ -1719,7 +1719,7 @@ app_server <- function( input, output, session ) {
           all_filter$highly_cluster_id = 0
           all_filter$highly_freq_cluster_id = 0
           
-          for (h in 1:nrow(temp)){
+          for (h in seq_len(nrow(temp))){
             prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
             all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
             all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
@@ -1739,14 +1739,14 @@ app_server <- function( input, output, session ) {
       row.names(highly_sim) = NULL
       highly_sim = highly_sim[,c("clonotype", "N", "Freq", "prev_cluster")]
       highly_sim = highly_sim[order(-highly_sim$N),]
-      row.names(highly_sim) = 1:nrow(highly_sim)
+      row.names(highly_sim) = seq_len(nrow(highly_sim))
       highly_sim <<- highly_sim
       
       temp = highly_sim
       temp$Gene = NA
       temp$CDR3 = NA
       
-      for(cl in 1:nrow(temp)){
+      for(cl in seq_len(nrow(temp))){
         temp$Gene[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][1]
         temp$CDR3[cl] = strsplit(temp$clonotype[cl]," - ")[[1]][2]
       }
@@ -1758,7 +1758,7 @@ app_server <- function( input, output, session ) {
       #   all_filter <- clono$filterin_highly_clono
       #   all_filter$highly_cluster_id <- 0
       #   all_filter$highly_freq_cluster_id <- 0
-      #   for (h in 1:nrow(temp)){
+      #   for (h in seq_len(nrow(temp)){
       #     prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
       #     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
       #     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
@@ -1794,7 +1794,7 @@ app_server <- function( input, output, session ) {
         all_filter$highly_cluster_id <- 0
         all_filter$highly_freq_cluster_id <- 0
         
-        for (h in 1:nrow(temp)){
+        for (h in seq_len(nrow(temp))){
           prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
           all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
           all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
@@ -1921,9 +1921,9 @@ app_server <- function( input, output, session ) {
         data=c("allData",loaded_datasets)
         freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
         ki=0
-        for (i in 1:length(cl)){
-          for (j in 1:length(data)){
-            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
+        for (i in seq_len(length(cl))){
+          for (j in seq_len(length(data))){
+            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[seq_len((i-1)),j])
             else{
               if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
                 freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
@@ -2110,7 +2110,7 @@ app_server <- function( input, output, session ) {
         return()
       }
       
-      for (i in 1:length(insertedRepertoires)){
+      for (i in seq_len(length(insertedRepertoires))){
         if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="V Gene"){
           allele=FALSE
           gene=used_columns[["Summary"]][3]
@@ -2143,7 +2143,7 @@ app_server <- function( input, output, session ) {
       
       
       output$RepertoiresResultUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           mainPanel(
             br(),
             dataTableOutput(paste0("Repertory_tables", i)),
@@ -2155,7 +2155,7 @@ app_server <- function( input, output, session ) {
       })
       
       output$RepertoiresPiesUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           wellPanel(
             br(),
             numericInput("repertories_pies_threshold", "Select %threshold for pies:", 1,  min = 0, max = 100, width="140px"),
@@ -2165,7 +2165,7 @@ app_server <- function( input, output, session ) {
         })
       })
       
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("Repertory_tables", i)]] <- renderDataTable({
           if (input$RepertoiresDataset=="All Data"){
             my_table <- repertories_results[[i]]$Repertoires_allData
@@ -2187,19 +2187,19 @@ app_server <- function( input, output, session ) {
       })
       
       output$confirmRepertoiresUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           uiOutput(paste0("confirmRepertoires", i))
         })
       })
       
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("confirmRepertoires", i)]] <- renderUI({
           h5(msgRepertoires[i], style = "color: #CD0000;")
         })
       })
       
       ######################################## Pie plots ###############################################
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("repertories_pies", i)]] <- renderPlotly({
           if(is.null(input$VisualisationDataset)) return()
           if (input$VisualisationDataset=="All Data"){
@@ -2281,7 +2281,7 @@ app_server <- function( input, output, session ) {
         return()
       }
       
-      for (i in 1:length(insertedRepertoires)){
+      for (i in seq_len(length(insertedRepertoires))){
         if (input[[paste0("selectRepertoires_",insertedRepertoires[i])]]=="V Gene"){
           allele=FALSE
           gene=used_columns[["Summary"]][3]
@@ -2314,7 +2314,7 @@ app_server <- function( input, output, session ) {
       just_restored_session_HighlySim_Repertoires<<-FALSE
       
       output$HighlySim_RepertoiresResultUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           mainPanel(
             br(),
             dataTableOutput(paste0("HighlySim_Repertory_tables", i)),
@@ -2326,7 +2326,7 @@ app_server <- function( input, output, session ) {
       })
       
       output$HighlySim_RepertoiresPiesUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           wellPanel(
             br(),
             numericInput("HighlySim_repertories_pies_threshold", "Select %threshold for pies:", 1,  min = 0, max = 100, width="140px"),
@@ -2336,7 +2336,7 @@ app_server <- function( input, output, session ) {
         })
       })
       
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("HighlySim_Repertory_tables", i)]] <- renderDataTable({
           if (input$RepertoiresDataset=="All Data"){
             my_table <- HighlySim_repertories_results[[i]]$Repertoires_allData
@@ -2358,12 +2358,12 @@ app_server <- function( input, output, session ) {
       })
       
       output$confirmHighlySim_RepertoiresUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           uiOutput(paste0("HighlySim_confirmRepertoires", i))
         })
       })
       
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("HighlySim_confirmRepertoires", i)]] <- renderUI({
           h5(msgHighlySim_Repertoires[i], style = "color: #CD0000;")
         })
@@ -2371,7 +2371,7 @@ app_server <- function( input, output, session ) {
       
       
       ######################################## Pie plots ###############################################
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("HighlySim_repertories_pies", i)]] <- renderPlotly({
           if(is.null(input$VisualisationDataset)) return()
           if (input$VisualisationDataset=="All Data"){
@@ -2452,7 +2452,7 @@ app_server <- function( input, output, session ) {
         return()
       }
       
-      for (i in 1:length(insertedRepertoires)){
+      for (i in seq_len(length(insertedRepertoires))){
         if (just_restored_session_repertoires_comparison==FALSE){
           repertoires_comparison_results[[i]]<<-repertoires_comparison(repertories_results[[i]]$Repertoires_allData,repertories_results[[i]]$Repertoires_datasets,loaded_datasets,FALSE,i)
           if (input$pipeline_HighlySim_Repertoires==TRUE){
@@ -2471,7 +2471,7 @@ app_server <- function( input, output, session ) {
       }
       
       output$Repertoires_comparisonResultUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           mainPanel(
             br(),
             dataTableOutput(paste0("repertoires_comparison_tables", i)),
@@ -2482,7 +2482,7 @@ app_server <- function( input, output, session ) {
         })
       })
       
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("repertoires_comparison_tables", i)]] <- renderDataTable({
           my_table<-repertoires_comparison_results[[i]]$unique_repertoires
           return(my_table)
@@ -2498,7 +2498,7 @@ app_server <- function( input, output, session ) {
       
       ####################### Highly Similar
       output$Highly_sim_Repertoires_comparisonResultUi <- renderUI({
-        lapply(1:length(insertedRepertoires), function(i) {
+        lapply(seq_len(length(insertedRepertoires)), function(i) {
           mainPanel(
             br(),
             dataTableOutput(paste0("Highly_sim_repertoires_comparison_tables", i)),
@@ -2509,7 +2509,7 @@ app_server <- function( input, output, session ) {
         })
       })
       
-      lapply(1:length(insertedRepertoires), function(i) {
+      lapply(seq_len(length(insertedRepertoires)), function(i) {
         output[[paste0("Highly_sim_repertoires_comparison_tables", i)]] <- renderDataTable({
           my_table<-highly_sim_repertoires_comparison_results[[i]]$unique_repertoires
           return(my_table)
@@ -2532,7 +2532,7 @@ app_server <- function( input, output, session ) {
   
   ############################### Insert Identity Groups ###############################
   observeEvent(input$pipeline_insert_identity_groups, {
-    lapply(1:input$N_identity_groups, function(i) {
+    lapply(seq_len(input$N_identity_groups), function(i) {
       output[[paste0("idenity_group_ui_", i)]] <- renderUI({
         fluidRow(
           column(3,
@@ -2547,7 +2547,7 @@ app_server <- function( input, output, session ) {
       })
     })
     output$insert_identity_groups_ui<- renderUI({
-      lapply(1:input$N_identity_groups, function(i) {
+      lapply(seq_len(input$N_identity_groups), function(i) {
         uiOutput(paste0("idenity_group_ui_", i))
       })
     })
@@ -2555,7 +2555,7 @@ app_server <- function( input, output, session ) {
     
     low=c()
     high=c()
-    for (i in 1:input$N_identity_groups){
+    for (i in seq_len(input$N_identity_groups)){
       low=c(low,input[[paste0("Identity_low_group",i)]])
       high=c(high,input[[paste0("Identity_high_group",i)]])
     }
@@ -2660,7 +2660,7 @@ app_server <- function( input, output, session ) {
       low = c()
       high = c()
       
-      for (i in 1:input$N_identity_groups){
+      for (i in seq_len(input$N_identity_groups)){
         low=c(low,input[[paste0("Identity_low_group",i)]])
         high=c(high,input[[paste0("Identity_high_group",i)]])
       }
@@ -2670,7 +2670,7 @@ app_server <- function( input, output, session ) {
       
       # Multiple_value_comparison_result<-list()
       
-      for (i in 1:length(insertedMultiple_value_comparison)){
+      for (i in seq_len(length(insertedMultiple_value_comparison))){
         
         if (just_restored_session_Multiple_value_comparison){
           val1=Multiple_value_comparison_input_values[i,1]
@@ -2702,7 +2702,7 @@ app_server <- function( input, output, session ) {
       
       # Multiple_value_comparison tab
       output$uiMultiple_value_comparisonTables <- renderUI({
-        lapply(1:length(insertedMultiple_value_comparison), function(i) {
+        lapply(seq_len(length(insertedMultiple_value_comparison)), function(i) {
           mainPanel(
             br(),
             dataTableOutput(paste0("Multiple_value_comparison_tables", i)),
@@ -2715,7 +2715,7 @@ app_server <- function( input, output, session ) {
       })
       
       output$uiMultiple_value_plots <- renderUI({
-        lapply(1:length(insertedMultiple_value_comparison), function(i) {
+        lapply(seq_len(length(insertedMultiple_value_comparison)), function(i) {
           wellPanel(
             br(),
             plotOutput(paste0("Multiple_value_comparison_plot",i))
@@ -2723,7 +2723,7 @@ app_server <- function( input, output, session ) {
         })
       })
       
-      lapply(1:length(insertedMultiple_value_comparison), function(i) {
+      lapply(seq_len(length(insertedMultiple_value_comparison)), function(i) {
         output[[paste0("Multiple_value_comparison_tables", i)]] <- renderDataTable({
           if (input$Multiple_value_comparisonDataset=="All Data"){
             my_table <- Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData
@@ -2769,12 +2769,12 @@ app_server <- function( input, output, session ) {
       })
       
       output$confirmMultiple_value_comparison <- renderUI({
-        lapply(1:length(insertedMultiple_value_comparison), function(i) {
+        lapply(seq_len(length(insertedMultiple_value_comparison)), function(i) {
           uiOutput(paste0("confirmMultiple_value_comparison", i))
         })
       })
       
-      lapply(1:length(insertedMultiple_value_comparison), function(i) {
+      lapply(seq_len(length(insertedMultiple_value_comparison)), function(i) {
         output[[paste0("confirmMultiple_value_comparison", i)]] <- renderUI({
           h5(msgMultiple_value_comparison[i], style = "color: #CD0000;")
         })
@@ -2824,18 +2824,18 @@ app_server <- function( input, output, session ) {
       
       if (FtopN){
         if (input$pipeline_highly_similar_clonotypes==FALSE){
-          clono_allDataTopN=clono$clono_allData[1:input$topNFreqTable,] 
+          clono_allDataTopN=clono$clono_allData[seq_len(input$topNFreqTable),] 
           if (is.null(clono$clono_allData)) return()
           clono_datasetsTopN<-list()
-          for (i in 1:length(loaded_datasets)){
-            clono_datasetsTopN[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]][1:input$topNFreqTable,]
+          for (i in seq_len(length(loaded_datasets))){
+            clono_datasetsTopN[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]][seq_len(input$topNFreqTable),]
           }
         }else{
-          clono_allDataTopN=highly_sim[1:input$topNFreqTable,] 
+          clono_allDataTopN=highly_sim[seq_len(input$topNFreqTable),] 
           if (is.null(highly_sim)) return()
           clono_datasetsTopN<-list()
-          for (i in 1:length(loaded_datasets)){
-            clono_datasetsTopN[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]][1:input$topNFreqTable,]
+          for (i in seq_len(length(loaded_datasets))){
+            clono_datasetsTopN[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]][seq_len(input$topNFreqTable),]
           }
         }
         
@@ -2847,14 +2847,14 @@ app_server <- function( input, output, session ) {
           clono_allDataTopN=clono$clono_allData %>% filter(Freq>input$thrClonoLogos)
           if (is.null(clono$clono_allData)) return()
           clono_datasetsTopN<-list()
-          for (i in 1:length(loaded_datasets)){
+          for (i in seq_len(length(loaded_datasets))){
             clono_datasetsTopN[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]] %>% filter(Freq>input$thrClonoLogos)
           }
         }else{
           clono_allDataTopN=highly_sim %>% filter(Freq>input$thrClonoLogos)
           if (is.null(highly_sim)) return()
           clono_datasetsTopN<-list()
-          for (i in 1:length(loaded_datasets)){
+          for (i in seq_len(length(loaded_datasets))){
             clono_datasetsTopN[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]] %>% filter(Freq>input$thrClonoLogos)
           }
         }
@@ -2872,17 +2872,17 @@ app_server <- function( input, output, session ) {
         frequenciesTables_results<<-createFrequencyTableCDR3(input$regionFreqTable,imgtfilter_results$allData,loaded_datasets,input$regionLengthFreq,(FtopN || Fthr),clono_allDataTopN,clono_datasetsTopN,gene_clonotypes,junction_clonotypes,allele_clonotypes)
         if (FclonoLogoSeperately){
           if (input$pipeline_highly_similar_clonotypes==FALSE){
-            for (cl in 1:length(cl_ids_logos)){
+            for (cl in seq_len(length(cl_ids_logos))){
               clono_datasets_cl<-list()
-              for (i in 1:length(loaded_datasets)){
+              for (i in seq_len(length(loaded_datasets))){
                 clono_datasets_cl[[loaded_datasets[i]]]=clono$clono_datasets[[loaded_datasets[i]]][cl_ids_logos[cl],]
               }
               frequenciesTables_results_cl[[cl]]<<-createFrequencyTableCDR3(input$regionFreqTable,imgtfilter_results$allData,loaded_datasets,input$regionLengthFreq,FclonoLogoSeperately,clono$clono_allData[cl_ids_logos[cl],],clono_datasets_cl,gene_clonotypes,junction_clonotypes,allele_clonotypes)
             }
           }else{
-            for (cl in 1:length(cl_ids_logos)){
+            for (cl in seq_len(length(cl_ids_logos))){
               clono_datasets_cl<-list()
-              for (i in 1:length(loaded_datasets)){
+              for (i in seq_len(length(loaded_datasets))){
                 clono_datasets_cl[[loaded_datasets[i]]]=highly_sim_datasets[[loaded_datasets[i]]][cl_ids_logos[cl],]
               }
               frequenciesTables_results_cl[[cl]]<<-createFrequencyTableCDR3(input$regionFreqTable,imgtfilter_results$allData,loaded_datasets,input$regionLengthFreq,FclonoLogoSeperately,highly_sim[cl_ids_logos[cl],],clono_datasets_cl,gene_clonotypes,junction_clonotypes,allele_clonotypes)
@@ -2908,14 +2908,14 @@ app_server <- function( input, output, session ) {
           #my_table[,2:ncol(my_table)]=my_table
           #my_table[,1]=row.names(my_table)
           row.names(my_table)=c()
-          colnames(my_table)=1:(ncol(frequenciesTables_results$table_count)-1)
+          colnames(my_table)=seq_len((ncol(frequenciesTables_results$table_count)-1))
         }
         else{
           my_table <- frequenciesTables_results$table_count_datasets[[input$freqTableDataset]]
           #my_table[,2:ncol(my_table)]=my_table
           #my_table[,1]=row.names(my_table)
           row.names(my_table)=c()
-          colnames(my_table)=1:(ncol(frequenciesTables_results$table_count)-1)
+          colnames(my_table)=seq_len((ncol(frequenciesTables_results$table_count)-1))
         }
         
         if (input$regionFreqTable=="CDR3"){
@@ -2952,14 +2952,14 @@ app_server <- function( input, output, session ) {
           #my_table[,2:ncol(my_table)]=my_table
           #my_table[,1]=row.names(my_table)
           row.names(my_table)=c()
-          colnames(my_table)=1:(ncol(frequenciesTables_results$table_count)-1)
+          colnames(my_table)=seq_len((ncol(frequenciesTables_results$table_count)-1))
         }
         else{
           my_table <- frequenciesTables_results$table_freq_datasets[[input$freqTableDataset]]
           #my_table[,2:ncol(my_table)]=my_table
           #my_table[,1]=row.names(my_table)
           row.names(my_table)=c()
-          colnames(my_table)=1:(ncol(frequenciesTables_results$table_count)-1)
+          colnames(my_table)=seq_len((ncol(frequenciesTables_results$table_count)-1))
         }
         
         if (input$regionFreqTable=="CDR3"){
@@ -3008,7 +3008,7 @@ app_server <- function( input, output, session ) {
         
       }
       
-      for (i in 1:length(loaded_datasets)){
+      for (i in seq_len(length(loaded_datasets))){
         if (!is.null(frequenciesTables_results$table_count_datasets[[loaded_datasets[i]]])){
           if (input$regionFreqTable=="CDR3"){
             colnames(frequenciesTables_results$table_count_datasets[[loaded_datasets[i]]]) <- c('AA',a)
@@ -3023,7 +3023,7 @@ app_server <- function( input, output, session ) {
       ################### Separately #######################
       if (FclonoLogoSeperately){
         output$uiCountCDR3Table_cl <- renderUI({
-          lapply(1:length(cl_ids_logos), function(i) {
+          lapply(seq_len(length(cl_ids_logos)), function(i) {
             mainPanel(
               br(),
               br(),
@@ -3041,7 +3041,7 @@ app_server <- function( input, output, session ) {
           })
         })
         
-        lapply(1:length(cl_ids_logos), function(i) {
+        lapply(seq_len(length(cl_ids_logos)), function(i) {
           output[[paste0("CountCDR3Table_cl", i)]] <- renderDataTable({
             if(is.null(input$freqTableDataset)) return()
             if (input$freqTableDataset=="All Data"){
@@ -3094,7 +3094,7 @@ app_server <- function( input, output, session ) {
           logo_result<<-createLogo(frequenciesTables_results$table_count[,2:ncol(frequenciesTables_results$table_count)],frequenciesTables_results$table_count_datasets,loaded_datasets)
           for (regions in region_names){
             region_id=region_id+1
-            for (i in 1:length(loaded_datasets)){
+            for (i in seq_len(length(loaded_datasets))){
               countTables_per_region_datasets[[loaded_datasets[i]]]=frequenciesTables_results$table_count_datasets[[loaded_datasets[i]]][,(index_1[region_id]):(index_2[region_id])]
             }
             logo_per_region[[regions]]<<-createLogo(frequenciesTables_results$table_count[,(index_1[region_id]+1):(index_2[region_id]+1)],countTables_per_region_datasets,loaded_datasets)
@@ -3102,7 +3102,7 @@ app_server <- function( input, output, session ) {
         }
         
         if (FclonoLogoSeperately){
-          for (cl in 1:length(cl_ids_logos)){
+          for (cl in seq_len(length(cl_ids_logos))){
             if (input$regionFreqTable=="CDR3"){
               logo_result_cl[[cl]]<<-createLogo(frequenciesTables_results_cl[[cl]]$table_count[,2:ncol(frequenciesTables_results_cl[[cl]]$table_count)],frequenciesTables_results_cl[[cl]]$table_count_datasets,loaded_datasets)
             }else{
@@ -3111,7 +3111,7 @@ app_server <- function( input, output, session ) {
               region_id=0
               for (regions in region_names){
                 region_id=region_id+1
-                for (i in 1:length(loaded_datasets)){
+                for (i in seq_len(length(loaded_datasets))){
                   countTables_per_region_datasets[[loaded_datasets[i]]]=frequenciesTables_results_cl[[cl]]$table_count_datasets[[loaded_datasets[i]]][,(index_1[region_id]):(index_2[region_id])]
                 }
                 logo_per_region_cl[[cl]][[regions]]<<-createLogo(frequenciesTables_results_cl[[cl]]$table_count[,(index_1[region_id]+1):(index_2[region_id]+1)],countTables_per_region_datasets,loaded_datasets)
@@ -3300,7 +3300,7 @@ app_server <- function( input, output, session ) {
       ################### Separately #######################
       if (FclonoLogoSeperately){
         output$uiLogos_cl <- renderUI({
-          lapply(1:length(cl_ids_logos), function(i) {
+          lapply(seq_len(length(cl_ids_logos)), function(i) {
             mainPanel(
               br(),
               br(),
@@ -3318,7 +3318,7 @@ app_server <- function( input, output, session ) {
           })
         })
         
-        lapply(1:length(cl_ids_logos), function(i) {
+        lapply(seq_len(length(cl_ids_logos)), function(i) {
           output[[paste0("logo_cl", i)]] <- renderPlot({
             
             if(is.null(input$LogoDataset)) return()
@@ -3834,7 +3834,7 @@ app_server <- function( input, output, session ) {
         }
         
         if (FclonoSeperately){
-          for (cl in 1:length(cl_ids_mutations)){
+          for (cl in seq_len(length(cl_ids_mutations))){
             if (input$AAorNtMutations=="both"){ 
               mutation_results_cl[[cl]]<<-mutations(grouped_alignment_results$grouped_alignment_allData,grouped_alignment_results$grouped_alignment_datasets,input$ThrAAMutations,"aa",loaded_datasets,input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
               mutation_results_nt_cl[[cl]]<<-mutations(grouped_alignment_results_nt$grouped_alignment_allData,grouped_alignment_results_nt$grouped_alignment_datasets,input$ThrNtMutations,"nt",loaded_datasets, input$topNClonoMutations, FtopN,FclonoSeperately,cl_ids_mutations[cl],FALSE)
@@ -3916,7 +3916,7 @@ app_server <- function( input, output, session ) {
       
       if (FclonoSeperately){
         output$uiMutationTables_cl <- renderUI({
-          lapply(1:length(cl_ids_mutations), function(i) {
+          lapply(seq_len(length(cl_ids_mutations)), function(i) {
             mainPanel(
               br(),
               dataTableOutput(paste0("MutationTables_cl", i)),
@@ -3931,7 +3931,7 @@ app_server <- function( input, output, session ) {
           })
         })
         
-        lapply(1:length(cl_ids_mutations), function(i) {
+        lapply(seq_len(length(cl_ids_mutations)), function(i) {
           output[[paste0("MutationTables_cl", i)]] <- renderDataTable({
             if(is.null(input$mutationDataset)) return()
             if (input$mutationDataset=="All Data"){
@@ -4066,7 +4066,7 @@ app_server <- function( input, output, session ) {
     if(!input$Execute) return()
     if (msgHighlySim=="") return()
     my_table=c(paste0("Clonotype frequency threshold for highly similar: ",input$clonotype_freq_thr_for_highly_sim),paste0("Take gene highly similar: ",input$take_gene_highly_similar))
-    for (i in 1:length(cdr3_lengths)){
+    for (i in seq_len(length(cdr3_lengths))){
       my_table=c(my_table,paste0("length ",cdr3_lengths[i],": ",input[[paste0("num_of_missmatches_cdr3_length_",i)]]))
     }
     my_table=data.frame(Highly_Similar_Clonotypes=my_table)
@@ -4080,13 +4080,13 @@ app_server <- function( input, output, session ) {
 
     low=c()
     high=c()
-    for (i in 1:input$N_identity_groups){
+    for (i in seq_len(input$N_identity_groups)){
       low=c(low,input[[paste0("Identity_low_group",i)]])
       high=c(high,input[[paste0("Identity_high_group",i)]])
     }
     label=paste(low,high,sep="-")
     identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = FALSE))
-    for (i in 1:input$N_identity_groups){
+    for (i in seq_len(input$N_identity_groups)){
       my_table=c(my_table,paste0("low: ",identity_groups$low[i],", high: ",identity_groups$high[i]))
     }
     my_table=data.frame(identity_groups=my_table)
@@ -4107,7 +4107,7 @@ app_server <- function( input, output, session ) {
     if (is.null(msgRepertoires)) return()
     if (msgRepertoires[1]!="") return()
     my_table=c()
-    for (i in 1:length(insertedRepertoires)){
+    for (i in seq_len(length(insertedRepertoires))){
       my_table=c(my_table,input[[paste0("selectRepertoires_",insertedRepertoires[i])]])
     }
     my_table=data.frame(Repertoires_Parameters=my_table)
@@ -4118,7 +4118,7 @@ app_server <- function( input, output, session ) {
     if(!input$Execute) return()
     if (length(msgMultiple_value_comparison)==0) return()
     my_table=c()
-    for (i in 1:length(insertedMultiple_value_comparison)){
+    for (i in seq_len(length(insertedMultiple_value_comparison))){
       val1=input[[paste0("select_MultipleValues_column1_",strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2])]]
       val2=input[[paste0("select_MultipleValues_column2_",strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2])]]
       my_table=c(my_table,paste0(val1," + ",val2))
@@ -4164,7 +4164,7 @@ app_server <- function( input, output, session ) {
       colnames(my_table)="Input Data"
       if (nrow(my_table)>10){
         k=1
-        for (i in 1:(nrow(my_table)/10+1)){
+        for (i in seq_len((nrow(my_table)/10+1))){
           if (i==(nrow(my_table)/10+1)) my_table_part=my_table[k:(nrow(my_table)),]
           else my_table_part=my_table[k:(k+9),]
           k=k+10
@@ -4176,7 +4176,7 @@ app_server <- function( input, output, session ) {
       }else grid.table(my_table)
       
       
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           plot(NA, xlim=c(0,5), ylim=c(0,5), bty='n', xaxt='n', yaxt='n', xlab='', ylab='')
           text(1,4,"Cleaning Parameters (All Data)", pos=4)
@@ -4200,7 +4200,7 @@ app_server <- function( input, output, session ) {
       }
       
       
-      for (j in 1:(length(loaded_datasets)+1)){
+      for (j in seq_len((length(loaded_datasets)+1))){
         if (j==(length(loaded_datasets)+1)){
           plot(NA, xlim=c(0,5), ylim=c(0,5), bty='n', xaxt='n', yaxt='n', xlab='', ylab='')
           text(1,4,"Filtering Parameters (All Data)", pos=4)
@@ -4224,7 +4224,7 @@ app_server <- function( input, output, session ) {
       
       
       if (msgClonotypes!="")
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             plot(NA, xlim=c(0,5), ylim=c(0,5), bty='n', xaxt='n', yaxt='n', xlab='', ylab='')
             text(1,4,"Clonotypes (All Data)", pos=4)
@@ -4244,13 +4244,13 @@ app_server <- function( input, output, session ) {
       
       if (msgHighlySim!=""){
         my_table=c(paste0("Clonotype frequency threshold for highly similar: ",input$clonotype_freq_thr_for_highly_sim),paste0("Take gene highly similar: ",input$take_gene_highly_similar))
-        for (i in 1:length(cdr3_lengths)){
+        for (i in seq_len(length(cdr3_lengths))){
           my_table=c(my_table,paste0("length ",cdr3_lengths[i],": ",input[[paste0("num_of_missmatches_cdr3_length_",i)]]))
         }
         my_table=data.frame(Highly_Similar_Clonotypes=my_table)
         if (nrow(my_table)>10){
           k=1
-          for (i in 1:(nrow(my_table)/10+1)){
+          for (i in seq_len((nrow(my_table)/10+1))){
             if (i==(nrow(my_table)/10+1)) my_table_part=my_table[k:(nrow(my_table)),]
             else my_table_part=my_table[k:(k+9),]
             my_table_part=data.frame(my_table_part)
@@ -4279,7 +4279,7 @@ app_server <- function( input, output, session ) {
           plot(NA, xlim=c(0,5), ylim=c(0,5), bty='n', xaxt='n', yaxt='n', xlab='', ylab='')
           text(1,4,paste0("Repertoires Parameters"), pos=4)
           my_table=c()
-          for (i in 1:length(insertedRepertoires)){
+          for (i in seq_len(length(insertedRepertoires))){
             my_table=c(my_table,input[[paste0("selectRepertoires_",insertedRepertoires[i])]])
           }
           my_table=data.frame(Repertoires_Parameters=my_table)
@@ -4293,13 +4293,13 @@ app_server <- function( input, output, session ) {
         my_table=c()
         low=c()
         high=c()
-        for (i in 1:input$N_identity_groups){
+        for (i in seq_len(input$N_identity_groups)){
           low=c(low,input[[paste0("Identity_low_group",i)]])
           high=c(high,input[[paste0("Identity_high_group",i)]])
         }
         label=paste(low,high,sep="-")
         identity_groups<<-(data.frame(low=low,high=high, label=label,stringsAsFactors = FALSE))
-        for (i in 1:input$N_identity_groups){
+        for (i in seq_len(input$N_identity_groups)){
           my_table=c(my_table,paste0("low: ",identity_groups$low[i],", high: ",identity_groups$high[i]))
         }
         my_table=data.frame(identity_groups=my_table)
@@ -4311,7 +4311,7 @@ app_server <- function( input, output, session ) {
         plot(NA, xlim=c(0,5), ylim=c(0,5), bty='n', xaxt='n', yaxt='n', xlab='', ylab='')
         text(1,4,paste0("Multiple value comparison Parameters"), pos=4)
         my_table=c()
-        for (i in 1:length(insertedMultiple_value_comparison)){
+        for (i in seq_len(length(insertedMultiple_value_comparison))){
           val1=input[[paste0("select_MultipleValues_column1_",strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2])]]
           val2=input[[paste0("select_MultipleValues_column2_",strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2])]]
           my_table=c(my_table,paste0(val1," + ",val2))
@@ -4405,9 +4405,9 @@ app_server <- function( input, output, session ) {
         data=c("allData",loaded_datasets)
         freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
         ki=0
-        for (i in 1:length(cl)){
-          for (j in 1:length(data)){
-            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
+        for (i in seq_len(length(cl))){
+          for (j in seq_len(length(data))){
+            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[seq_len((i-1)),j])
             else{
               if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
                 freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
@@ -4480,9 +4480,9 @@ app_server <- function( input, output, session ) {
         data=c("allData",loaded_datasets)
         freq_mat=matrix(0,length(cl),(length(loaded_datasets)+1))
         ki=0
-        for (i in 1:length(cl)){
-          for (j in 1:length(data)){
-            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[1:(i-1),j])
+        for (i in seq_len(length(cl))){
+          for (j in seq_len(length(data))){
+            if (i==length(cl)) freq_mat[i,j]=100-sum(freq_mat[seq_len((i-1)),j])
             else{
               if (length(which(a[[data[j]]]$clonotype==cl[i]))>0){
                 freq_mat[i,j]=a[[data[j]]]$Freq[which(a[[data[j]]]$clonotype==cl[i])]
@@ -4520,8 +4520,8 @@ app_server <- function( input, output, session ) {
         if (msgRepertoires[1]!=""){
           if (is.null(input$repertories_pies_threshold)) thr=0 else thr=input$repertories_pies_threshold
           
-          for (k in 1:length(insertedRepertoires)){
-            for (j in 1:(length(loaded_datasets)+1)){
+          for (k in seq_len(length(insertedRepertoires))){
+            for (j in seq_len((length(loaded_datasets)+1))){
               if (j==(length(loaded_datasets)+1)){
                 
                 #Genes that have percentage<threshold are grouped into one cell
@@ -4568,8 +4568,8 @@ app_server <- function( input, output, session ) {
         if (msgRepertoires[1]!=""){
           if (is.null(input$HighlySim_repertories_pies_threshold)) thr=0 else thr=input$HighlySim_repertories_pies_threshold
           
-          for (k in 1:length(insertedRepertoires)){
-            for (j in 1:(length(loaded_datasets)+1)){
+          for (k in seq_len(length(insertedRepertoires))){
+            for (j in seq_len((length(loaded_datasets)+1))){
               if (j==(length(loaded_datasets)+1)){
                 
                 #Genes that have percentage<threshold are grouped into one cell
@@ -4611,7 +4611,7 @@ app_server <- function( input, output, session ) {
       
       #Mutational status ####### 
       if (("1_Summary.txt" %in% input$inputFiles) & (input$pipeline_mutational_status)){
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             png(paste0(in.path,"/","Mutational_status ","All_Data",".png"),width=900, height=600)
             pie(as.numeric(mutational_status_table_allData$N), labels = round(mutational_status_table_allData$freq*100,2), main = paste0("Mutational Status ", "All Data"),col = rainbow(length(mutational_status_table_allData$N)))
@@ -4632,7 +4632,7 @@ app_server <- function( input, output, session ) {
       
       #CDR3 Length Distribution #######
       if (input$pipeline_cdr3_distribution){
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             png(paste0(in.path,"/","CDR3 Length Distribution ","All Data",".png"),width=900, height=600)
             d=cdr3_length_distribution
@@ -4656,7 +4656,7 @@ app_server <- function( input, output, session ) {
         png(paste0(in.path,"/","Pi_Distribution ","All_Data",".png"),width=900, height=600)
         boxplot(box_input, horizontal=FALSE, main=" ")
         dev.off()
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             write.table(pi_distribution, paste0(in.path,"/","Pi_Distribution_", "All_Data",".txt"), sep = "\t")
           }else{
@@ -4669,7 +4669,7 @@ app_server <- function( input, output, session ) {
       ####### logo plots ####### 
       if (msgLogo!="")
         if (input$regionFreqTable=='CDR3'){
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_","CDR3","_","All_Data",".png"),width=1000, height=550)
               logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
@@ -4703,7 +4703,7 @@ app_server <- function( input, output, session ) {
           
           
         }else{
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_",input$regionFreqTable,"_","All_Data",".png"),width=1500, height=550)
               logo_plot<<-plot(motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
@@ -4719,7 +4719,7 @@ app_server <- function( input, output, session ) {
             dev.off()
           }
           
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             region_names<-c("FR1-IMGT","CDR1-IMGT","FR2-IMGT","CDR2-IMGT","FR3-IMGT","CDR3-IMGT")
             index_1<-c(1,27,39,56,66,105)
             index_2<-c(26,38,55,65,104,114)
@@ -4750,8 +4750,8 @@ app_server <- function( input, output, session ) {
         }
       
       if (FclonoLogoSeperately){
-        for (cl in 1:length(cl_ids_logos)){
-          for (j in 1:(length(loaded_datasets)+1)){
+        for (cl in seq_len(length(cl_ids_logos))){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               png(paste0(in.path,"/","logo_cl",cl_ids_logos[cl],"_",input$regionFreqTable,"_","All_Data",".png"),width=1000, height=550)
               logo_plot<<-plot(logo_result_cl[[cl]]$motif_all,ic.scale=FALSE, ylab="probability",xaxis=FALSE,yaxis=FALSE)
@@ -4772,7 +4772,7 @@ app_server <- function( input, output, session ) {
             dev.off()
           }
           if (input$regionFreqTable!="CDR3"){
-            for (j in 1:(length(loaded_datasets)+1)){
+            for (j in seq_len((length(loaded_datasets)+1))){
               region_names<-c("FR1-IMGT","CDR1-IMGT","FR2-IMGT","CDR2-IMGT","FR3-IMGT","CDR3-IMGT")
               index_1<-c(1,27,39,56,66,105)
               index_2<-c(26,38,55,65,104,114)
@@ -4815,27 +4815,27 @@ app_server <- function( input, output, session ) {
         
         allData<-list()
         input_datasets=""
-        for (i in 1:length(fileNames)){
-          #clono$convergent_evolution_list_allData[1:input$nucleotides_per_clonotype_topN,]
-          nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[loaded_datasets[i]]][1:input$nucleotides_per_clonotype_topN]
+        for (i in seq_len(length(fileNames))){
+          #clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
+          nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[loaded_datasets[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
           input_datasets=paste(input_datasets,fileNames[i])
         }
         #plot
         png(paste0(in.path,"/","hist3D-nucleotides_top_",topN, "clonotypes",input_datasets,".png"))
-        hist3D(y = 1:length(fileNames), x = 1:topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+        hist3D(y = seq_len(length(fileNames)), x = seq_len(topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
                 zlab="Num of Nucleotides",ticktype="detailed",axes=TRUE, theta=50, phi=25, expand=0.75)
         dev.off()
         
         if (length(fileNames)>1){
           #plot
           png(paste0(in.path,"/","persp3D-nucleotidestop_",topN, " clonotypes",input_datasets,".png"))
-          persp3D(y = 1:length(fileNames), x = 1:topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+          persp3D(y = seq_len(length(fileNames)), x = seq_len(topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
                   zlab="Num of Nucleotides",ticktype="detailed",axes=TRUE, theta=50, phi=25, expand=0.75)
           dev.off()
           
           #plot
           png(paste0(in.path,"/","image2D-nucleotidestop_",topN, "clonotypes",input_datasets,".png"))
-          image2D(y = 1:length(fileNames), x = 1:topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+          image2D(y = seq_len(length(fileNames)), x = seq_len(topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
                   colkey = list(dist = 0, shift = 0.15,
                                 side = 4, length = 0.5, width = 0.5,
                                 cex.clab = 1, col.clab = "black", line.clab = 1.4,
@@ -4861,7 +4861,7 @@ app_server <- function( input, output, session ) {
     if (("1_Summary.txt" %in% input$inputFiles) & (input$pipeline_mutational_status)){
       low=c()
       high=c()
-      for (i in 1:input$N_identity_groups){
+      for (i in seq_len(input$N_identity_groups)){
         low=c(low,input[[paste0("Identity_low_group",i)]])
         high=c(high,input[[paste0("Identity_high_group",i)]])
       }
@@ -4884,7 +4884,7 @@ app_server <- function( input, output, session ) {
           filteredData_id<<-imgtfilter_results$allData
           temp=filteredData_id[[used_columns[["Summary"]][4]]]
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
               else index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
               temp[index]=identity_groups$label[values]
@@ -4902,7 +4902,7 @@ app_server <- function( input, output, session ) {
           filteredData_id<<-d
           temp=d
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<=identity_groups[values,2])
               else index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<identity_groups[values,2])
               temp[index,1]=identity_groups$label[values]
@@ -4913,7 +4913,7 @@ app_server <- function( input, output, session ) {
         
         #Separate data
         #mutational_status_table_datasets<<-list()
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(filteredData_id)
@@ -4935,7 +4935,7 @@ app_server <- function( input, output, session ) {
               data=d
             }
             if (!is.null(identity_groups)){
-              for (values in 1:nrow(identity_groups)){
+              for (values in seq_len(nrow(identity_groups))){
                 if (values==nrow(identity_groups))  index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
                 else index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
                 temp[index,1]=identity_groups$label[values]
@@ -4954,7 +4954,7 @@ app_server <- function( input, output, session ) {
           filteredData_id<<-imgtfilter_results$allData
           temp=filteredData_id[[used_columns[["Summary"]][4]]]
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
               else index=which(filteredData_id[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & filteredData_id[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
               temp[index]=identity_groups$label[values]
@@ -4963,7 +4963,7 @@ app_server <- function( input, output, session ) {
         }else{
           d=c()
           var=used_columns[["Summary"]][4]
-          for (i in 1:nrow(highly_sim)){
+          for (i in seq_len(nrow(highly_sim))){
             prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
             a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
             if(length(prev_clono)>1){
@@ -4978,7 +4978,7 @@ app_server <- function( input, output, session ) {
           filteredData_id<<-d
           temp=d
           if (!is.null(identity_groups))
-            for (values in 1:nrow(identity_groups)){
+            for (values in seq_len(nrow(identity_groups))){
               if (values==nrow(identity_groups))  index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<=identity_groups[values,2])
               else index=which(d[[var]]>=identity_groups[values,1] & d[[var]]<identity_groups[values,2])
               temp[index,1]=identity_groups$label[values]
@@ -4989,7 +4989,7 @@ app_server <- function( input, output, session ) {
         
         #Separate data
         #mutational_status_table_datasets<<-list()
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             mut=filteredData_id %>% dplyr::group_by(Summary.V.REGION.identity..) %>% dplyr::summarise(N=n())
             freq=mut$N/nrow(filteredData_id)
@@ -5002,7 +5002,7 @@ app_server <- function( input, output, session ) {
               var=used_columns[["Summary"]][4]
               name=loaded_datasets
               d=c()
-              for (i in 1:nrow(highly_sim_datasets[[name[j]]])){
+              for (i in seq_len(nrow(highly_sim_datasets[[name[j]]]))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[name[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[name[j]]]$prev_cluster[i])," ")[[1]])])
                 prev_clono=prev_clono[!is.na(prev_clono)]
                 a=clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[1]]]
@@ -5018,7 +5018,7 @@ app_server <- function( input, output, session ) {
               data=d
             }
             if (!is.null(identity_groups)){
-              for (values in 1:nrow(identity_groups)){
+              for (values in seq_len(nrow(identity_groups))){
                 if (values==nrow(identity_groups))  index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<=identity_groups[values,2])
                 else index=which(data[[used_columns[["Summary"]][4]]]>=identity_groups[values,1] & data[[used_columns[["Summary"]][4]]]<identity_groups[values,2])
                 temp[index,1]=identity_groups$label[values]
@@ -5072,12 +5072,12 @@ app_server <- function( input, output, session ) {
       nucleotides=matrix(0,input$nucleotides_per_clonotype_topN,length(fileNames))
       
       allData<-list()
-      for (i in 1:length(fileNames)){
-        #clono$convergent_evolution_list_allData[1:input$nucleotides_per_clonotype_topN,]
-        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][1:input$nucleotides_per_clonotype_topN]
+      for (i in seq_len(length(fileNames))){
+        #clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
+        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
       }
       #plot
-      hist3D(y = 1:length(fileNames), x = 1:input$nucleotides_per_clonotype_topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+      hist3D(y = seq_len(length(fileNames)), x = seq_len(input$nucleotides_per_clonotype_topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
               zlab="Num of Nucleotides",ticktype="detailed",axes=TRUE, theta=50, phi=25, expand=0.75)
     })
     
@@ -5089,12 +5089,12 @@ app_server <- function( input, output, session ) {
       nucleotides=matrix(0,input$nucleotides_per_clonotype_topN,length(fileNames))
       
       allData<-list()
-      for (i in 1:length(fileNames)){
-        #clono$convergent_evolution_list_allData[1:input$nucleotides_per_clonotype_topN,]
-        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][1:input$nucleotides_per_clonotype_topN]
+      for (i in seq_len(length(fileNames))){
+        #clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
+        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
       }
       #plot
-      persp3D(y = 1:length(fileNames), x = 1:input$nucleotides_per_clonotype_topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+      persp3D(y = seq_len(length(fileNames)), x = seq_len(input$nucleotides_per_clonotype_topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
               zlab="Num of Nucleotides",ticktype="detailed",axes=TRUE, theta=50, phi=25, expand=0.75)
     })
     
@@ -5106,12 +5106,12 @@ app_server <- function( input, output, session ) {
       nucleotides=matrix(0,input$nucleotides_per_clonotype_topN,length(fileNames))
       
       allData<-list()
-      for (i in 1:length(fileNames)){
-        #clono$convergent_evolution_list_allData[1:input$nucleotides_per_clonotype_topN,]
-        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][1:input$nucleotides_per_clonotype_topN]
+      for (i in seq_len(length(fileNames))){
+        #clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN,]
+        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
       }
       #plot
-      image2D(y = 1:length(fileNames), x = 1:input$nucleotides_per_clonotype_topN, z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
+      image2D(y = seq_len(length(fileNames)), x = seq_len(input$nucleotides_per_clonotype_topN), z = nucleotides, clab = "Num of Nucleotides",ylab="Samples",xlab="Clonotypes",
               colkey = list(dist = 0, shift = 0.15,
                             side = 4, length = 0.5, width = 0.5,
                             cex.clab = 1, col.clab = "black", line.clab = 1.4,
@@ -5125,17 +5125,17 @@ app_server <- function( input, output, session ) {
       nucleotides=matrix(0,input$nucleotides_per_clonotype_topN,length(fileNames))
       
       allData<-list()
-      for (i in 1:length(fileNames)){
-        #clono$convergent_evolution_list_allData[1:input$nucleotides_per_clonotype_topN,]
-        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][1:input$nucleotides_per_clonotype_topN]
+      for (i in seq_len(length(fileNames))){
+        #clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
+        nucleotides[,i]=clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
       }
       #plot
       ax <- list(
         gridwidth = 2,
         linewidth = 6 
       )
-      p <- plot_ly(y = (fileNames), x = 1:input$nucleotides_per_clonotype_topN, z = t(nucleotides))
-      # p <- plot_ly(y = (fileNames), x = 1:input$nucleotides_per_clonotype_topN, z = t(nucleotides)) %>% add_surface()%>%
+      p <- plot_ly(y = (fileNames), x = seq_len(input$nucleotides_per_clonotype_topN), z = t(nucleotides))
+      # p <- plot_ly(y = (fileNames), x = seq_len(input$nucleotides_per_clonotype_topN), z = t(nucleotides)) %>% add_surface()%>%
       #   layout(
       #     title = "Nucleotides per Clonotype",
       #     scene = list(
@@ -5162,7 +5162,7 @@ app_server <- function( input, output, session ) {
           highly=FALSE
         }
         if (!highly){
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               d=c()
               for (i in names(clono$view_specific_clonotype_allData)){
@@ -5190,10 +5190,10 @@ app_server <- function( input, output, session ) {
             }
           }
         }else{
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               d=c()
-              for (i in 1:nrow(highly_sim)){
+              for (i in seq_len(nrow(highly_sim))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
                 a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
                 if(length(prev_clono)>1){
@@ -5211,7 +5211,7 @@ app_server <- function( input, output, session ) {
               cdr3_length_distribution<<-d[order(d$CDR3Length),]
             }else{
               d=c()
-              for (i in 1:nrow(highly_sim_datasets[[loaded_datasets[j]]])){
+              for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]])])
                 prev_clono=prev_clono[!is.na(prev_clono)]
                 a=clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
@@ -5284,7 +5284,7 @@ app_server <- function( input, output, session ) {
         }
         
         if (!highly){
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               d=c()
               for (i in names(clono$view_specific_clonotype_allData)){
@@ -5300,10 +5300,10 @@ app_server <- function( input, output, session ) {
             }
           }
         }else{
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               d=c()
-              for (i in 1:nrow(highly_sim)){
+              for (i in seq_len(nrow(highly_sim))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
                 a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
                 if(length(prev_clono)>1){
@@ -5315,7 +5315,7 @@ app_server <- function( input, output, session ) {
               box_input<<-cbind(box_input,d)
             }else{
               d=c()
-              for (i in 1:nrow(highly_sim_datasets[[loaded_datasets[j]]])){
+              for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]])])
                 prev_clono=prev_clono[!is.na(prev_clono)]
                 a=clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
@@ -5349,7 +5349,7 @@ app_server <- function( input, output, session ) {
         }
         
         if (!highly){
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               d=c()
               for (i in names(clono$view_specific_clonotype_allData)){
@@ -5377,10 +5377,10 @@ app_server <- function( input, output, session ) {
             }
           }
         }else{
-          for (j in 1:(length(loaded_datasets)+1)){
+          for (j in seq_len((length(loaded_datasets)+1))){
             if (j==(length(loaded_datasets)+1)){
               d=c()
-              for (i in 1:nrow(highly_sim)){
+              for (i in seq_len(nrow(highly_sim))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i])," ")[[1]])])
                 a=clono$view_specific_clonotype_allData[[prev_clono[1]]]
                 if(length(prev_clono)>1){
@@ -5398,7 +5398,7 @@ app_server <- function( input, output, session ) {
               pi_distribution<<-d[order(d$Pi),]
             }else{
               d=c()
-              for (i in 1:nrow(highly_sim_datasets[[loaded_datasets[j]]])){
+              for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))){
                 prev_clono=as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i])," ")[[1]])])
                 prev_clono=prev_clono[!is.na(prev_clono)]
                 a=clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
@@ -5463,7 +5463,7 @@ app_server <- function( input, output, session ) {
       
       ################################### Initial-Clean-Filter Tables ######################################
       #if (cleaning_confirm!="")
-      #for (j in 1:(length(loaded_datasets)+1)){
+      #for (j in seq_len((length(loaded_datasets)+1))){
       #if (j==(length(loaded_datasets)+1)){
       #filename=paste0(in.path,"/","Initial_table_","All Data",".txt")
       #write.table(imgtcleaning_results$allDataInitial, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5483,7 +5483,7 @@ app_server <- function( input, output, session ) {
       #}
       
       #if (msg!="")
-      #for (j in 1:(length(loaded_datasets)+1)){
+      #for (j in seq_len((length(loaded_datasets)+1))){
       #if (j==(length(loaded_datasets)+1)){
       #filename=paste0(in.path,"/","Filtered_table_","All Data",".txt")
       #write.table(imgtfilter_results$allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5500,11 +5500,11 @@ app_server <- function( input, output, session ) {
       
       ########################################### Clonotypes ###############################################  
       if (msgClonotypes!="")
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             clono$clono_allData$CDR3=clono$clono_allData[,1]
             clono$clono_allData=clono$clono_allData[,c(1,5,2:4)]
-            for (i in 1:nrow(clono$clono_allData)){
+            for (i in seq_len(nrow(clono$clono_allData))){
               clono$clono_allData[i,2]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][2]
               clono$clono_allData[i,1]=strsplit(as.character(clono$clono_allData[i,1])," - ")[[1]][1]
             }
@@ -5514,7 +5514,7 @@ app_server <- function( input, output, session ) {
             name=loaded_datasets[j]
             clono$clono_datasets[[name]]$CDR3=clono$clono_datasets[[name]][,1]
             clono$clono_datasets[[name]]=clono$clono_datasets[[name]][,c(1,5,2:4)]
-            for (i in 1:nrow(clono$clono_datasets[[name]])){
+            for (i in seq_len(nrow(clono$clono_datasets[[name]]))){
               clono$clono_datasets[[name]][i,2]=strsplit(as.character(clono$clono_datasets[[name]][i,1])," - ")[[1]][2] 
               clono$clono_datasets[[name]][i,1]=strsplit(as.character(clono$clono_datasets[[name]][i,1])," - ")[[1]][1]   
             }
@@ -5525,8 +5525,8 @@ app_server <- function( input, output, session ) {
       
       ################################### Highly Similar Clonotypes ########################################
       if (msgHighlySim!="")
-        for (j in 1:(length(loaded_datasets)+1)){
-          for (l in 1:length(cdr3_lengths)){
+        for (j in seq_len((length(loaded_datasets)+1))){
+          for (l in seq_len(length(cdr3_lengths))){
             if (j==(length(loaded_datasets)+1)){
               filename=paste0(in.path,"/","Highly_sim_Clonotypes_","All_Data_length_",cdr3_lengths[l],".txt")
               write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ",cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5542,7 +5542,7 @@ app_server <- function( input, output, session ) {
         }
       
       if (msgHighlySim!="")
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             filename=paste0(in.path,"/","highly_sim_all_clonotypes_",input$select_clonotype,"_","All_Data",".txt")
             write.table(highly_sim, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5567,8 +5567,8 @@ app_server <- function( input, output, session ) {
       ########################################### Repertoires  ############################################
       if (!(is.null(msgRepertoires))){
         if (msgRepertoires[1]!=""){
-          for (i in 1:length(insertedRepertoires)){
-            for (j in 1:(length(loaded_datasets)+1)){
+          for (i in seq_len(length(insertedRepertoires))){
+            for (j in seq_len((length(loaded_datasets)+1))){
               if (j==(length(loaded_datasets)+1)){
                 filename=paste0(in.path,"/","Repertoires_",input[[paste0("selectRepertoires_",insertedRepertoires[i])]],"_","All_Data",".txt")
                 write.table(repertories_results[[i]]$Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5584,8 +5584,8 @@ app_server <- function( input, output, session ) {
       ######################################## Highly Sim Repertoires #####################################
       if (!(is.null(msgHighlySim_Repertoires))){
         if (msgHighlySim_Repertoires[1]!=""){
-          for (i in 1:length(insertedRepertoires)){
-            for (j in 1:(length(loaded_datasets)+1)){
+          for (i in seq_len(length(insertedRepertoires))){
+            for (j in seq_len((length(loaded_datasets)+1))){
               if (j==(length(loaded_datasets)+1)){
                 filename=paste0(in.path,"/","HighlySim_Repertoires_",input[[paste0("selectRepertoires_",insertedRepertoires[i])]],"_","All_Data",".txt")
                 write.table(HighlySim_repertories_results[[i]]$Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5600,7 +5600,7 @@ app_server <- function( input, output, session ) {
       
       ######################################## Repertoires Comparison #####################################
       if (msgRepertoiresComp!=""){
-        for (i in 1:length(insertedRepertoires)){
+        for (i in seq_len(length(insertedRepertoires))){
           filename=paste0(in.path,"/","repertoires_comparison_table_",input[[paste0("selectRepertoires_",insertedRepertoires[i])]],".txt")
           write.table(repertoires_comparison_results[[i]]$unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
@@ -5608,7 +5608,7 @@ app_server <- function( input, output, session ) {
       
       #################################### Highly Sim Repertoires Comparison ##############################
       if (msgRepertoiresComp!="" && msgHighlySim!=""){
-        for (i in 1:length(insertedRepertoires)){
+        for (i in seq_len(length(insertedRepertoires))){
           filename=paste0(in.path,"/","highlySim_repertoires_comparison_table_",input[[paste0("selectRepertoires_",insertedRepertoires[i])]],".txt")
           write.table(highly_sim_repertoires_comparison_results[[i]]$unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
@@ -5617,8 +5617,8 @@ app_server <- function( input, output, session ) {
       ########################################### Multiple value comparison  ##############################
       if (length(msgMultiple_value_comparison)>0){
         #load("rData files/Multiple_value_comparison_result.rdata")
-        for (i in 1:length(insertedMultiple_value_comparison)){
-          for (j in 1:(length(loaded_datasets)+1)){
+        for (i in seq_len(length(insertedMultiple_value_comparison))){
+          for (j in seq_len((length(loaded_datasets)+1))){
             val1=input[[paste0("select_MultipleValues_column1_",strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2])]]
             val2=input[[paste0("select_MultipleValues_column2_",strsplit(insertedMultiple_value_comparison[i],"_")[[1]][2])]]
             colnames(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData)=c(val1,val2,"N")
@@ -5635,7 +5635,7 @@ app_server <- function( input, output, session ) {
       }
       ########################################### Freq Tables #############################################
       if (msgFreqTables!="")
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             filename=paste0(in.path,"/","Count_table_for_logo_","All_Data",".txt")
             write.table(frequenciesTables_results$table_count, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -5651,7 +5651,7 @@ app_server <- function( input, output, session ) {
       
       ########################################### Alignment ###############################################
       if (msgAlignment!="")
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             if (input$AAorNtAlignment=="both"){
               filename=paste0(in.path,"/","Alignment_",input$select_alignment, "_","aa","_","All_Data",".txt")
@@ -5696,7 +5696,7 @@ app_server <- function( input, output, session ) {
       ########################################### Mutations ###############################################
       if (msgMutation!=""){
         
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           #for (s in names(mutation_results$mutation_change_allData)){
           if (j==(length(loaded_datasets)+1)){
             if (input$AAorNtMutations=="both"){
@@ -5728,8 +5728,8 @@ app_server <- function( input, output, session ) {
         }
         
         if (FclonoSeperately){
-          for (cl in 1:length(cl_ids_mutations)){
-            for (j in 1:(length(loaded_datasets)+1)){
+          for (cl in seq_len(length(cl_ids_mutations))){
+            for (j in seq_len((length(loaded_datasets)+1))){
               #for (l in names(mutation_allData)){
               if (j==(length(loaded_datasets)+1)){
                 if (input$AAorNtMutations=="both"){
@@ -5767,7 +5767,7 @@ app_server <- function( input, output, session ) {
       
       ########################################### CDR3 1 length diff ######################################
       if (msgCDR3Diff1!="")
-        for (j in 1:(length(loaded_datasets)+1)){
+        for (j in seq_len((length(loaded_datasets)+1))){
           if (j==(length(loaded_datasets)+1)){
             filename=paste0(in.path,"/","CDR3Diff1_","All_Data",".txt")
             write.table(CDR3Diff1_results$cdr3_diff1P_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
