@@ -380,8 +380,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
 
     if (pipeline_public_clonotypes) {
         if (strsplit(shared_clonotypes_params, ",")[[1]][1] == "reads") {
-              select_topN_or_reads_thr_shared_clono <- "select_reads_thr_shared_clono"
-          }
+            select_topN_or_reads_thr_shared_clono <- "select_reads_thr_shared_clono"
+        }
         take_gene_public_clono <- strsplit(shared_clonotypes_params, ",")[[1]][3]
 
         if (select_topN_or_reads_thr_shared_clono == "select_reads_thr_shared_clono") {
@@ -399,8 +399,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
 
     if (pipeline_highly_sim_public_clonotypes) {
         if (strsplit(highly_shared_clonotypes_params, ",")[[1]][1] == "reads") {
-              select_topN_or_reads_thr_shared_clono <- "select_reads_thr_shared_clono"
-          }
+            select_topN_or_reads_thr_shared_clono <- "select_reads_thr_shared_clono"
+        }
         take_gene_highly_sim_public_clono <- strsplit(highly_shared_clonotypes_params, ",")[[1]][3]
 
         if (select_topN_or_reads_thr_shared_clono == "select_reads_thr_shared_clono") {
@@ -538,15 +538,15 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     filteredData_id <<- imgtfilter_results$allData
                     temp <- filteredData_id[[used_columns[["Summary"]][4]]]
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
-                              }
-                              temp[index] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
+                            }
+                            temp[index] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id[[used_columns[["Summary"]][4]]] <<- temp
                 } else {
                     d <- c()
@@ -560,15 +560,15 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     filteredData_id <<- d
                     temp <- d
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
-                              }
-                              temp[index, 1] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
+                            }
+                            temp[index, 1] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id <<- temp
                 }
 
@@ -622,15 +622,15 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     filteredData_id <<- imgtfilter_results$allData
                     temp <- filteredData_id[[used_columns[["Summary"]][4]]]
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
-                              }
-                              temp[index] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
+                            }
+                            temp[index] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id[[used_columns[["Summary"]][4]]] <<- temp
                 } else {
                     d <- c()
@@ -640,8 +640,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                         a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                         if (length(prev_clono) > 1) {
                             for (cl in 2:length(prev_clono)) {
-                                  a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                              }
+                                a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                            }
                         }
                         d <- c(d, median(a[[var]]))
                     }
@@ -651,15 +651,15 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     filteredData_id <<- d
                     temp <- d
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
-                              }
-                              temp[index, 1] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
+                            }
+                            temp[index, 1] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id <<- temp
                 }
 
@@ -687,8 +687,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                                 a <- clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, median(a[[var]]))
                             }
@@ -764,28 +764,28 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
 
             if (highly) {
-                  Multiple_value_comparison_result[[i]] <- Multiple_value_comparison_highly_similar(
-                      highly_sim,
-                      highly_sim_datasets,
-                      allele_clonotypes,
-                      gene_clonotypes,
-                      clono$view_specific_clonotype_allData,
-                      clono$view_specific_clonotype_datasets,
-                      val1, val2,
-                      loaded_datasets, c()
-                  )
-              } else {
-                  Multiple_value_comparison_result[[i]] <- Multiple_value_comparison(
-                      clono$clono_allData,
-                      clono$clono_datasets,
-                      allele_clonotypes,
-                      gene_clonotypes,
-                      clono$view_specific_clonotype_allData,
-                      clono$view_specific_clonotype_datasets,
-                      val1, val2,
-                      loaded_datasets, c()
-                  )
-              }
+                Multiple_value_comparison_result[[i]] <- Multiple_value_comparison_highly_similar(
+                    highly_sim,
+                    highly_sim_datasets,
+                    allele_clonotypes,
+                    gene_clonotypes,
+                    clono$view_specific_clonotype_allData,
+                    clono$view_specific_clonotype_datasets,
+                    val1, val2,
+                    loaded_datasets, c()
+                )
+            } else {
+                Multiple_value_comparison_result[[i]] <- Multiple_value_comparison(
+                    clono$clono_allData,
+                    clono$clono_datasets,
+                    allele_clonotypes,
+                    gene_clonotypes,
+                    clono$view_specific_clonotype_allData,
+                    clono$view_specific_clonotype_datasets,
+                    val1, val2,
+                    loaded_datasets, c()
+                )
+            }
         }
     }
 
@@ -1384,8 +1384,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                             a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                             if (length(prev_clono) > 1) {
                                 for (cl in 2:length(prev_clono)) {
-                                      a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                  }
+                                    a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                                }
                             }
                             d <- c(d, a[[var]][1])
                         }
@@ -1406,8 +1406,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                             a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
                             if (length(prev_clono) > 1) {
                                 for (cl in 2:length(prev_clono)) {
-                                      a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                  }
+                                    a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                                }
                             }
                             d <- c(d, a[[var]][1])
                         }
@@ -1489,8 +1489,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                         a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                         if (length(prev_clono) > 1) {
                             for (cl in 2:length(prev_clono)) {
-                                  a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                              }
+                                a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                            }
                         }
                         d <- c(d, as.numeric(a[[var]][1]))
                     }
@@ -1503,8 +1503,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                         a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
                         if (length(prev_clono) > 1) {
                             for (cl in 2:length(prev_clono)) {
-                                  a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                              }
+                                a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                            }
                         }
                         d <- c(d, as.numeric(a[[var]][1]))
                     }
@@ -1571,8 +1571,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                         a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                         if (length(prev_clono) > 1) {
                             for (cl in 2:length(prev_clono)) {
-                                  a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                              }
+                                a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                            }
                         }
                         d <- c(d, a[[var]][1])
                     }
@@ -1593,8 +1593,8 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                         a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
                         if (length(prev_clono) > 1) {
                             for (cl in 2:length(prev_clono)) {
-                                  a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                              }
+                                a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                            }
                         }
                         d <- c(d, a[[var]][1])
                     }

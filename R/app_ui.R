@@ -7,37 +7,37 @@
 app_ui <- function(request) {
     # Add custom CSS & Javascript;
     appCSS <- "
-  .btn-loading-container {
-  margin-left: 10px;
-  font-size: 1.2em;
-  }
-  .btn-done-indicator {
-  color: green;
-  }
-  .btn-err {
-  margin-top: 10px;
-  color: red;
-  }
-  "
+    .btn-loading-container {
+    margin-left: 10px;
+    font-size: 1.2em;
+    }
+    .btn-done-indicator {
+    color: green;
+    }
+    .btn-err {
+    margin-top: 10px;
+    color: red;
+    }
+    "
 
     appError <- "
-  .shiny-output-error { visibility: hidden; }
-  .shiny-output-error:before {
-  visibility: visible;
-  content: 'An error occurred. Please contact the admin.'; }
-  }
-  "
+    .shiny-output-error { visibility: hidden; }
+    .shiny-output-error:before {
+    visibility: visible;
+    content: 'An error occurred. Please contact the admin.'; }
+    }
+    "
 
     ## JS Code for enabling and diabling
     jscode <- "shinyjs.disabletab =function(name){
-  $('ul li:has(a[data-value= ' + name + '])').addClass('disabled');
-  $('.nav li.disabled a').prop('disabled',true)
-  }
+    $('ul li:has(a[data-value= ' + name + '])').addClass('disabled');
+    $('.nav li.disabled a').prop('disabled',true)
+    }
 
-  shinyjs.enabletab =function(name){
-  $('.nav li.disabled a').prop('disabled',false)
-  $('ul li:has(a[data-value= ' + name + '])').removeClass('disabled');
-  } "
+    shinyjs.enabletab =function(name){
+    $('.nav li.disabled a').prop('disabled',false)
+    $('ul li:has(a[data-value= ' + name + '])').removeClass('disabled');
+    } "
     tagList(
         # Leave this function for adding external resources
         golem_add_external_resources(),
@@ -64,7 +64,7 @@ app_ui <- function(request) {
                 tags$head(
                     tags$style(HTML('
                                 #sidebar {
-                                  background-color: #ffffff;
+                                    background-color: #ffffff;
                                 }
 
                                 body, label, input, button, select {

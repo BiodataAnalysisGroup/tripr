@@ -6,18 +6,18 @@
 #' @noRd
 app_server <- function(input, output, session) {
     appCSS <- "
-  .btn-loading-container {
-  margin-left: 10px;
-  font-size: 1.2em;
-  }
-  .btn-done-indicator {
-  color: green;
-  }
-  .btn-err {
-  margin-top: 10px;
-  color: red;
-  }
-  "
+    .btn-loading-container {
+    margin-left: 10px;
+    font-size: 1.2em;
+    }
+    .btn-done-indicator {
+    color: green;
+    }
+    .btn-err {
+    margin-top: 10px;
+    color: red;
+    }
+    "
 
     shiny::includeHTML(system.file("extdata", "on_reload.html",
         package = "tripr",
@@ -27,24 +27,24 @@ app_server <- function(input, output, session) {
     options(shiny.maxRequestSize = 3000 * 1024^2)
 
     on_click_js <- "
-  Shiny.onInputChange('mydata', '%s');
-  $('#modalViewSpecificClonotype').modal('show')
-  "
+    Shiny.onInputChange('mydata', '%s');
+    $('#modalViewSpecificClonotype').modal('show')
+    "
     on_click_js_convergent_evolution <- "
-  Shiny.onInputChange('conv_evo', '%s');
-  $('#modalViewConvergentEvolution').modal('show')
-  "
+    Shiny.onInputChange('conv_evo', '%s');
+    $('#modalViewConvergentEvolution').modal('show')
+    "
 
     ## JS Code for enabling and diabling tabs
     jscode <- "shinyjs.disabletab =function(name){
-  $('ul li:has(a[data-value= ' + name + '])').addClass('disabled');
-  $('.nav li.disabled a').prop('disabled',true)
-  }
+    $('ul li:has(a[data-value= ' + name + '])').addClass('disabled');
+    $('.nav li.disabled a').prop('disabled',true)
+    }
 
-  shinyjs.enabletab =function(name){
-  $('.nav li.disabled a').prop('disabled',false)
-  $('ul li:has(a[data-value= ' + name + '])').removeClass('disabled');
-  } "
+    shinyjs.enabletab =function(name){
+    $('.nav li.disabled a').prop('disabled',false)
+    $('ul li:has(a[data-value= ' + name + '])').removeClass('disabled');
+    } "
 
     # Your application server logic
 
@@ -238,10 +238,10 @@ app_server <- function(input, output, session) {
         }
 
         if (input$select_load_or_compute_clonotypes == "compute_clonotypes") {
-              length(unique(t(data.frame(strsplit(input$Dataset, "_")))[, 1]))
-          } else {
-              length(loaded_datasets)
-          }
+            length(unique(t(data.frame(strsplit(input$Dataset, "_")))[, 1]))
+        } else {
+            length(loaded_datasets)
+        }
     })
 
     outputOptions(output, "num_of_datasets", suspendWhenHidden = FALSE)
@@ -330,8 +330,8 @@ app_server <- function(input, output, session) {
                 )
             }),
             if (failed) {
-                  div(tags$b("Invalid name of data object", style = "color: red;"))
-              },
+                div(tags$b("Invalid name of data object", style = "color: red;"))
+            },
             footer = tagList(
                 modalButton("Cancel"),
                 actionButton("ok", "OK")
@@ -448,10 +448,10 @@ app_server <- function(input, output, session) {
         state$values$dataInputColumns <- dataInputColumns()
 
         if (input$Continue != FALSE) {
-              state$values$newDataset <- FALSE
-          } else {
-              state$values$newDataset <- newDataset
-          }
+            state$values$newDataset <- FALSE
+        } else {
+            state$values$newDataset <- newDataset
+        }
     })
 
     # Read values from state$values when we restore
@@ -507,10 +507,10 @@ app_server <- function(input, output, session) {
         just_restored_session_highly_similar_clonotypes <<- TRUE
 
         if (input$Continue != FALSE) {
-              newDataset <- FALSE
-          } else {
-              newDataset <- newDataset
-          }
+            newDataset <- FALSE
+        } else {
+            newDataset <- newDataset
+        }
 
         dataInputColumns <- reactive({
             dataInputColumnsTemp
@@ -541,21 +541,21 @@ app_server <- function(input, output, session) {
 
         # insert repertoires on pipeline tab
         if (length(insertedRepertoires) > 0) {
-              for (i in seq_len(length(insertedRepertoires))) {
-                  btn <- paste0("selectRepertoires_", insertedRepertoires[i])
-                  id <- insertedRepertoires[i]
-                  addRepertoryFct(id, btn)
-              }
-          }
+            for (i in seq_len(length(insertedRepertoires))) {
+                btn <- paste0("selectRepertoires_", insertedRepertoires[i])
+                id <- insertedRepertoires[i]
+                addRepertoryFct(id, btn)
+            }
+        }
 
         # insert Multiple_value_comparison on pipeline tab
         if (length(insertedMultiple_value_comparison) > 0) {
-              for (i in seq_len(length(insertedMultiple_value_comparison))) {
-                  btn <- strsplit(insertedMultiple_value_comparison[i], "_")[[1]][2]
-                  id <- paste0("MultipleValues_", btn)
-                  addMultipleValues(id, btn, columns_for_Multiple_value_comparison, Multiple_value_comparison_input_values[i, 1], Multiple_value_comparison_input_values[i, 2])
-              }
-          }
+            for (i in seq_len(length(insertedMultiple_value_comparison))) {
+                btn <- strsplit(insertedMultiple_value_comparison[i], "_")[[1]][2]
+                id <- paste0("MultipleValues_", btn)
+                addMultipleValues(id, btn, columns_for_Multiple_value_comparison, Multiple_value_comparison_input_values[i, 1], Multiple_value_comparison_input_values[i, 2])
+            }
+        }
     })
 
     observeEvent(input$restorePreviousSession, {
@@ -887,10 +887,10 @@ app_server <- function(input, output, session) {
             return()
         }
         if (input$select_load_or_compute_clonotypes == "compute_clonotypes") {
-              if ((input$Execute == FALSE)) {
-                  return()
-              }
-          }
+            if ((input$Execute == FALSE)) {
+                return()
+            }
+        }
         # actionButton("Execute_pipeline", "Execute Pipeline",
         #             style="color: #fff; background-color: #fff; border-color: #fff")
         withBusyIndicatorUI(
@@ -1194,10 +1194,10 @@ app_server <- function(input, output, session) {
 
             if (just_restored_session == FALSE || length(imgtfilter_results) == 0) {
                 if (input$throughput == "High Throughput") {
-                      imgtfilter_results <<- imgtfilter(imgtcleaning_results$cleaned_datasets, loaded_datasets, imgtcleaning_results$allData, cell_id, filter_id, " P| ORF", "[*]|X|#|[.]", "productive", start_char, end_char, as.numeric(input$identityLow), as.numeric(input$identityHigh), input$VGene_name, input$JGene_name, input$DGene_name, as.numeric(input$lengthLow), as.numeric(input$lengthHigh), input$aminoacid_name, seq1, seq2)
-                  } else {
-                      imgtfilter_results <<- imgtfilterLow(imgtcleaning_results$cleaned_datasets, loaded_datasets, imgtcleaning_results$allData, cell_id, filter_id, " P| ORF", "[*]|X|#|[.]", "productive", start_char, end_char, as.numeric(input$identityLow), as.numeric(input$identityHigh), input$VGene_name, input$JGene_name, input$DGene_name, as.numeric(input$lengthLow), as.numeric(input$lengthHigh), input$aminoacid_name, seq1, seq2)
-                  }
+                    imgtfilter_results <<- imgtfilter(imgtcleaning_results$cleaned_datasets, loaded_datasets, imgtcleaning_results$allData, cell_id, filter_id, " P| ORF", "[*]|X|#|[.]", "productive", start_char, end_char, as.numeric(input$identityLow), as.numeric(input$identityHigh), input$VGene_name, input$JGene_name, input$DGene_name, as.numeric(input$lengthLow), as.numeric(input$lengthHigh), input$aminoacid_name, seq1, seq2)
+                } else {
+                    imgtfilter_results <<- imgtfilterLow(imgtcleaning_results$cleaned_datasets, loaded_datasets, imgtcleaning_results$allData, cell_id, filter_id, " P| ORF", "[*]|X|#|[.]", "productive", start_char, end_char, as.numeric(input$identityLow), as.numeric(input$identityHigh), input$VGene_name, input$JGene_name, input$DGene_name, as.numeric(input$lengthLow), as.numeric(input$lengthHigh), input$aminoacid_name, seq1, seq2)
+                }
             }
 
             just_restored_session <<- FALSE
@@ -1342,11 +1342,11 @@ app_server <- function(input, output, session) {
     observeEvent(input$Execute_pipeline, {
         msgClonotypes <<- ""
         if (length(insertedRepertoires) > 0) {
-              for (i in seq_len(length(insertedRepertoires))) msgRepertoires[i] <<- ""
-          }
+            for (i in seq_len(length(insertedRepertoires))) msgRepertoires[i] <<- ""
+        }
         if (length(msgMultiple_value_comparison) > 0) {
-              for (i in seq_len(length(insertedMultiple_value_comparison))) msgMultiple_value_comparison[i] <<- ""
-          }
+            for (i in seq_len(length(insertedMultiple_value_comparison))) msgMultiple_value_comparison[i] <<- ""
+        }
         msgAlignment <<- ""
         msgGroupedAlignment <<- ""
         msgFreqTables <<- ""
@@ -2233,8 +2233,8 @@ app_server <- function(input, output, session) {
             }
 
             if (just_restored_session_public_clonotypes == FALSE) {
-                  public_clonotypes_results <<- public_clonotypes(clono$clono_allData, clono$clono_datasets, input$take_gene_public_clono, use_reads, threshlod, loaded_datasets, FALSE)
-              }
+                public_clonotypes_results <<- public_clonotypes(clono$clono_allData, clono$clono_datasets, input$take_gene_public_clono, use_reads, threshlod, loaded_datasets, FALSE)
+            }
 
             just_restored_session_public_clonotypes <<- FALSE
             # highly_sim_view_specific_clonotypes,highly_sim_clonotypes
@@ -2289,8 +2289,8 @@ app_server <- function(input, output, session) {
         # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
         withBusyIndicatorServer("Execute_pipeline", {
             if (just_restored_session_public_clonotypes == FALSE) {
-                  highly_sim_public_clonotypes_results <<- public_clonotypes(highly_sim, highly_sim_datasets, input$take_gene_highly_sim_public_clono, TRUE, input$thr_highly_sim_public_clono, loaded_datasets, TRUE)
-              }
+                highly_sim_public_clonotypes_results <<- public_clonotypes(highly_sim, highly_sim_datasets, input$take_gene_highly_sim_public_clono, TRUE, input$thr_highly_sim_public_clono, loaded_datasets, TRUE)
+            }
 
             just_restored_session_highly_sim_public_clonotypes <<- FALSE
             # highly_sim_view_specific_clonotypes,highly_sim_clonotypes
@@ -3004,10 +3004,10 @@ app_server <- function(input, output, session) {
                         highly <- FALSE
                     }
                     if (highly) {
-                          Multiple_value_comparison_result[[i]] <<- Multiple_value_comparison_highly_similar(highly_sim, highly_sim_datasets, allele_clonotypes, gene_clonotypes, clono$view_specific_clonotype_allData, clono$view_specific_clonotype_datasets, val1, val2, loaded_datasets, identity_groups)
-                      } else {
-                          Multiple_value_comparison_result[[i]] <<- Multiple_value_comparison(clono$clono_allData, clono$clono_datasets, allele_clonotypes, gene_clonotypes, clono$view_specific_clonotype_allData, clono$view_specific_clonotype_datasets, val1, val2, loaded_datasets, identity_groups)
-                      }
+                        Multiple_value_comparison_result[[i]] <<- Multiple_value_comparison_highly_similar(highly_sim, highly_sim_datasets, allele_clonotypes, gene_clonotypes, clono$view_specific_clonotype_allData, clono$view_specific_clonotype_datasets, val1, val2, loaded_datasets, identity_groups)
+                    } else {
+                        Multiple_value_comparison_result[[i]] <<- Multiple_value_comparison(clono$clono_allData, clono$clono_datasets, allele_clonotypes, gene_clonotypes, clono$view_specific_clonotype_allData, clono$view_specific_clonotype_datasets, val1, val2, loaded_datasets, identity_groups)
+                    }
                 }
 
                 msgMultiple_value_comparison[i] <<- Multiple_value_comparison_result[[i]]$confirm
@@ -3103,8 +3103,8 @@ app_server <- function(input, output, session) {
             })
 
             if (save_lists_for_bookmark) {
-                  save(Multiple_value_comparison_result, file = paste0(output_folder, "/Multiple_value_comparison_result.rdata"))
-              }
+                save(Multiple_value_comparison_result, file = paste0(output_folder, "/Multiple_value_comparison_result.rdata"))
+            }
         })
         return()
     })
@@ -4452,8 +4452,8 @@ app_server <- function(input, output, session) {
         # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
         withBusyIndicatorServer("Execute_pipeline_2nd_part", {
             if (just_restored_session_CDR3Diff1 == FALSE) {
-                  CDR3Diff1_results <<- find_cdr3_diff1P(imgtfilter_results$allData, input$cdr3MaxLength1Diff, input$cdr3Position1Diff, loaded_datasets)
-              }
+                CDR3Diff1_results <<- find_cdr3_diff1P(imgtfilter_results$allData, input$cdr3MaxLength1Diff, input$cdr3Position1Diff, loaded_datasets)
+            }
 
             just_restored_session_CDR3Diff1 <<- FALSE
             msgCDR3Diff1 <<- CDR3Diff1_results$confirm
@@ -4746,24 +4746,24 @@ app_server <- function(input, output, session) {
 
 
             if (msgClonotypes != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      if (j == (length(loaded_datasets) + 1)) {
-                          plot(NA, xlim = c(0, 5), ylim = c(0, 5), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
-                          text(1, 4, "Clonotypes (All Data)", pos = 4)
-                          c1 <- c("Clonotypes selected", "Number of clonotypes found", "The most frequent clonotype", "Frequency of no 1 clonotype")
-                          c2 <- c(input$select_clonotype, nrow(clono$clono_allData), clono$clono_allData$clonotype[1], paste0(clono$clono_allData$N[1], " sequences (", clono$clono_allData$Freq[1], "%)"))
-                          my_table <- data.frame(Clonotypes = c1, Result = c2)
-                          grid.table(my_table)
-                      } else {
-                          plot(NA, xlim = c(0, 5), ylim = c(0, 5), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
-                          text(1, 4, paste0("Clonotypes (", loaded_datasets[j], ")"), pos = 4)
-                          c1 <- c("Clonotypes selected", "Number of clonotypes found", "The most frequent clonotype", "Frequency of no 1 clonotype")
-                          c2 <- c(input$select_clonotype, nrow(clono$clono_datasets[[loaded_datasets[j]]]), clono$clono_datasets[[loaded_datasets[j]]]$clonotype[1], paste0(clono$clono_datasets[[loaded_datasets[j]]]$N[1], " sequences (", clono$clono_datasets[[loaded_datasets[j]]]$Freq[1], "%)"))
-                          my_table <- data.frame(Clonotypes = c1, Result = c2)
-                          grid.table(my_table)
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                        plot(NA, xlim = c(0, 5), ylim = c(0, 5), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+                        text(1, 4, "Clonotypes (All Data)", pos = 4)
+                        c1 <- c("Clonotypes selected", "Number of clonotypes found", "The most frequent clonotype", "Frequency of no 1 clonotype")
+                        c2 <- c(input$select_clonotype, nrow(clono$clono_allData), clono$clono_allData$clonotype[1], paste0(clono$clono_allData$N[1], " sequences (", clono$clono_allData$Freq[1], "%)"))
+                        my_table <- data.frame(Clonotypes = c1, Result = c2)
+                        grid.table(my_table)
+                    } else {
+                        plot(NA, xlim = c(0, 5), ylim = c(0, 5), bty = "n", xaxt = "n", yaxt = "n", xlab = "", ylab = "")
+                        text(1, 4, paste0("Clonotypes (", loaded_datasets[j], ")"), pos = 4)
+                        c1 <- c("Clonotypes selected", "Number of clonotypes found", "The most frequent clonotype", "Frequency of no 1 clonotype")
+                        c2 <- c(input$select_clonotype, nrow(clono$clono_datasets[[loaded_datasets[j]]]), clono$clono_datasets[[loaded_datasets[j]]]$clonotype[1], paste0(clono$clono_datasets[[loaded_datasets[j]]]$N[1], " sequences (", clono$clono_datasets[[loaded_datasets[j]]]$Freq[1], "%)"))
+                        my_table <- data.frame(Clonotypes = c1, Result = c2)
+                        grid.table(my_table)
+                    }
+                }
+            }
 
             if (msgHighlySim != "") {
                 my_table <- c(paste0("Clonotype frequency threshold for highly similar: ", input$clonotype_freq_thr_for_highly_sim), paste0("Take gene highly similar: ", input$take_gene_highly_similar))
@@ -5209,92 +5209,92 @@ app_server <- function(input, output, session) {
 
             ####### logo plots #######
             if (msgLogo != "") {
-                  if (input$regionFreqTable == "CDR3") {
-                      for (j in seq_len((length(loaded_datasets) + 1))) {
-                          if (j == (length(loaded_datasets) + 1)) {
-                              png(paste0(in.path, "/", "logo_", "CDR3", "_", "All_Data", ".png"), width = 1000, height = 550)
-                              logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
-                          } else {
-                              png(paste0(in.path, "/", "logo_", "CDR3", "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
-                              logo_plot <<- plot(motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
-                          }
-                          table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
-                          index1 <- 1
-                          index2 <- ncol(table_count)
+                if (input$regionFreqTable == "CDR3") {
+                    for (j in seq_len((length(loaded_datasets) + 1))) {
+                        if (j == (length(loaded_datasets) + 1)) {
+                            png(paste0(in.path, "/", "logo_", "CDR3", "_", "All_Data", ".png"), width = 1000, height = 550)
+                            logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        } else {
+                            png(paste0(in.path, "/", "logo_", "CDR3", "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
+                            logo_plot <<- plot(motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        }
+                        table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
+                        index1 <- 1
+                        index2 <- ncol(table_count)
 
-                          if ((ncol(table_count) - 1) == 13) {
-                              a <- 105:117
-                          } else if ((ncol(table_count) - 1) == 12) {
-                              a <- c(105:110, 112:117)
-                          } else if ((ncol(table_count) - 1) == 11) {
-                              a <- c(105:110, 113:117)
-                          } else if ((ncol(table_count) - 1) == 10) {
-                              a <- c(105:109, 113:117)
-                          } else if ((ncol(table_count) - 1) == 9) {
-                              a <- c(105:109, 114:117)
-                          } else if ((ncol(table_count) - 1) == 8) {
-                              a <- c(105:108, 114:117)
-                          } else if ((ncol(table_count) - 1) == 7) {
-                              a <- c(105:108, 115:117)
-                          } else if ((ncol(table_count) - 1) == 6) {
-                              a <- c(105:107, 115:117)
-                          } else if ((ncol(table_count) - 1) == 5) a <- c(105:107, 116:117)
-                          colnames(table_count) <- a
+                        if ((ncol(table_count) - 1) == 13) {
+                            a <- 105:117
+                        } else if ((ncol(table_count) - 1) == 12) {
+                            a <- c(105:110, 112:117)
+                        } else if ((ncol(table_count) - 1) == 11) {
+                            a <- c(105:110, 113:117)
+                        } else if ((ncol(table_count) - 1) == 10) {
+                            a <- c(105:109, 113:117)
+                        } else if ((ncol(table_count) - 1) == 9) {
+                            a <- c(105:109, 114:117)
+                        } else if ((ncol(table_count) - 1) == 8) {
+                            a <- c(105:108, 114:117)
+                        } else if ((ncol(table_count) - 1) == 7) {
+                            a <- c(105:108, 115:117)
+                        } else if ((ncol(table_count) - 1) == 6) {
+                            a <- c(105:107, 115:117)
+                        } else if ((ncol(table_count) - 1) == 5) a <- c(105:107, 116:117)
+                        colnames(table_count) <- a
 
-                          if (input$regionFreqTable == "CDR3") {
-                              axis(1, at = seq((1 / (2 * (ncol(table_count[, index1:index2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, index1:index2]) - 1)), by = (1 - 1 / (ncol(table_count[, index1:index2]) - 1)) / (ncol(table_count[, index1:index2]) - 1)), colnames(table_count)) # paste0(index1:index2,":",colnames(table_count[,index1:index2]))
-                          } else {
-                              axis(1, at = seq((1 / (2 * (ncol(table_count[, index1:index2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, index1:index2]) - 1)), by = (1 - 1 / (ncol(table_count[, index1:index2]) - 1)) / (ncol(table_count[, index1:index2]) - 1)), index1:index2) # paste0(index1:index2,":",colnames(table_count[,index1:index2]))
-                          }
-                          axis(2, at = seq(0, 1, by = 1 / 5))
-                          dev.off()
-                      }
-                  } else {
-                      for (j in seq_len((length(loaded_datasets) + 1))) {
-                          if (j == (length(loaded_datasets) + 1)) {
-                              png(paste0(in.path, "/", "logo_", input$regionFreqTable, "_", "All_Data", ".png"), width = 1500, height = 550)
-                              logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
-                          } else {
-                              png(paste0(in.path, "/", "logo_", input$regionFreqTable, "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
-                              logo_plot <<- plot(motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
-                          }
-                          table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
-                          index1 <- 1
-                          index2 <- ncol(table_count)
-                          axis(1, at = seq((1 / (2 * (ncol(table_count[, index1:index2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, index1:index2]) - 1)), by = (1 - 1 / (ncol(table_count[, index1:index2]) - 1)) / (ncol(table_count[, index1:index2]) - 1)), index1:index2) # paste0(index1:index2,":",colnames(table_count[,index1:index2]))
-                          axis(2, at = seq(0, 1, by = 1 / 5))
-                          dev.off()
-                      }
+                        if (input$regionFreqTable == "CDR3") {
+                            axis(1, at = seq((1 / (2 * (ncol(table_count[, index1:index2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, index1:index2]) - 1)), by = (1 - 1 / (ncol(table_count[, index1:index2]) - 1)) / (ncol(table_count[, index1:index2]) - 1)), colnames(table_count)) # paste0(index1:index2,":",colnames(table_count[,index1:index2]))
+                        } else {
+                            axis(1, at = seq((1 / (2 * (ncol(table_count[, index1:index2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, index1:index2]) - 1)), by = (1 - 1 / (ncol(table_count[, index1:index2]) - 1)) / (ncol(table_count[, index1:index2]) - 1)), index1:index2) # paste0(index1:index2,":",colnames(table_count[,index1:index2]))
+                        }
+                        axis(2, at = seq(0, 1, by = 1 / 5))
+                        dev.off()
+                    }
+                } else {
+                    for (j in seq_len((length(loaded_datasets) + 1))) {
+                        if (j == (length(loaded_datasets) + 1)) {
+                            png(paste0(in.path, "/", "logo_", input$regionFreqTable, "_", "All_Data", ".png"), width = 1500, height = 550)
+                            logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        } else {
+                            png(paste0(in.path, "/", "logo_", input$regionFreqTable, "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
+                            logo_plot <<- plot(motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        }
+                        table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
+                        index1 <- 1
+                        index2 <- ncol(table_count)
+                        axis(1, at = seq((1 / (2 * (ncol(table_count[, index1:index2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, index1:index2]) - 1)), by = (1 - 1 / (ncol(table_count[, index1:index2]) - 1)) / (ncol(table_count[, index1:index2]) - 1)), index1:index2) # paste0(index1:index2,":",colnames(table_count[,index1:index2]))
+                        axis(2, at = seq(0, 1, by = 1 / 5))
+                        dev.off()
+                    }
 
-                      for (j in seq_len((length(loaded_datasets) + 1))) {
-                          region_names <- c("FR1-IMGT", "CDR1-IMGT", "FR2-IMGT", "CDR2-IMGT", "FR3-IMGT", "CDR3-IMGT")
-                          index_1 <- c(1, 27, 39, 56, 66, 105)
-                          index_2 <- c(26, 38, 55, 65, 104, 114)
+                    for (j in seq_len((length(loaded_datasets) + 1))) {
+                        region_names <- c("FR1-IMGT", "CDR1-IMGT", "FR2-IMGT", "CDR2-IMGT", "FR3-IMGT", "CDR3-IMGT")
+                        index_1 <- c(1, 27, 39, 56, 66, 105)
+                        index_2 <- c(26, 38, 55, 65, 104, 114)
 
-                          region_id <- 0
-                          for (regions in region_names) {
-                              region_id <- region_id + 1
-                              r <- region_id
-                              i1 <- index_1[r]
-                              i2 <- index_2[r]
-                              if (j == (length(loaded_datasets) + 1)) {
-                                  png(paste0(in.path, "/", "logo_", regions, "_", "All_Data", ".png"), width = 1000, height = 550)
-                                  logo_plot <<- plot(logo_per_region[[regions]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
-                                  table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
-                              } else {
-                                  png(paste0(in.path, "/", "logo_", regions, "_", input$Dataset[j], ".png"), width = 1000, height = 550)
-                                  logo_plot <<- plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
-                                  table_count <- frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][, 2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
-                              }
+                        region_id <- 0
+                        for (regions in region_names) {
+                            region_id <- region_id + 1
+                            r <- region_id
+                            i1 <- index_1[r]
+                            i2 <- index_2[r]
+                            if (j == (length(loaded_datasets) + 1)) {
+                                png(paste0(in.path, "/", "logo_", regions, "_", "All_Data", ".png"), width = 1000, height = 550)
+                                logo_plot <<- plot(logo_per_region[[regions]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                                table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
+                            } else {
+                                png(paste0(in.path, "/", "logo_", regions, "_", input$Dataset[j], ".png"), width = 1000, height = 550)
+                                logo_plot <<- plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                                table_count <- frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][, 2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
+                            }
 
 
-                              axis(1, at = seq((1 / (2 * (ncol(table_count[, i1:i2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, i1:i2]) - 1)), by = (1 - 1 / (ncol(table_count[, i1:i2]) - 1)) / (ncol(table_count[, i1:i2]) - 1)), i1:i2) # paste0(i1:i2,":",colnames(table_count[,i1:i2])
-                              axis(2, at = seq(0, 1, by = 1 / 5))
-                              dev.off()
-                          }
-                      }
-                  }
-              }
+                            axis(1, at = seq((1 / (2 * (ncol(table_count[, i1:i2]) - 1))), 1 - 1 / (2 * (ncol(table_count[, i1:i2]) - 1)), by = (1 - 1 / (ncol(table_count[, i1:i2]) - 1)) / (ncol(table_count[, i1:i2]) - 1)), i1:i2) # paste0(i1:i2,":",colnames(table_count[,i1:i2])
+                            axis(2, at = seq(0, 1, by = 1 / 5))
+                            dev.off()
+                        }
+                    }
+                }
+            }
 
             if (FclonoLogoSeperately) {
                 for (cl in seq_len(length(cl_ids_logos))) {
@@ -5438,15 +5438,15 @@ app_server <- function(input, output, session) {
                     filteredData_id <<- imgtfilter_results$allData
                     temp <- filteredData_id[[used_columns[["Summary"]][4]]]
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
-                              }
-                              temp[index] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
+                            }
+                            temp[index] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id[[used_columns[["Summary"]][4]]] <<- temp
                 } else {
                     d <- c()
@@ -5460,15 +5460,15 @@ app_server <- function(input, output, session) {
                     filteredData_id <<- d
                     temp <- d
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
-                              }
-                              temp[index, 1] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
+                            }
+                            temp[index, 1] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id <<- temp
                 }
 
@@ -5522,15 +5522,15 @@ app_server <- function(input, output, session) {
                     filteredData_id <<- imgtfilter_results$allData
                     temp <- filteredData_id[[used_columns[["Summary"]][4]]]
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
-                              }
-                              temp[index] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(filteredData_id[[used_columns[["Summary"]][4]]] >= identity_groups[values, 1] & filteredData_id[[used_columns[["Summary"]][4]]] < identity_groups[values, 2])
+                            }
+                            temp[index] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id[[used_columns[["Summary"]][4]]] <<- temp
                 } else {
                     d <- c()
@@ -5540,8 +5540,8 @@ app_server <- function(input, output, session) {
                         a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                         if (length(prev_clono) > 1) {
                             for (cl in 2:length(prev_clono)) {
-                                  a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                              }
+                                a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                            }
                         }
                         d <- c(d, median(a[[var]]))
                     }
@@ -5551,15 +5551,15 @@ app_server <- function(input, output, session) {
                     filteredData_id <<- d
                     temp <- d
                     if (!is.null(identity_groups)) {
-                          for (values in seq_len(nrow(identity_groups))) {
-                              if (values == nrow(identity_groups)) {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
-                              } else {
-                                  index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
-                              }
-                              temp[index, 1] <- identity_groups$label[values]
-                          }
-                      }
+                        for (values in seq_len(nrow(identity_groups))) {
+                            if (values == nrow(identity_groups)) {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] <= identity_groups[values, 2])
+                            } else {
+                                index <- which(d[[var]] >= identity_groups[values, 1] & d[[var]] < identity_groups[values, 2])
+                            }
+                            temp[index, 1] <- identity_groups$label[values]
+                        }
+                    }
                     filteredData_id <<- temp
                 }
 
@@ -5587,8 +5587,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[name[j]]][[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, median(a[[var]]))
                             }
@@ -5819,8 +5819,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, a[[var]][1])
                             }
@@ -5841,8 +5841,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, a[[var]][1])
                             }
@@ -5935,8 +5935,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, as.numeric(a[[var]][1]))
                             }
@@ -5949,8 +5949,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, as.numeric(a[[var]][1]))
                             }
@@ -6017,8 +6017,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, a[[var]][1])
                             }
@@ -6039,8 +6039,8 @@ app_server <- function(input, output, session) {
                                 a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
                                 if (length(prev_clono) > 1) {
                                     for (cl in 2:length(prev_clono)) {
-                                          a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                      }
+                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                                    }
                                 }
                                 d <- c(d, a[[var]][1])
                             }
@@ -6136,60 +6136,60 @@ app_server <- function(input, output, session) {
 
             ########################################### Clonotypes ###############################################
             if (msgClonotypes != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      if (j == (length(loaded_datasets) + 1)) {
-                          clono$clono_allData$CDR3 <- clono$clono_allData[, 1]
-                          clono$clono_allData <- clono$clono_allData[, c(1, 5, 2:4)]
-                          for (i in seq_len(nrow(clono$clono_allData))) {
-                              clono$clono_allData[i, 2] <- strsplit(as.character(clono$clono_allData[i, 1]), " - ")[[1]][2]
-                              clono$clono_allData[i, 1] <- strsplit(as.character(clono$clono_allData[i, 1]), " - ")[[1]][1]
-                          }
-                          filename <- paste0(in.path, "/", "Clonotypes_", input$select_clonotype, "_", "All_Data", ".txt")
-                          write.table(clono$clono_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      } else {
-                          name <- loaded_datasets[j]
-                          clono$clono_datasets[[name]]$CDR3 <- clono$clono_datasets[[name]][, 1]
-                          clono$clono_datasets[[name]] <- clono$clono_datasets[[name]][, c(1, 5, 2:4)]
-                          for (i in seq_len(nrow(clono$clono_datasets[[name]]))) {
-                              clono$clono_datasets[[name]][i, 2] <- strsplit(as.character(clono$clono_datasets[[name]][i, 1]), " - ")[[1]][2]
-                              clono$clono_datasets[[name]][i, 1] <- strsplit(as.character(clono$clono_datasets[[name]][i, 1]), " - ")[[1]][1]
-                          }
-                          filename <- paste0(in.path, "/", "Clonotypes_", input$select_clonotype, "_", loaded_datasets[j], ".txt")
-                          write.table(clono$clono_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                        clono$clono_allData$CDR3 <- clono$clono_allData[, 1]
+                        clono$clono_allData <- clono$clono_allData[, c(1, 5, 2:4)]
+                        for (i in seq_len(nrow(clono$clono_allData))) {
+                            clono$clono_allData[i, 2] <- strsplit(as.character(clono$clono_allData[i, 1]), " - ")[[1]][2]
+                            clono$clono_allData[i, 1] <- strsplit(as.character(clono$clono_allData[i, 1]), " - ")[[1]][1]
+                        }
+                        filename <- paste0(in.path, "/", "Clonotypes_", input$select_clonotype, "_", "All_Data", ".txt")
+                        write.table(clono$clono_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    } else {
+                        name <- loaded_datasets[j]
+                        clono$clono_datasets[[name]]$CDR3 <- clono$clono_datasets[[name]][, 1]
+                        clono$clono_datasets[[name]] <- clono$clono_datasets[[name]][, c(1, 5, 2:4)]
+                        for (i in seq_len(nrow(clono$clono_datasets[[name]]))) {
+                            clono$clono_datasets[[name]][i, 2] <- strsplit(as.character(clono$clono_datasets[[name]][i, 1]), " - ")[[1]][2]
+                            clono$clono_datasets[[name]][i, 1] <- strsplit(as.character(clono$clono_datasets[[name]][i, 1]), " - ")[[1]][1]
+                        }
+                        filename <- paste0(in.path, "/", "Clonotypes_", input$select_clonotype, "_", loaded_datasets[j], ".txt")
+                        write.table(clono$clono_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    }
+                }
+            }
 
             ################################### Highly Similar Clonotypes ########################################
             if (msgHighlySim != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      for (l in seq_len(length(cdr3_lengths))) {
-                          if (j == (length(loaded_datasets) + 1)) {
-                              filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_", "All_Data_length_", cdr3_lengths[l], ".txt")
-                              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_groups_", "All_Data_length_", cdr3_lengths[l], ".txt")
-                              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          } else {
-                              filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_", loaded_datasets[j], "_length_", cdr3_lengths[l], ".txt")
-                              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_groups_", loaded_datasets[j], "_length_", cdr3_lengths[l], ".txt")
-                              write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          }
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    for (l in seq_len(length(cdr3_lengths))) {
+                        if (j == (length(loaded_datasets) + 1)) {
+                            filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_", "All_Data_length_", cdr3_lengths[l], ".txt")
+                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_groups_", "All_Data_length_", cdr3_lengths[l], ".txt")
+                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        } else {
+                            filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_", loaded_datasets[j], "_length_", cdr3_lengths[l], ".txt")
+                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_groups_", loaded_datasets[j], "_length_", cdr3_lengths[l], ".txt")
+                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        }
+                    }
+                }
+            }
 
             if (msgHighlySim != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      if (j == (length(loaded_datasets) + 1)) {
-                          filename <- paste0(in.path, "/", "highly_sim_all_clonotypes_", input$select_clonotype, "_", "All_Data", ".txt")
-                          write.table(highly_sim, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      } else {
-                          filename <- paste0(in.path, "/", "highly_sim_all_clonotypes_", input$select_clonotype, "_", loaded_datasets[j], ".txt")
-                          write.table(highly_sim_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                        filename <- paste0(in.path, "/", "highly_sim_all_clonotypes_", input$select_clonotype, "_", "All_Data", ".txt")
+                        write.table(highly_sim, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    } else {
+                        filename <- paste0(in.path, "/", "highly_sim_all_clonotypes_", input$select_clonotype, "_", loaded_datasets[j], ".txt")
+                        write.table(highly_sim_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    }
+                }
+            }
 
             ################################### Public Clonotypes  ##############################################
             if (msgPublicClono != "") {
@@ -6274,63 +6274,63 @@ app_server <- function(input, output, session) {
             }
             ########################################### Freq Tables #############################################
             if (msgFreqTables != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      if (j == (length(loaded_datasets) + 1)) {
-                          filename <- paste0(in.path, "/", "Count_table_for_logo_", "All_Data", ".txt")
-                          write.table(frequenciesTables_results$table_count, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          filename <- paste0(in.path, "/", "Freq_table_for_logo_", "All_Data", ".txt")
-                          write.table(frequenciesTables_results$table_freq, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      } else {
-                          filename <- paste0(in.path, "/", "Count_table_for_logo_", loaded_datasets[j], ".txt")
-                          write.table(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          filename <- paste0(in.path, "/", "Freq_table_for_logo_", loaded_datasets[j], ".txt")
-                          write.table(frequenciesTables_results$table_freq_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                        filename <- paste0(in.path, "/", "Count_table_for_logo_", "All_Data", ".txt")
+                        write.table(frequenciesTables_results$table_count, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        filename <- paste0(in.path, "/", "Freq_table_for_logo_", "All_Data", ".txt")
+                        write.table(frequenciesTables_results$table_freq, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    } else {
+                        filename <- paste0(in.path, "/", "Count_table_for_logo_", loaded_datasets[j], ".txt")
+                        write.table(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        filename <- paste0(in.path, "/", "Freq_table_for_logo_", loaded_datasets[j], ".txt")
+                        write.table(frequenciesTables_results$table_freq_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    }
+                }
+            }
 
             ########################################### Alignment ###############################################
             if (msgAlignment != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      if (j == (length(loaded_datasets) + 1)) {
-                          if (input$AAorNtAlignment == "both") {
-                              filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "aa", "_", "All_Data", ".txt")
-                              write.table(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "nt", "_", "All_Data", ".txt")
-                              write.table(alignmentRegion_results_nt$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              # grouped
-                              filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", "aa", "_", "All_Data", ".txt")
-                              write.table(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", "nt", "_", "All_Data", ".txt")
-                              write.table(grouped_alignment_results_nt$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          } else {
-                              filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", "All_Data", ".txt")
-                              write.table(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              # grouped
-                              filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", "All_Data", ".txt")
-                              write.table(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          }
-                      } else {
-                          if (input$AAorNtAlignment == "both") {
-                              filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "aa", "_", loaded_datasets[j], ".txt")
-                              write.table(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "nt", "_", loaded_datasets[j], ".txt")
-                              write.table(alignmentRegion_results_nt$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              # grouped
-                              filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", "aa", "_", loaded_datasets[j], ".txt")
-                              write.table(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", "nt", "_", loaded_datasets[j], ".txt")
-                              write.table(grouped_alignment_results_nt$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          } else {
-                              filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", loaded_datasets[j], ".txt")
-                              write.table(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                              # grouped
-                              filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", loaded_datasets[j], ".txt")
-                              write.table(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                          }
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                        if (input$AAorNtAlignment == "both") {
+                            filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "aa", "_", "All_Data", ".txt")
+                            write.table(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "nt", "_", "All_Data", ".txt")
+                            write.table(alignmentRegion_results_nt$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            # grouped
+                            filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", "aa", "_", "All_Data", ".txt")
+                            write.table(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", "nt", "_", "All_Data", ".txt")
+                            write.table(grouped_alignment_results_nt$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        } else {
+                            filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", "All_Data", ".txt")
+                            write.table(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            # grouped
+                            filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", "All_Data", ".txt")
+                            write.table(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        }
+                    } else {
+                        if (input$AAorNtAlignment == "both") {
+                            filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "aa", "_", loaded_datasets[j], ".txt")
+                            write.table(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "nt", "_", loaded_datasets[j], ".txt")
+                            write.table(alignmentRegion_results_nt$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            # grouped
+                            filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", "aa", "_", loaded_datasets[j], ".txt")
+                            write.table(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", "nt", "_", loaded_datasets[j], ".txt")
+                            write.table(grouped_alignment_results_nt$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        } else {
+                            filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", loaded_datasets[j], ".txt")
+                            write.table(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            # grouped
+                            filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", loaded_datasets[j], ".txt")
+                            write.table(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        }
+                    }
+                }
+            }
 
             ########################################### Mutations ###############################################
             if (msgMutation != "") {
@@ -6397,16 +6397,16 @@ app_server <- function(input, output, session) {
 
             ########################################### CDR3 1 length diff ######################################
             if (msgCDR3Diff1 != "") {
-                  for (j in seq_len((length(loaded_datasets) + 1))) {
-                      if (j == (length(loaded_datasets) + 1)) {
-                          filename <- paste0(in.path, "/", "CDR3Diff1_", "All_Data", ".txt")
-                          write.table(CDR3Diff1_results$cdr3_diff1P_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      } else {
-                          filename <- paste0(in.path, "/", "CDR3Diff1_", loaded_datasets[j], ".txt")
-                          write.table(CDR3Diff1_results$cdr3_diff1P_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                      }
-                  }
-              }
+                for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                        filename <- paste0(in.path, "/", "CDR3Diff1_", "All_Data", ".txt")
+                        write.table(CDR3Diff1_results$cdr3_diff1P_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    } else {
+                        filename <- paste0(in.path, "/", "CDR3Diff1_", loaded_datasets[j], ".txt")
+                        write.table(CDR3Diff1_results$cdr3_diff1P_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    }
+                }
+            }
 
 
             ####### tar it
