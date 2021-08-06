@@ -1,7 +1,11 @@
 ## global.R
 
+## New environment for maintenance of state across function calls
+e <- new.env(parent = parent.env(environment()))
+    
 ## Declare global variables
-used_columns <- NULL
+e$all_used_columns <- NULL
+e$used_columns <- NULL
 output_folder <- NULL
 ..XColumns <- NULL
 ..temp.names <- NULL
@@ -9,7 +13,7 @@ Functionality <- NULL
 dataInputColumnsTemp <- NULL
 seq1 <- NULL
 seq2 <- NULL
-msg <- NULL
+e$msg <- NULL
 SpecificConvergentEvolution <- NULL
 Freq <- NULL
 freqTables_datasets <- NULL
@@ -63,11 +67,6 @@ if (save_tables_individually | save_lists_for_bookmark) {
         dir.create(paste0(output_folder))
     }
 }
-
-## Instead of simple assignments (used_columns <- list(), etc.)
-## assign() fixes locked binding error when package is installed
-assign("used_columns", list(), inherits = TRUE, envir = parent.env(environment()))
-assign("all_used_columns", c(), inherits = TRUE, envir = parent.env(environment()))
 
 ## JS Code for enabling and diabling
 jscode <- "shinyjs.disabletab =function(name){

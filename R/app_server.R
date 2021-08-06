@@ -50,6 +50,8 @@ app_server <- function(input, output, session) {
 
     ############################### initialize global variables  ###############################
 
+    used_columns <- NULL
+    msg <- NULL
     loaded_datasets <- c()
     newDatasetNames <- NULL
     file_size <- 0

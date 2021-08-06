@@ -56,9 +56,9 @@ testColumnNames <- function(name, files, datapath) {
     }
 
     all_used_columns <- c("dataName", all_used_columns)
-    # Instead of: 'all_used_columns <<- all_used_columns', use assign()
-    # Fixes 'cannot change value of locked binding for' error
-    assign("all_used_columns", all_used_columns, envir = environment())
+    ## Stored in 'e' environment ("global.R", L:4)
+    e$all_used_columns <- all_used_columns
+    
     used_columns <<- used_columns
 
     # save(used_columns,file=paste0(output_folder,"/used_columns.rData"))
@@ -82,7 +82,6 @@ testColumnNames <- function(name, files, datapath) {
 
     # for (i in seq_len(length(name)))
     # name[i]<-strsplit(name[i],"_")[[1]][1]
-
     # Log start time and memory currently used
     start.time <- Sys.time()
     # mem_used()
@@ -97,11 +96,10 @@ testColumnNames <- function(name, files, datapath) {
     for (i in seq_len(length(name))) {
         # name[i]=strsplit(name[i],"_")[[1]][1]
         firstSepData <- TRUE
-        if (strsplit(name[i], "_")[[1]][1] != name[i] && as.numeric(strsplit(name[i], "_")[[1]][2]) > 1) firstSepData <- FALSE
+        if (strsplit(name[i], "_")[[1]][1] != name[i] && suppressWarnings(as.numeric(strsplit(name[i], "_")[[1]][2])) > 1) firstSepData <- FALSE
         rawDataSet[[name[i]]] <- data.frame(dataName = strsplit(name[i], "_")[[1]][1])
         worng_columns_names_temp <- c()
         worng_columns_id_temp <- c()
-
         num_initial_col <- 0
 
         for (j in seq_len(length(files))) {
@@ -160,18 +158,17 @@ testColumnNames <- function(name, files, datapath) {
             rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% dplyr::select(all_used_columns)
         }
     }
-
     for (i in seq_len(length(name))) {
         # name[i]=strsplit(name[i],"_")[[1]][1]
         firstSepData <- TRUE
 
-        if (strsplit(name[i], "_")[[1]][1] != name[i] && as.numeric(strsplit(name[i], "_")[[1]][2]) == 0) {
+        if (strsplit(name[i], "_")[[1]][1] != name[i] && suppressWarnings(as.numeric(strsplit(name[i], "_")[[1]][2])) == 0) {
             newName <- strsplit(name[i], "_")[[1]][1]
             rawDataSet[[newName]] <- rawDataSet[[name[i]]]
             rawDataSet[[name[i]]] <- NULL
         }
 
-        if (strsplit(name[i], "_")[[1]][1] != name[i] && as.numeric(strsplit(name[i], "_")[[1]][2]) > 0) {
+        if (strsplit(name[i], "_")[[1]][1] != name[i] && suppressWarnings(as.numeric(strsplit(name[i], "_")[[1]][2])) > 0) {
             newName <- strsplit(name[i], "_")[[1]][1]
             rawDataSet[[newName]] <- rbind(rawDataSet[[newName]], rawDataSet[[name[i]]])
             rawDataSet[[name[i]]] <- NULL
@@ -4361,36 +4358,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                     output <- rbind(output, y[germline, ..temp.names], temp2)
                 }
             }
-
-
-
-            # b = by(alignment_with_germline, alignment_with_germline$V.GENE.and.allele,
-            #        function(y){
-            #
-            #          germline <<- which(y[["Functionality"]] == "germline")
-            #          germline <<- germline[1]
-            #          productive <<- which(y[["Functionality"]] == "productive")
-            #
-            #          if(length(germline) > 0 && length(productive) > 0) {
-            #
-            #            a = t(apply(y[productive, ..XColumns], 1,
-            #                        function(x){
-            #
-            #                          x == y[germline, ..XColumns] & x != "."
-            #
-            #                        })) #x: a row of input[count,XColumns]
-            #
-            #            temp = replace(y[productive, ..XColumns], a == TRUE, "-")
-            #
-            #            temp.names = colnames(alignment_with_germline[,seq_len(6)])
-            #
-            #            temp2 = cbind(y[productive, ..temp.names], temp)
-            #
-            #            temp.names = c(temp.names, XColumns)
-            #
-            #            output <<- rbind(output, y[germline, ..temp.names], temp2)
-            #          }
-            #        })
         }
 
         alignment_allData <- output %>% select(-c(Functionality))
@@ -4559,22 +4526,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                         output <- rbind(output, y[germline, ..temp.names], temp2)
                     }
                 }
-
-                # b = by(alignment_with_germline, alignment_with_germline$V.GENE.and.allele,
-                #        function(y){
-                #          germline <<- which(y[["Functionality"]] == "germline")
-                #          germline <<- germline[1]
-                #          productive <<- which(y[["Functionality"]] == "productive")
-                #
-                #          if (length(germline) > 0 && length(productive) > 0){
-                #            a = t(apply(y[productive, ..XColumns], 1, function(x){ x == y[germline, ..XColumns] & x != "."} )) #x: a row of input[count,XColumns]
-                #            temp = replace(y[productive, ..XColumns], a == TRUE, "-")
-                #            temp.names = colnames(alignment_with_germline[,seq_len(6)])
-                #            temp2 = cbind(y[productive, ..temp.names], temp)
-                #            temp.names = c(temp.names, XColumns)
-                #            output <<- rbind(output, y[germline, ..temp.names], temp2)
-                #          }
-                #        })
             }
 
             alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))

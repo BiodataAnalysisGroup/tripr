@@ -1,5 +1,5 @@
 1_Summary;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-Sequence ID;Functionality;V-GENE and allele;V-REGION identity %;;V-REGION identity % (with ins/del events);;J-GENE and allele;;;D-GENE and allele;D-REGION reading frame;CDR1-IMGT length;;CDR3-IMGT length;;FR-IMGT lengths;AA JUNCTION;;;V-REGION insertions;V-REGION deletions;;;;;;;;;;;;;;;;;;;;;
+Sequence ID;V-DOMAIN Functionality;V-GENE and allele;V-REGION identity %;;V-REGION identity % (with ins/del events);;J-GENE and allele;;;D-GENE and allele;D-REGION reading frame;CDR1-IMGT length;;CDR3-IMGT length;;FR-IMGT lengths;AA JUNCTION;;;V-REGION insertions;V-REGION deletions;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 2_IMGT-gapped-nt-sequences;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 V.D.J.REGION;V.J.REGION;;;;;;;CDR3.IMGT;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
