@@ -61,7 +61,8 @@ Suggests:
     rlist,
     motifStack,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 Depends:
     shiny (>= 1.6.0),
     shinyBS
@@ -74,8 +75,10 @@ Collate:
     "app_server.R"
     "app_ui.R"
     "run_app.R"
+    "zzz.R"
 URL: https://github.com/BiodataAnalysisGroup/TRIP
 BugReports: https://github.com/BiodataAnalysisGroup/TRIP/issues
 BiocType: Software
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
+Config/testthat/edition: 3
