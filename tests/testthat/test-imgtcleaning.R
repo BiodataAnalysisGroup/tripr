@@ -73,7 +73,6 @@ test_that("dataframe after cleaning is not empty", {
         )
     }
 
-
     ## data.frame shouldn't be empty
     expect_false(plyr::empty(imgtcleaning_results$allData))
 })

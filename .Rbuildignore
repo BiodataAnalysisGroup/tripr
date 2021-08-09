@@ -5,3 +5,4 @@
 ^\.github$
 ^\.travis\.yml$
 ^dev$
+^CITATION\.cff$
