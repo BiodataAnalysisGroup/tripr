@@ -306,7 +306,7 @@ app_server <- function(input, output, session) {
         if (input$select_load_or_compute_clonotypes == "load_clonotypes") {
             # used columns
             load("rData files/used_columns.rData")
-            used_columns <<- used_columns
+            used_columns <- e$used_columns
             load("rData files/cdr3_lengths.rData")
             cdr3_lengths <<- cdr3_lengths
         }
@@ -1476,8 +1476,11 @@ app_server <- function(input, output, session) {
                 loaded_datasets <<- names(clono$clono_datasets)
                 # used columns
                 load("rData files/used_columns.rData")
-                used_columns <<- used_columns
+                used_columns <- e$used_columns
             } else {
+                ## Connect used_columns with e$used_columns so it maintains
+                ## state of value
+                used_columns <- e$used_columns
                 cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
                 cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
                 cdr3_lengths <<- sort(cdr3_lengths)
@@ -1800,10 +1803,12 @@ app_server <- function(input, output, session) {
     ############################### Highly Similar Clonotypes ###############################
     observeEvent(input$pipeline_highly_similar_clonotypes, {
         if ((input$select_load_or_compute_clonotypes != "load_clonotypes") & (just_restored_session_highly_similar_clonotypes == FALSE)) {
+            used_columns <- e$used_columns
             cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
             cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
             cdr3_lengths <<- sort(cdr3_lengths)
         } else {
+            used_columns <- e$used_columns
             load("rData files/cdr3_lengths.rData")
             cdr3_lengths <<- cdr3_lengths
         }
@@ -2383,6 +2388,7 @@ app_server <- function(input, output, session) {
                 return()
             }
 
+            used_columns <- e$used_columns
             for (i in seq_len(length(insertedRepertoires))) {
                 if (input[[paste0("selectRepertoires_", insertedRepertoires[i])]] == "V Gene") {
                     allele <- FALSE
@@ -2483,6 +2489,7 @@ app_server <- function(input, output, session) {
                     if (is.null(input$VisualisationDataset)) {
                         return()
                     }
+                    used_columns <- e$used_columns
                     if (input$VisualisationDataset == "All Data") {
 
                         # Genes that have percentage<threshold are grouped into one cell
@@ -2547,7 +2554,7 @@ app_server <- function(input, output, session) {
         if (input$pipeline_HighlySim_Repertoires == FALSE) {
             return()
         }
-
+        used_columns <- e$used_columns
         # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
         withBusyIndicatorServer("Execute_pipeline", {
             if (input$pipeline_highly_similar_clonotypes == FALSE) {
@@ -2664,6 +2671,7 @@ app_server <- function(input, output, session) {
                     if (is.null(input$VisualisationDataset)) {
                         return()
                     }
+                    used_columns <- e$used_columns
                     if (input$VisualisationDataset == "All Data") {
 
                         # Genes that have percentage<threshold are grouped into one cell
@@ -4442,6 +4450,7 @@ app_server <- function(input, output, session) {
         if (input$pipeline_CDR3Diff1 == FALSE || length(imgtfilter_results$allData) == 0) {
             return()
         }
+        used_columns <- e$used_columns
         selectInput("selectGeneCDR3Diff1", "Select gene:", unique(imgtfilter_results$allData[[used_columns[["Summary"]][3]]]), width = "270px")
     })
 
@@ -5053,7 +5062,7 @@ app_server <- function(input, output, session) {
             if (!(is.null(msgRepertoires))) { ####### reperoires plots
                 if (msgRepertoires[1] != "") {
                     if (is.null(input$repertories_pies_threshold)) thr <- 0 else thr <- input$repertories_pies_threshold
-
+                    used_columns <- e$used_columns
                     for (k in seq_len(length(insertedRepertoires))) {
                         for (j in seq_len((length(loaded_datasets) + 1))) {
                             if (j == (length(loaded_datasets) + 1)) {
@@ -5103,7 +5112,7 @@ app_server <- function(input, output, session) {
             if (!(is.null(msgRepertoires))) { ####### reperoires plots
                 if (msgRepertoires[1] != "") {
                     if (is.null(input$HighlySim_repertories_pies_threshold)) thr <- 0 else thr <- input$HighlySim_repertories_pies_threshold
-
+                    used_columns <- e$used_columns
                     for (k in seq_len(length(insertedRepertoires))) {
                         for (j in seq_len((length(loaded_datasets) + 1))) {
                             if (j == (length(loaded_datasets) + 1)) {
@@ -5150,6 +5159,7 @@ app_server <- function(input, output, session) {
 
             # Mutational status #######
             if (("1_Summary.txt" %in% input$inputFiles) & (input$pipeline_mutational_status)) {
+                used_columns <- e$used_columns
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         png(paste0(in.path, "/", "Mutational_status ", "All_Data", ".png"), width = 900, height = 600)
@@ -5175,6 +5185,7 @@ app_server <- function(input, output, session) {
 
             # CDR3 Length Distribution #######
             if (input$pipeline_cdr3_distribution) {
+                used_columns <- e$used_columns
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         png(paste0(in.path, "/", "CDR3 Length Distribution ", "All Data", ".png"), width = 900, height = 600)
@@ -5433,7 +5444,7 @@ app_server <- function(input, output, session) {
             } else {
                 highly <- FALSE
             }
-
+            used_columns <- e$used_columns
             if (!highly) {
                 # All Data
                 if (input$throughput == "Low Throughput") {
@@ -5768,6 +5779,7 @@ app_server <- function(input, output, session) {
         })
         ############################## Distributions #####################################
         if (msgClonotypes != "") {
+            used_columns <- e$used_columns
             ############ CDR3 Distribution  ############
             if (input$pipeline_cdr3_distribution) {
                 var <- used_columns[["Summary"]][15]

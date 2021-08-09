@@ -58,8 +58,7 @@ testColumnNames <- function(name, files, datapath) {
     all_used_columns <- c("dataName", all_used_columns)
     ## Stored in 'e' environment ("global.R", L:4)
     e$all_used_columns <- all_used_columns
-    
-    used_columns <<- used_columns
+    e$used_columns <- used_columns
 
     # save(used_columns,file=paste0(output_folder,"/used_columns.rData"))
 
@@ -297,6 +296,7 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
 ######################################################################################################################################
 
 imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filter_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[*]|X|#|[.]", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2, Tcell) {
+    used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
@@ -647,7 +647,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
 imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
     # logfile
-
+    used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
@@ -1011,6 +1011,7 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
 ######################################################################################################################################
 
 imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filter_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[*]|X|#|[.]", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2, Tcell) {
+    used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
@@ -1329,6 +1330,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
 ######################################################################################################################################
 
 imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
+    used_columns <- e$used_columns
     # logfile
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
@@ -1671,9 +1673,10 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
 
 
 clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { # run_shm
+    used_columns <- e$used_columns
     # logfile
 
-    print("C1")
+    print("Clonotype Analysis Step 1")
 
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
@@ -1702,7 +1705,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
     if (length(name) > 1) {
         if (length(gene) > 0) {
-            print("C2")
+            print("Clonotype Analysis Step 2.a")
 
             if (allele == FALSE) {
                 # a2 = strsplit(allData[[gene]],"[*]")
@@ -1746,7 +1749,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 cluster_id[inputVGenes_CDR3] <- i
             }
         } else {
-            print("C3")
+            print("Clonotype Analysis Step 2.b")
 
             distinctVGenes_CDR3 <- allData %>%
                 dplyr::group_by(clonotype = allData[[junction]]) %>%
@@ -1833,7 +1836,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
     # clonotypes datasets
 
-    run_diagnosis <<- run_diagnosis
+    ## Unnecessary
+    # run_diagnosis <<- run_diagnosis
 
     clono_datasets <- list()
     filterin_clono_datasets <- list()
@@ -1848,10 +1852,10 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
     group.freq.seq <- list()
 
-    print("C4")
+    print("Clonotype Analysis Step 3")
 
     one_run <- function(j) {
-        print("C5")
+        print("Clonotype Analysis Step 5")
 
         data <- allData %>% dplyr::filter(allData$dataName == name[j])
         data_initial <- allData_initial %>% dplyr::filter(allData$dataName == name[j])
@@ -2065,7 +2069,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     }
 
     if (Sys.info()[1] == "Windows") {
-        print("C6")
+        print("Clonotype Analysis Step 4")
 
         # cl <- makeCluster(num_of_cores)
         # clono_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)

@@ -7,8 +7,6 @@ e <- new.env(parent = parent.env(environment()))
 e$all_used_columns <- NULL
 e$used_columns <- NULL
 output_folder <- NULL
-..XColumns <- NULL
-..temp.names <- NULL
 Functionality <- NULL
 dataInputColumnsTemp <- NULL
 seq1 <- NULL
