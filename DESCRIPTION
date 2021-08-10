@@ -26,8 +26,11 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: false
 biocViews: 
-    SystemsBiology,
-    CellBiology
+   BatchEffect,
+   MultipleComparison,
+   GeneExpression,
+   ImmunoOncology,
+   TargetedResequencing
 Imports: 
     shinyjs,
     shinyFiles,
@@ -63,7 +66,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
-    fs
+    fs,
+    BiocStyle
 Depends:
     shiny (>= 1.6.0),
     shinyBS

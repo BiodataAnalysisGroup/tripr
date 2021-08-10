@@ -1,0 +1,441 @@
+---
+title: "tripr User Guide"
+author:
+- name: Maria Th. Kotouza
+  affiliation: Department of Electrical and Computer Engineering, 
+    Aristotle University of Thessaloniki, Thessaloniki, 54124, Greece
+- name: Katerina Gemenetzi
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name: Chrysi Galigalidou
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name: Elisavet Vlachonikola
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name: Nikolaos Pechlivanis
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name:  Andreas Agathangelidis
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name: Raphael Sandaltzopoulos
+  affiliation: Department of Molecular Biology and Genetics, 
+    Democritus University of Thrace, Alexandroupolis, 68100, Greece
+- name:  Pericles A. Mitkas
+  affiliation: Department of Electrical and Computer Engineering, 
+    Aristotle University of Thessaloniki, Thessaloniki, 54124, Greece
+- name:  Kostas Stamatopoulos
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name: Anastasia Chatzidimitriou
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+- name: Fotis E. Psomopoulos
+  affiliation: Institute of Applied Biosciences, 
+    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+  email: fpsom@certh.gr
+date: "`r BiocStyle::doc_date()`"
+package: "`r BiocStyle::pkg_ver('tripr')`"
+output: 
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{tripr User Guide}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+# bibliography: tripr.bib
+---
+
+<style>
+<!-- h1, h2, h3, h4 { -->
+<!--   color:#17247a; -->
+<!-- } -->
+
+strong {
+    color:#eb6b1c;
+}
+
+</style>
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+    comment = "#>",
+    error = FALSE,
+    warning = FALSE,
+    message = FALSE,
+    crop = NULL
+)
+```
+
+```{r, echo=FALSE, out.width='50%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", "favicon.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+# Introduction
+
+`tripr` is a [Bioconductor](http://bioconductor.org) package,
+written in [shiny](https://shiny.rstudio.com/) that provides
+analytics services on 
+antigen receptor (B cell receptor immunoglobulin, BcR IG | T cell receptor, 
+TR) gene sequence data. Every step of the analysis can be
+performed interactively, thus not requiring any programming skills. It takes
+as input the output files of the 
+[IMGT/HighV-Quest tool](http://www.imgt.org/HighV-QUEST/home.action). 
+Users can select to analyze the data from each of the input samples separately, 
+or the combined data files from all samples and visualize the results 
+accordingly.
+
+## Installation
+
+`tripr` is distributed as a [Bioconductor](https://www.bioconductor.org/) 
+package and requires `R` (version "4.1"), which can be installed on any 
+operating system from [CRAN](https://cran.r-project.org/), and 
+Bioconductor (version "3.14").
+
+To install `tripr` package enter the following commands in your `R` session:
+
+```{r eval = FALSE}
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("tripr")
+
+## Check that you have a valid Bioconductor installation
+BiocManager::valid()
+```
+
+# Citation
+
+We hope that `r Biocpkg('tripr')` will be useful for your research. 
+Please use the following information to cite the package and the research 
+article describing the data provided by `r Biocpkg('tripr')`. Thank you!
+
+```{r 'citation'}
+## Citation info
+citation("tripr")
+```
+
+## Launching the app
+
+Once `tripr` is successfully installed, it can be loaded as follow:
+
+```{r setup}
+library(tripr)
+```
+
+In order to start the app, please run the following command:
+
+```{r demostart, eval=FALSE}
+tripr::run_app()
+```
+
+`tripr` should be opening in a browser. If this does not happen automatically, 
+please open a browser and navigate to the address shown 
+(for example, `Listening on http://127.0.0.1:6134`).
+
+# Home
+
+In this tab users can import their data by selecting the directory 
+where the data is stored, by pressing the **Choose directory** button. 
+The tool takes as input 
+the 10 output files of the 
+[IMGT/HighV-Quest tool](http://www.imgt.org/HighV-QUEST/home.action) in text 
+format (.txt). Users can also 
+choose only some of the files depending on the type of the downstream analysis. 
+Previous sessions can also be loaded with the **Restore Previous Sessions** 
+button.
+
+There are 2 options regarding the cell type (**T cell** and **B cell**) as 
+well as 2 
+options based on the amount of available data 
+(**High-** or **Low-Throughput**). 
+Concerning the latter, the main difference is the application of the 
+preselection and selection steps. In the case of High-Throughput data, all 
+filters are applied consequentially (i.e. if a sequence fails >1 selection 
+criteria, only the first unsatisfied criterion will be reported), whereas 
+for Low-Throughput data all criteria are applied at the same time.
+
+# Preselection
+The Preselection process comprises 4 different criteria:
+
+- __Only take into account Functional V-Gene__: <br/>
+    Only sequences utilizing a 
+    functional V gene are included into the downstream analysis. Sequences with 
+    pseudogenes (P) or open reading frame (ORF) genes are excluded from further 
+    analysis.
+- __Only take into account CDR3 with no Special Characters (X,\*,#,.)__: <br/> 
+    Only sequences without ambiguities 
+    (i.e. characters other than those of the 20 amino acids) 
+    are included in the analysis.
+- __Only take into account Productive Sequences__:  <br/>
+    Only productive sequences 
+    (without stop codons and frameshifts) are included in the analysis.
+- __Only take into account CDR3 with valid start/end landmarks__: <br/> 
+    Start/End CDR3 
+    landmarks (anchors) can be customized by the user based on the type of data 
+    (BcR/TR, heavy/light chain). More than one valid landmark can be used. 
+    The different letters should be separated with a vertical bar (e.g. F|D). 
+    Sequences with landmarks other than the chosen ones are excluded from the 
+    analysis.
+
+The execution starts when the **Apply** button is pressed.
+
+Users can visualize the results of the preselection (first cleaning) process in 
+the **Preselection** tab. In the case of multi-sample datasets, results are 
+provided for each individual sample separately, or for the combined dataset. 
+
+The output consists of 4 table files:
+
+1. **Summary**: a summary table with both the 
+included and excluded sequences for each different criterion
+2. **All Data table**: the entire set of data 
+3. **Clean table**: the sequences that 
+meet the preselection criteria and are included in the analysis and 
+4. **Clean out table**: the excluded sequences.
+The last column of the “Clean out table” refers to the unsatisfied criteria. 
+
+All 4 tables can be downloaded as text files.
+
+# Selection
+
+The sequences that passed through the Preselection process (“Clean table”) are 
+used as input for the data Selection (filtering) process. 
+
+This step comprises 6 different filters:
+
+- **V-REGION identity %**:
+Sequences with identity percent to germline that do 
+not fall in the range set by the user are excluded from the analysis.
+- **Select Specific V Gene**
+- **Select Specific J Gene**
+- **Select Specific D Gene**
+
+Using the above 3 filters the user can select for sequences that carry one or 
+more particular V, J and D genes or gene alleles, respectively. Different 
+genes/gene alleles should be separated with a vertical line (|), e.g. 
+TRBV11-2|TRBV29-1*03. 
+
+- **Select CDR3 length range**: 
+Only sequences with the 
+selected CDR3 lengths are included in the analysis. 
+- **Only select CDR3 containing specific amino-acid sequence**: 
+Sequences with the specific CDR3 
+amino acid motif provided by the user are included in the analysis. 
+
+The execution starts when the **Apply** button is pressed.
+
+The results of the Selection (filtering) process are presented in the 
+**Selection** tab. 
+
+This process provides 4 output files: 
+
+1. **Summary**: a summary table with both the 
+included and excluded sequences for each filter 
+2. **All Data table**: the data 
+used as input after the Preselection process 
+3. **Filter in table**: the 
+sequences that passed through the selection filters  and 
+4. **Filter out table**: the excluded sequences. The last column of the 
+“Filter out table” refers to the filters that were not passed by each 
+individual sequence.
+
+All the tables can be downloaded as text files.
+
+# Pipeline
+
+Users can select the workflow that they want to apply to their dataset(s).
+
+There are 11 different tools in the pipeline tab. 7 of them can be applied for
+both T- and B-cells, while the remaining 4 can _only_ be applied for B-cells.
+
+<!-- Insert tripr pipeline overview png-->
+
+-----------------------------------------------------------------------------
+
+For **both** T- and B-cells:
+
+## Clonotype computation 
+The frequencies for all unique clonotypes of each 
+sample are computed. There are 10 different options for clonotype 
+definition. The results are presented in the **Clonotypes** tab in the 
+form of a table, where the clonotype, the count, the frequency and the 
+convergent evolution (if feasible) are given. Each clonotype is also a 
+link that provides a table with all relevant immunogenetic data for that 
+particular clonotype, based on the uploaded files. This table consists 
+of all reads/sequences assigned to that clonotype and all relevant 
+information. Each clonotype is given a unique cluster 
+identifier (cluster ID).
+
+## Highly similar clonotypes computation
+Frequencies for all highly 
+similar clonotypes are computed. The user can set the number of 
+mismatches allowed for each CDR3 length found in the dataset and a 
+clonotype frequency threshold (range: 0-1). Only clonotypes with a 
+frequency above the applied threshold will be used in the subsequent 
+grouping. The whole process can be performed with or without taking 
+into account the rearranged V-gene. The results are presented in 
+the **Highly Similar Clonotypes** tab as a table. A second table is 
+also provided containing information regarding the clonotype grouping.
+
+## Repertoires extraction 
+The number of clonotypes using each V, J or D 
+gene/allele is computed over the total number of clonotypes based on 
+the clonotype definition given in the previous _Clonotype computation_ 
+step. If multiple samples are analyzed together the tool provides a 
+total repertoire as well as the repertoire for each individual sample. 
+Results are provided in the **Repertoires** tab as tables. Each table 
+includes the gene/allele and information concerning the absolute count 
+and frequency of sequences expressing that particular gene/allele.
+
+## Highly Similar Repertoires extraction 
+Same as above except for the fact 
+that the tool uses as input the clonotypes as computed in the 
+_Highly Similar Clonotypes computation_.
+
+## Multiple value comparison 
+The tool performs cross-tabulation analysis 
+between 2 selected variables. Many different variables can be selected 
+by the user for this type of analysis depending on the selected input 
+files from the **Home** tab. The results are presented at the 
+**Multiple value comparison** tab as tables. Each table contains the 
+values that were found to be associated and the relevant frequency.
+
+## CDR3 with 1 amino acid length difference 
+This tool can be applied for 
+datasets that consist of sequences with highly similar CDR3. The tool 
+is able to align and create sequence logos for sequences with the same 
+length as well as for sequences that differ by a single amino acid in 
+terms of length.
+
+## Logo 
+This tool creates an amino acid frequency table for the selected 
+sequence region (CDR3, VDJ REGION, VJ REGION) of a given length. The 
+frequency table is computed by counting the frequency of appearance of 
+each of the 20 different amino acids at any given position of the sequence. 
+The users have the option to select over the total frequency table or the 
+table of the top clusters according to the clonotype frequencies. A logo is 
+created using the above frequency table. The color code of the amino acids 
+is created based on the 11 
+[IMGT amino acid physicochemical classes](http://www.imgt.org/IMGTeducation/Aide-memoire/_UK/aminoacids/IMGTclasses.html).
+
+-----------------------------------------------------------------------------
+
+**Only** for B cells:
+
+## Insert identity groups
+Input sequences are grouped into different categories based on the V-region 
+identity percent. The user can determine the number and the identity percent 
+range of mutational groups. (high limit: <, low limit: ≥)
+
+## Somatic hypermutation status 
+The relative frequency of each germline identity group is computed. If the 
+user has not defined any groups based on the somatic hypermutation (SHM) 
+status using the _Insert identity groups_ tool, the tool will group together 
+only sequences that display the exact SHM status (e.g. sequences with an 
+identity percent of 98.6% will be grouped together whereas sequences with 
+98.7% identity will form a distinct group). Relative frequencies for each 
+SHM group will be computed based on the total number of sequences.
+
+## Alignment 
+An alignment table is created for the user-selected region (VDJ REGION, 
+VJ REGION). Sequences that are identical in terms of amino acid or nucleotide 
+sequence level are grouped together in order to create the grouped alignment 
+table. Alignments for the selected region can be provided at the nucleotide 
+or amino acid level or both. Default reference sequences are extracted from 
+the [IMGT reference directory](http://www.imgt.org/vquest/refseqh.html). 
+Reference sequences can be used either at the gene or gene allele level. At 
+the gene level, allele *01 is considered as reference. Users can also submit 
+their own reference sequence. There is also the possibility to align only a 
+number of selected clonotypes through the _Select topN clonotype_ option or 
+select those clonotypes that have an individual frequency above a given 
+percent cutoff. Results are presented in the **Alignment** tab as tables. 
+
+Each table can be downloaded in txt format.
+
+## Somatic hypermutations 
+A table with all somatic hypermutations for all samples together as well as 
+for each individual sample is computed based on the alignment table provided 
+by the previous tool. 
+
+The output table includes: 
+
+1. the mutation type, 
+2. the position of the change, 
+3. the region where the change occurs, 
+4. the number of sequences carrying each change and 
+5. the frequency of the change for every gene or allele based on 
+the grouped alignment table regardless 
+the clonotype. 
+
+There is the possibility to analyze only a number of clonotypes 
+by choosing the _Select topN clonotypes_ or 
+the _Select threshold for clonotypes_ option or even 
+some clonotypes separately by choosing the 
+_Select clonotypes separately_ option. Different clonotype/cluster 
+identifiers (cluster IDs) should be separated by comma (e.g. 1,3,7). 
+Results are given in the **Mutations** tab as tables. When different clonotypes 
+are selected separately, different tables are created for each given clonotype.
+
+Each table can be downloaded in text format.
+
+## Step Dependencies in Pipeline
+
+1. In order to apply _Highly Similar Clonotypes computation_, 
+_Clonotypes computation_ should have been selected previously.
+2. In order to apply _Repertoires Extraction_, _Clonotypes computation_ 
+should have run previously. If _Highly Similar Clonotypes computation_ has 
+been selected, repertoires will be extracted for both total clonotypes and 
+highly similar clonotypes.
+3. The _Somatic hypermutation status_ is applied using the groups that have 
+been selected at _Insert Identity groups_.
+4. If both _Alignment_ and _Clonotypes computation_ have been selected, the 
+cluster ID in the alignment table corresponds to the cluster ID in the 
+clonotype table. Otherwise, all elements in the “cluster_ID” column of the 
+alignment table are assigned to zero.
+5. In order to apply _Alignment_ using the _Select top N clonotypes_ option, 
+_Clonotypes computation_ should have run previously.
+6. In order to apply _Mutations_, _Alignment_ should have run previously, 
+using the corresponding “AA or Nt” option. The Mutation table is computed 
+based on the grouped alignment table.
+7. In order to apply _Mutations_ using the _Select top N clonotypes_ or the 
+_Select clonotypes separately_ option, _Clonotypes computation_ should have 
+previously run.
+8. In order to apply _Logo_ using the _Select top N clonotypes_ option, 
+_Clonotypes computation_ should have run previously.
+9. Ιn order to run the _Shared Clonotype computation_ and the _Repertoire 
+comparison_ steps, the user must have loaded more than one datasets.
+
+
+
+# Visualization
+
+In the **Visualization** tab different types of charts 
+(scatter, plots, bars etc.)
+are available for the visualization of the analysis results. Clonotypes are 
+presented as bars and the user can select the frequency above which the 
+clonotypes will be presented. The convergent evolution is also available 
+for visualization with more than one chart type options. The computed 
+repertoires are presented as pie-charts and the user can again select 
+the minimum frequency of the gene/allele that will be presented. 
+Regarding the _Multiple value comparison_ tool, a plot of the 2 
+selected variables is presented. 
+
+All the tables that are presented 
+to the user can be downloaded in text format, whereas the plots and the 
+graphics can be downloaded in .png format.
+
+# Overview
+
+# References
+
+# Session info {.unnumbered}
+
+Here is the output of `sessionInfo()` on the system on which this document was
+compiled running pandoc ``r rmarkdown::pandoc_version()``:
+
+```{r sessionInfo, echo=FALSE}
+sessionInfo()
+```

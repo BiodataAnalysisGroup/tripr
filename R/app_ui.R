@@ -23,7 +23,7 @@ app_ui <- function(request) {
     appError <- "
     .shiny-output-error { visibility: hidden; }
     .shiny-output-error:before {
-    visibility: visible;
+    visibility: hidden;
     content: 'An error occurred. Please contact the admin.'; }
     }
     "
