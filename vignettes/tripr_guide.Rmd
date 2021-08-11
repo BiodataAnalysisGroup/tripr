@@ -3,37 +3,37 @@ title: "tripr User Guide"
 author:
 - name: Maria Th. Kotouza
   affiliation: Department of Electrical and Computer Engineering, 
-    Aristotle University of Thessaloniki, Thessaloniki, 54124, Greece
+    Aristotle University of Thessaloniki, Thessaloniki, GR
 - name: Katerina Gemenetzi
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
 - name: Chrysi Galigalidou
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
 - name: Elisavet Vlachonikola
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
 - name: Nikolaos Pechlivanis
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
-- name:  Andreas Agathangelidis
+    Centre for Research and Technology Hellas, Thessaloniki, GR
+- name: Andreas Agathangelidis
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
 - name: Raphael Sandaltzopoulos
   affiliation: Department of Molecular Biology and Genetics, 
-    Democritus University of Thrace, Alexandroupolis, 68100, Greece
-- name:  Pericles A. Mitkas
+    Democritus University of Thrace, Alexandroupolis, GR
+- name: Pericles A. Mitkas
   affiliation: Department of Electrical and Computer Engineering, 
-    Aristotle University of Thessaloniki, Thessaloniki, 54124, Greece
-- name:  Kostas Stamatopoulos
+    Aristotle University of Thessaloniki, Thessaloniki, GR
+- name: Kostas Stamatopoulos
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
 - name: Anastasia Chatzidimitriou
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
 - name: Fotis E. Psomopoulos
   affiliation: Institute of Applied Biosciences, 
-    Centre for Research and Technology Hellas, Thessaloniki, 57001, Greece
+    Centre for Research and Technology Hellas, Thessaloniki, GR
   email: fpsom@certh.gr
 date: "`r BiocStyle::doc_date()`"
 package: "`r BiocStyle::pkg_ver('tripr')`"
@@ -44,8 +44,44 @@ vignette: >
   %\VignetteIndexEntry{tripr User Guide}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-# bibliography: tripr.bib
 ---
+```{r vignetteSetup, echo=FALSE, message=FALSE, warning = FALSE}
+## For links
+library("BiocStyle")
+## Track time spent on making the vignette
+startTime <- Sys.time()
+## Bib setup
+library("RefManageR")
+## Write bibliography information
+bib <- c(
+    R = citation(),
+    BiocStyle = citation("BiocStyle")[1],
+    DT = citation("DT")[1],
+    ggplot2 = citation("ggplot2")[1],
+    golem = citation("golem")[1],
+    knitr = citation("knitr")[3],
+    plotly = citation("plotly")[1],
+    RColorBrewer = citation("RColorBrewer")[1],
+    RefManageR = citation("RefManageR")[1],
+    rmarkdown = citation("rmarkdown")[1],
+    S4Vectors = citation("S4Vectors")[1],
+    sessioninfo = citation("sessioninfo")[1],
+    shiny = citation("shiny")[1],
+    testthat = citation("testthat")[1],
+    biocthis = citation("biocthis")[1],
+    shinyjs = citation("shinyjs")[1],
+    shinyFiles = citation("shinyFiles")[1],
+    plyr = citation("plyr")[1],
+    data.table = citation("data.table")[1],
+    stringr = citation("stringr")[1],
+    stringdist = citation("stringdist")[1],
+    plot3D = citation("plot3D")[1], 
+    gridExtra = citation("gridExtra")[1],
+    dplyr = citation("dplyr")[1],
+    pryr = citation("pryr")[1]
+)
+```
+
 
 <style>
 <!-- h1, h2, h3, h4 { -->
@@ -111,7 +147,7 @@ BiocManager::valid()
 
 We hope that `r Biocpkg('tripr')` will be useful for your research. 
 Please use the following information to cite the package and the research 
-article describing the data provided by `r Biocpkg('tripr')`. Thank you!
+article. Thank you!
 
 ```{r 'citation'}
 ## Citation info
@@ -132,8 +168,9 @@ In order to start the app, please run the following command:
 tripr::run_app()
 ```
 
-`tripr` should be opening in a browser. If this does not happen automatically, 
-please open a browser and navigate to the address shown 
+`tripr` should be opening in a browser (ideally Chrome, Firefox or Opera). 
+If this does not happen automatically, 
+please open a browser and navigate to the address shown on the `R` console
 (for example, `Listening on http://127.0.0.1:6134`).
 
 # Home
@@ -144,7 +181,19 @@ The tool takes as input
 the 10 output files of the 
 [IMGT/HighV-Quest tool](http://www.imgt.org/HighV-QUEST/home.action) in text 
 format (.txt). Users can also 
-choose only some of the files depending on the type of the downstream analysis. 
+choose only some of the files depending on the type of the downstream analysis.
+
+Note that every sample of the dataset must have its own individual folder and 
+every sample folder must be in one root folder (See example below). For the 
+dataset to be selected for upload, this root folder must be selected and
+then the button **Load Data** has to be pressed.
+
+<!-- Toy dataset -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", "upload_data.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 Previous sessions can also be loaded with the **Restore Previous Sessions** 
 button.
 
@@ -181,11 +230,18 @@ The Preselection process comprises 4 different criteria:
     Sequences with landmarks other than the chosen ones are excluded from the 
     analysis.
 
+<!-- Toy dataset -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", "preselection.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 The execution starts when the **Apply** button is pressed.
 
 Users can visualize the results of the preselection (first cleaning) process in 
 the **Preselection** tab. In the case of multi-sample datasets, results are 
-provided for each individual sample separately, or for the combined dataset. 
+provided for each individual sample separately, or for the combined dataset
+by scrolling through the **Select Dataset** option. 
 
 The output consists of 4 table files:
 
@@ -196,6 +252,14 @@ included and excluded sequences for each different criterion
 meet the preselection criteria and are included in the analysis and 
 4. **Clean out table**: the excluded sequences.
 The last column of the “Clean out table” refers to the unsatisfied criteria. 
+
+<!-- Preselection Tables -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "preselection_clean_table.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 All 4 tables can be downloaded as text files.
 
@@ -227,6 +291,12 @@ amino acid motif provided by the user are included in the analysis.
 
 The execution starts when the **Apply** button is pressed.
 
+<!-- Selection options -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", "selection.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 The results of the Selection (filtering) process are presented in the 
 **Selection** tab. 
 
@@ -242,6 +312,12 @@ sequences that passed through the selection filters  and
 “Filter out table” refers to the filters that were not passed by each 
 individual sequence.
 
+<!-- Selection visual -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", "selection_visual.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 All the tables can be downloaded as text files.
 
 # Pipeline
@@ -249,9 +325,15 @@ All the tables can be downloaded as text files.
 Users can select the workflow that they want to apply to their dataset(s).
 
 There are 11 different tools in the pipeline tab. 7 of them can be applied for
-both T- and B-cells, while the remaining 4 can _only_ be applied for B-cells.
+both T- and B-cells, while the remaining 4 can be applied _only_ for B-cells.
 
 <!-- Insert tripr pipeline overview png-->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "pipeline_overview.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 -----------------------------------------------------------------------------
 
@@ -260,7 +342,17 @@ For **both** T- and B-cells:
 ## Clonotype computation 
 The frequencies for all unique clonotypes of each 
 sample are computed. There are 10 different options for clonotype 
-definition. The results are presented in the **Clonotypes** tab in the 
+definition. 
+
+<!-- Clonotype pipeline -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "clonotypes_pipeline.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
+The results are presented in the **Clonotypes** tab in the 
 form of a table, where the clonotype, the count, the frequency and the 
 convergent evolution (if feasible) are given. Each clonotype is also a 
 link that provides a table with all relevant immunogenetic data for that 
@@ -269,6 +361,14 @@ of all reads/sequences assigned to that clonotype and all relevant
 information. Each clonotype is given a unique cluster 
 identifier (cluster ID).
 
+<!-- Clonotypes Tab -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "clonotypes_tab.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
 ## Highly similar clonotypes computation
 Frequencies for all highly 
 similar clonotypes are computed. The user can set the number of 
@@ -276,9 +376,27 @@ mismatches allowed for each CDR3 length found in the dataset and a
 clonotype frequency threshold (range: 0-1). Only clonotypes with a 
 frequency above the applied threshold will be used in the subsequent 
 grouping. The whole process can be performed with or without taking 
-into account the rearranged V-gene. The results are presented in 
+into account the rearranged V-gene. 
+
+<!-- Highly Similar pipeline -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "highly_similar_pipeline.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
+The results are presented in 
 the **Highly Similar Clonotypes** tab as a table. A second table is 
 also provided containing information regarding the clonotype grouping.
+
+<!-- Highly Similar Tab -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "highly_sim_clono_tab.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 ## Repertoires extraction 
 The number of clonotypes using each V, J or D 
@@ -286,22 +404,61 @@ gene/allele is computed over the total number of clonotypes based on
 the clonotype definition given in the previous _Clonotype computation_ 
 step. If multiple samples are analyzed together the tool provides a 
 total repertoire as well as the repertoire for each individual sample. 
+
+<!-- Repertoires pipeline -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "repertoires_pipeline.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
 Results are provided in the **Repertoires** tab as tables. Each table 
 includes the gene/allele and information concerning the absolute count 
 and frequency of sequences expressing that particular gene/allele.
+
+<!-- Repertoires tab -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "repertoires_tab.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 ## Highly Similar Repertoires extraction 
 Same as above except for the fact 
 that the tool uses as input the clonotypes as computed in the 
 _Highly Similar Clonotypes computation_.
 
+<!-- highly similar repertoire pipeline -->
+
+<!-- highly similar repertoire tab -->
+
 ## Multiple value comparison 
 The tool performs cross-tabulation analysis 
 between 2 selected variables. Many different variables can be selected 
 by the user for this type of analysis depending on the selected input 
-files from the **Home** tab. The results are presented at the 
+files from the **Home** tab. 
+
+<!-- Multiple value pipeline -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "mv_pipeline.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
+The results are presented at the 
 **Multiple value comparison** tab as tables. Each table contains the 
 values that were found to be associated and the relevant frequency.
+
+<!-- Multiple value tab -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "multiple_tab.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 ## CDR3 with 1 amino acid length difference 
 This tool can be applied for 
@@ -310,16 +467,26 @@ is able to align and create sequence logos for sequences with the same
 length as well as for sequences that differ by a single amino acid in 
 terms of length.
 
+<!-- cdr3 pipeline -->
+
+<!-- cdr3 tab -->
+
 ## Logo 
 This tool creates an amino acid frequency table for the selected 
 sequence region (CDR3, VDJ REGION, VJ REGION) of a given length. The 
 frequency table is computed by counting the frequency of appearance of 
 each of the 20 different amino acids at any given position of the sequence. 
 The users have the option to select over the total frequency table or the 
-table of the top clusters according to the clonotype frequencies. A logo is 
+table of the top clusters according to the clonotype frequencies. 
+
+<!-- Logo pipeline -->
+
+A logo is 
 created using the above frequency table. The color code of the amino acids 
 is created based on the 11 
 [IMGT amino acid physicochemical classes](http://www.imgt.org/IMGTeducation/Aide-memoire/_UK/aminoacids/IMGTclasses.html).
+
+<!-- Logo tab -->
 
 -----------------------------------------------------------------------------
 
@@ -330,6 +497,16 @@ Input sequences are grouped into different categories based on the V-region
 identity percent. The user can determine the number and the identity percent 
 range of mutational groups. (high limit: <, low limit: ≥)
 
+<!-- identity groups pipeline -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "insert_identity_pipeline.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
+<!-- visual? -->
+
 ## Somatic hypermutation status 
 The relative frequency of each germline identity group is computed. If the 
 user has not defined any groups based on the somatic hypermutation (SHM) 
@@ -338,6 +515,10 @@ only sequences that display the exact SHM status (e.g. sequences with an
 identity percent of 98.6% will be grouped together whereas sequences with 
 98.7% identity will form a distinct group). Relative frequencies for each 
 SHM group will be computed based on the total number of sequences.
+
+<!-- somatic pipeline -->
+
+<!-- somatic tab -->
 
 ## Alignment 
 An alignment table is created for the user-selected region (VDJ REGION, 
@@ -351,7 +532,25 @@ the gene level, allele *01 is considered as reference. Users can also submit
 their own reference sequence. There is also the possibility to align only a 
 number of selected clonotypes through the _Select topN clonotype_ option or 
 select those clonotypes that have an individual frequency above a given 
-percent cutoff. Results are presented in the **Alignment** tab as tables. 
+percent cutoff. 
+
+<!-- alignment pipeline -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "alignment_pipeline.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
+Results are presented in the **Alignment** tab as tables. 
+
+<!-- alignment tab -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "alignment_tab.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 Each table can be downloaded in txt format.
 
@@ -376,8 +575,13 @@ the _Select threshold for clonotypes_ option or even
 some clonotypes separately by choosing the 
 _Select clonotypes separately_ option. Different clonotype/cluster 
 identifiers (cluster IDs) should be separated by comma (e.g. 1,3,7). 
+
+<!-- somatic pipeline -->
+
 Results are given in the **Mutations** tab as tables. When different clonotypes 
 are selected separately, different tables are created for each given clonotype.
+
+<!-- somatic tab -->
 
 Each table can be downloaded in text format.
 
@@ -416,12 +620,37 @@ In the **Visualization** tab different types of charts
 (scatter, plots, bars etc.)
 are available for the visualization of the analysis results. Clonotypes are 
 presented as bars and the user can select the frequency above which the 
-clonotypes will be presented. The convergent evolution is also available 
-for visualization with more than one chart type options. The computed 
+clonotypes will be presented. 
+
+<!-- clonotypes visual -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "visual_clono.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
+The convergent evolution is also available 
+for visualization with more than one chart type options. 
+
+<!-- convergent -->
+
+The computed 
 repertoires are presented as pie-charts and the user can again select 
-the minimum frequency of the gene/allele that will be presented. 
+the minimum frequency of the gene/allele that will be presented.
+
+<!-- repertoires -->
+
 Regarding the _Multiple value comparison_ tool, a plot of the 2 
 selected variables is presented. 
+
+<!-- multiple value  -->
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "hist3d_visual.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
 
 All the tables that are presented 
 to the user can be downloaded in text format, whereas the plots and the 
@@ -429,7 +658,44 @@ graphics can be downloaded in .png format.
 
 # Overview
 
+This section provides an overview of the user's total options for the analysis.
+```{r, echo=FALSE, out.width='100%', fig.align='center'}
+knitr::include_graphics(path = system.file("app", "www", 
+                                            "overview.png", 
+                                           package="tripr", mustWork=TRUE))
+```
+
+
 # References
+# Reproducibility
+
+The `r Biocpkg('tripr')` package was 
+made possible thanks to:
+
+* R `r Citep(bib[['R']])`
+* `r Biocpkg('BiocStyle')` `r Citep(bib[['BiocStyle']])`
+* `r CRANpkg('DT')` `r Citep(bib[['DT']])`
+* `r CRANpkg('ggplot2')` `r Citep(bib[['ggplot2']])`
+* `r CRANpkg('golem')` `r Citep(bib[['golem']])`
+* `r CRANpkg('knitr')` `r Citep(bib[['knitr']])`    
+* `r CRANpkg('plotly')` `r Citep(bib[['plotly']])`
+* `r CRANpkg('RColorBrewer')` `r Citep(bib[['RColorBrewer']])`
+* `r CRANpkg('rmarkdown')` `r Citep(bib[['rmarkdown']])`
+* `r Biocpkg('S4Vectors')` `r Citep(bib[['S4Vectors']])`
+* `r CRANpkg('sessioninfo')` `r Citep(bib[['sessioninfo']])`
+* `r CRANpkg('shiny')` `r Citep(bib[['shiny']])`
+* `r CRANpkg('testthat')` `r Citep(bib[['testthat']])`
+* `r CRANpkg('shinyjs')` `r Citep(bib[['shinyjs']])`
+* `r CRANpkg('shinyFiles')` `r Citep(bib[['shinyFiles']])`
+* `r CRANpkg('plyr')` `r Citep(bib[['plyr']])`
+* `r CRANpkg('data.table')` `r Citep(bib[['data.table']])`
+* `r CRANpkg('stringr')` `r Citep(bib[['stringr']])`
+* `r CRANpkg('stringdist')` `r Citep(bib[['stringdist']])`
+* `r CRANpkg('plot3D')` `r Citep(bib[['plot3D']])`
+* `r CRANpkg('gridExtra')` `r Citep(bib[['gridExtra']])`
+* `r CRANpkg('dplyr')` `r Citep(bib[['dplyr']])`
+* `r CRANpkg('pryr')` `r Citep(bib[['pryr']])`
+* `r Biocpkg('biocthis')` `r Citep(bib[['biocthis']])`
 
 # Session info {.unnumbered}
 

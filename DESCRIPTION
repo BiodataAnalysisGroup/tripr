@@ -67,7 +67,8 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0),
     fs,
-    BiocStyle
+    BiocStyle,
+    RefManageR
 Depends:
     shiny (>= 1.6.0),
     shinyBS
