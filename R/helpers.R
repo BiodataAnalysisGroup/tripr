@@ -4095,6 +4095,8 @@ createLogo <- function(table_count, table_count_datasets, name) {
 ######################################################################################################################################
 
 alignment <- function(input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly) {
+    used_columns <- e$used_columns
+    
     # logfile
     cat(paste0("alignment", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(region, AAorNtAlignment, "top", topNClono, "clonotypes", sep = ","), "\t"), file = logFile, append = TRUE)
@@ -4884,6 +4886,7 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     ################## Clonotypes ################
+    used_columns <- e$used_columns
     gene <- used_columns[["Summary"]][3]
     junction <- used_columns[["Summary"]][18]
 
