@@ -232,7 +232,7 @@ The Preselection process comprises 4 different criteria:
 
 <!-- Toy dataset -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
-knitr::include_graphics(path = system.file("app", "www", "preselection.png", 
+knitr::include_graphics(path = system.file("app", "www", "Preselection.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
@@ -256,7 +256,7 @@ The last column of the “Clean out table” refers to the unsatisfied criteria.
 <!-- Preselection Tables -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
 knitr::include_graphics(path = system.file("app", "www", 
-                                            "preselection_clean_table.png", 
+                                            "Preselection_Clean_table.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
@@ -293,7 +293,7 @@ The execution starts when the **Apply** button is pressed.
 
 <!-- Selection options -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
-knitr::include_graphics(path = system.file("app", "www", "selection.png", 
+knitr::include_graphics(path = system.file("app", "www", "Selection.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
@@ -314,7 +314,7 @@ individual sequence.
 
 <!-- Selection visual -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
-knitr::include_graphics(path = system.file("app", "www", "selection_visual.png", 
+knitr::include_graphics(path = system.file("app", "www", "Selection_visual.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
@@ -347,7 +347,7 @@ definition.
 <!-- Clonotype pipeline -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
 knitr::include_graphics(path = system.file("app", "www", 
-                                            "clonotypes_pipeline.png", 
+                                            "Clonotypes_pipeline.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
@@ -537,7 +537,7 @@ percent cutoff.
 <!-- alignment pipeline -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
 knitr::include_graphics(path = system.file("app", "www", 
-                                            "alignment_pipeline.png", 
+                                            "Alignment_pipeline.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
