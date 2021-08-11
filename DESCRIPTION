@@ -68,7 +68,8 @@ Suggests:
     testthat (>= 3.0.0),
     fs,
     BiocStyle,
-    RefManageR
+    RefManageR,
+    biocthis
 Depends:
     shiny (>= 1.6.0),
     shinyBS
