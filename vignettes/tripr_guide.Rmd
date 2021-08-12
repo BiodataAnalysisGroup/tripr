@@ -64,7 +64,6 @@ bib <- c(
     RColorBrewer = citation("RColorBrewer")[1],
     RefManageR = citation("RefManageR")[1],
     rmarkdown = citation("rmarkdown")[1],
-    S4Vectors = citation("S4Vectors")[1],
     sessioninfo = citation("sessioninfo")[1],
     shiny = citation("shiny")[1],
     testthat = citation("testthat")[1],
@@ -253,6 +252,7 @@ meet the preselection criteria and are included in the analysis and
 4. **Clean out table**: the excluded sequences.
 The last column of the “Clean out table” refers to the unsatisfied criteria. 
 
+The figure below shows an example Clean table from this Tab.
 <!-- Preselection Tables -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
 knitr::include_graphics(path = system.file("app", "www", 
@@ -289,7 +289,7 @@ selected CDR3 lengths are included in the analysis.
 Sequences with the specific CDR3 
 amino acid motif provided by the user are included in the analysis. 
 
-The execution starts when the **Apply** button is pressed.
+The execution starts when the **Execute** button is pressed.
 
 <!-- Selection options -->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
@@ -665,8 +665,6 @@ knitr::include_graphics(path = system.file("app", "www",
                                            package="tripr", mustWork=TRUE))
 ```
 
-
-# References
 # Reproducibility
 
 The `r Biocpkg('tripr')` package was 
@@ -681,7 +679,6 @@ made possible thanks to:
 * `r CRANpkg('plotly')` `r Citep(bib[['plotly']])`
 * `r CRANpkg('RColorBrewer')` `r Citep(bib[['RColorBrewer']])`
 * `r CRANpkg('rmarkdown')` `r Citep(bib[['rmarkdown']])`
-* `r Biocpkg('S4Vectors')` `r Citep(bib[['S4Vectors']])`
 * `r CRANpkg('sessioninfo')` `r Citep(bib[['sessioninfo']])`
 * `r CRANpkg('shiny')` `r Citep(bib[['shiny']])`
 * `r CRANpkg('testthat')` `r Citep(bib[['testthat']])`
@@ -704,4 +701,19 @@ compiled running pandoc ``r rmarkdown::pandoc_version()``:
 
 ```{r sessionInfo, echo=FALSE}
 sessionInfo()
+```
+
+
+# Bibliography {.unnumbered}
+
+This vignette was generated using `r Biocpkg('BiocStyle')` 
+`r Citep(bib[['BiocStyle']])`, `r CRANpkg('knitr')` `r Citep(bib[['knitr']])` 
+and `r CRANpkg('rmarkdown')` `r Citep(bib[['rmarkdown']])` running 
+behind the scenes.
+
+Citations made with `r CRANpkg('RefManageR')` `r Citep(bib[['RefManageR']])`.
+
+```{r vignetteBiblio, results = 'asis', echo = FALSE, warning = FALSE, message = FALSE}
+## Print bibliography
+PrintBibliography(bib, .opts = list(hyperlink = "to.doc", style = "html"))
 ```
