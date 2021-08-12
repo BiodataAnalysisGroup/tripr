@@ -77,7 +77,8 @@ bib <- c(
     plot3D = citation("plot3D")[1], 
     gridExtra = citation("gridExtra")[1],
     dplyr = citation("dplyr")[1],
-    pryr = citation("pryr")[1]
+    pryr = citation("pryr")[1],
+    shinyBS = citation("shinyBS")[1]
 )
 ```
 
@@ -105,7 +106,7 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, echo=FALSE, out.width='50%', fig.align='center'}
-knitr::include_graphics(path = system.file("app", "www", "favicon.png", 
+knitr::include_graphics(path = system.file("app", "www", "tripr.png", 
                                            package="tripr", mustWork=TRUE))
 ```
 
@@ -142,17 +143,6 @@ BiocManager::install("tripr")
 BiocManager::valid()
 ```
 
-# Citation
-
-We hope that `r Biocpkg('tripr')` will be useful for your research. 
-Please use the following information to cite the package and the research 
-article. Thank you!
-
-```{r 'citation'}
-## Citation info
-citation("tripr")
-```
-
 ## Launching the app
 
 Once `tripr` is successfully installed, it can be loaded as follow:
@@ -172,7 +162,9 @@ If this does not happen automatically,
 please open a browser and navigate to the address shown on the `R` console
 (for example, `Listening on http://127.0.0.1:6134`).
 
-# Home
+# Running `tripr`
+
+## Home
 
 In this tab users can import their data by selecting the directory 
 where the data is stored, by pressing the **Choose directory** button. 
@@ -206,7 +198,17 @@ filters are applied consequentially (i.e. if a sequence fails >1 selection
 criteria, only the first unsatisfied criterion will be reported), whereas 
 for Low-Throughput data all criteria are applied at the same time.
 
-# Preselection
+## Preprocessing
+
+`tripr` offers 2 steps of preprocessing: 
+
+- **Preselection**: Refers to the cleaning process of the input dataset.
+
+- **Selection**: Refers to the filtering process of the resulting data from 
+    Preselection process.
+
+
+### Preselection
 The Preselection process comprises 4 different criteria:
 
 - __Only take into account Functional V-Gene__: <br/>
@@ -263,7 +265,7 @@ knitr::include_graphics(path = system.file("app", "www",
 
 All 4 tables can be downloaded as text files.
 
-# Selection
+### Selection
 
 The sequences that passed through the Preselection process (“Clean table”) are 
 used as input for the data Selection (filtering) process. 
@@ -320,12 +322,43 @@ knitr::include_graphics(path = system.file("app", "www", "Selection_visual.png",
 
 All the tables can be downloaded as text files.
 
-# Pipeline
+## Pipelines & Step dependencies
 
 Users can select the workflow that they want to apply to their dataset(s).
 
 There are 11 different tools in the pipeline tab. 7 of them can be applied for
 both T- and B-cells, while the remaining 4 can be applied _only_ for B-cells.
+
+-------------------------------------------------------------------------
+
+**Step Dependencies in Pipeline**
+
+1. In order to apply _Highly Similar Clonotypes computation_, 
+_Clonotypes computation_ should have been selected previously.
+2. In order to apply _Repertoires Extraction_, _Clonotypes computation_ 
+should have run previously. If _Highly Similar Clonotypes computation_ has 
+been selected, repertoires will be extracted for both total clonotypes and 
+highly similar clonotypes.
+3. The _Somatic hypermutation status_ is applied using the groups that have 
+been selected at _Insert Identity groups_.
+4. If both _Alignment_ and _Clonotypes computation_ have been selected, the 
+cluster ID in the alignment table corresponds to the cluster ID in the 
+clonotype table. Otherwise, all elements in the “cluster_ID” column of the 
+alignment table are assigned to zero.
+5. In order to apply _Alignment_ using the _Select top N clonotypes_ option, 
+_Clonotypes computation_ should have run previously.
+6. In order to apply _Mutations_, _Alignment_ should have run previously, 
+using the corresponding “AA or Nt” option. The Mutation table is computed 
+based on the grouped alignment table.
+7. In order to apply _Mutations_ using the _Select top N clonotypes_ or the 
+_Select clonotypes separately_ option, _Clonotypes computation_ should have 
+previously run.
+8. In order to apply _Logo_ using the _Select top N clonotypes_ option, 
+_Clonotypes computation_ should have run previously.
+9. Ιn order to run the _Shared Clonotype computation_ and the _Repertoire 
+comparison_ steps, the user must have loaded more than one datasets.
+
+
 
 <!-- Insert tripr pipeline overview png-->
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
@@ -339,7 +372,7 @@ knitr::include_graphics(path = system.file("app", "www",
 
 For **both** T- and B-cells:
 
-## Clonotype computation 
+### Clonotype computation 
 The frequencies for all unique clonotypes of each 
 sample are computed. There are 10 different options for clonotype 
 definition. 
@@ -369,7 +402,7 @@ knitr::include_graphics(path = system.file("app", "www",
 ```
 
 
-## Highly similar clonotypes computation
+### Highly similar clonotypes computation
 Frequencies for all highly 
 similar clonotypes are computed. The user can set the number of 
 mismatches allowed for each CDR3 length found in the dataset and a 
@@ -398,7 +431,7 @@ knitr::include_graphics(path = system.file("app", "www",
 ```
 
 
-## Repertoires extraction 
+### Repertoires extraction 
 The number of clonotypes using each V, J or D 
 gene/allele is computed over the total number of clonotypes based on 
 the clonotype definition given in the previous _Clonotype computation_ 
@@ -425,7 +458,7 @@ knitr::include_graphics(path = system.file("app", "www",
 ```
 
 
-## Highly Similar Repertoires extraction 
+### Highly Similar Repertoires extraction 
 Same as above except for the fact 
 that the tool uses as input the clonotypes as computed in the 
 _Highly Similar Clonotypes computation_.
@@ -434,7 +467,7 @@ _Highly Similar Clonotypes computation_.
 
 <!-- highly similar repertoire tab -->
 
-## Multiple value comparison 
+### Multiple value comparison 
 The tool performs cross-tabulation analysis 
 between 2 selected variables. Many different variables can be selected 
 by the user for this type of analysis depending on the selected input 
@@ -460,7 +493,7 @@ knitr::include_graphics(path = system.file("app", "www",
 ```
 
 
-## CDR3 with 1 amino acid length difference 
+### CDR3 with 1 amino acid length difference 
 This tool can be applied for 
 datasets that consist of sequences with highly similar CDR3. The tool 
 is able to align and create sequence logos for sequences with the same 
@@ -471,7 +504,7 @@ terms of length.
 
 <!-- cdr3 tab -->
 
-## Logo 
+### Logo 
 This tool creates an amino acid frequency table for the selected 
 sequence region (CDR3, VDJ REGION, VJ REGION) of a given length. The 
 frequency table is computed by counting the frequency of appearance of 
@@ -492,7 +525,7 @@ is created based on the 11
 
 **Only** for B cells:
 
-## Insert identity groups
+### Insert identity groups
 Input sequences are grouped into different categories based on the V-region 
 identity percent. The user can determine the number and the identity percent 
 range of mutational groups. (high limit: <, low limit: ≥)
@@ -507,7 +540,7 @@ knitr::include_graphics(path = system.file("app", "www",
 
 <!-- visual? -->
 
-## Somatic hypermutation status 
+### Somatic hypermutation status 
 The relative frequency of each germline identity group is computed. If the 
 user has not defined any groups based on the somatic hypermutation (SHM) 
 status using the _Insert identity groups_ tool, the tool will group together 
@@ -520,7 +553,7 @@ SHM group will be computed based on the total number of sequences.
 
 <!-- somatic tab -->
 
-## Alignment 
+### Alignment 
 An alignment table is created for the user-selected region (VDJ REGION, 
 VJ REGION). Sequences that are identical in terms of amino acid or nucleotide 
 sequence level are grouped together in order to create the grouped alignment 
@@ -554,7 +587,7 @@ knitr::include_graphics(path = system.file("app", "www",
 
 Each table can be downloaded in txt format.
 
-## Somatic hypermutations 
+### Somatic hypermutations 
 A table with all somatic hypermutations for all samples together as well as 
 for each individual sample is computed based on the alignment table provided 
 by the previous tool. 
@@ -585,36 +618,8 @@ are selected separately, different tables are created for each given clonotype.
 
 Each table can be downloaded in text format.
 
-## Step Dependencies in Pipeline
 
-1. In order to apply _Highly Similar Clonotypes computation_, 
-_Clonotypes computation_ should have been selected previously.
-2. In order to apply _Repertoires Extraction_, _Clonotypes computation_ 
-should have run previously. If _Highly Similar Clonotypes computation_ has 
-been selected, repertoires will be extracted for both total clonotypes and 
-highly similar clonotypes.
-3. The _Somatic hypermutation status_ is applied using the groups that have 
-been selected at _Insert Identity groups_.
-4. If both _Alignment_ and _Clonotypes computation_ have been selected, the 
-cluster ID in the alignment table corresponds to the cluster ID in the 
-clonotype table. Otherwise, all elements in the “cluster_ID” column of the 
-alignment table are assigned to zero.
-5. In order to apply _Alignment_ using the _Select top N clonotypes_ option, 
-_Clonotypes computation_ should have run previously.
-6. In order to apply _Mutations_, _Alignment_ should have run previously, 
-using the corresponding “AA or Nt” option. The Mutation table is computed 
-based on the grouped alignment table.
-7. In order to apply _Mutations_ using the _Select top N clonotypes_ or the 
-_Select clonotypes separately_ option, _Clonotypes computation_ should have 
-previously run.
-8. In order to apply _Logo_ using the _Select top N clonotypes_ option, 
-_Clonotypes computation_ should have run previously.
-9. Ιn order to run the _Shared Clonotype computation_ and the _Repertoire 
-comparison_ steps, the user must have loaded more than one datasets.
-
-
-
-# Visualization
+## Visualization
 
 In the **Visualization** tab different types of charts 
 (scatter, plots, bars etc.)
@@ -656,7 +661,7 @@ All the tables that are presented
 to the user can be downloaded in text format, whereas the plots and the 
 graphics can be downloaded in .png format.
 
-# Overview
+## Overview
 
 This section provides an overview of the user's total options for the analysis.
 ```{r, echo=FALSE, out.width='100%', fig.align='center'}
@@ -665,7 +670,7 @@ knitr::include_graphics(path = system.file("app", "www",
                                            package="tripr", mustWork=TRUE))
 ```
 
-# Reproducibility
+# Tool dependencies
 
 The `r Biocpkg('tripr')` package was 
 made possible thanks to:
@@ -681,6 +686,7 @@ made possible thanks to:
 * `r CRANpkg('rmarkdown')` `r Citep(bib[['rmarkdown']])`
 * `r CRANpkg('sessioninfo')` `r Citep(bib[['sessioninfo']])`
 * `r CRANpkg('shiny')` `r Citep(bib[['shiny']])`
+* `r CRANpkg('shinyBS')` `r Citep(bib[['shinyBS']])`
 * `r CRANpkg('testthat')` `r Citep(bib[['testthat']])`
 * `r CRANpkg('shinyjs')` `r Citep(bib[['shinyjs']])`
 * `r CRANpkg('shinyFiles')` `r Citep(bib[['shinyFiles']])`
@@ -693,6 +699,17 @@ made possible thanks to:
 * `r CRANpkg('dplyr')` `r Citep(bib[['dplyr']])`
 * `r CRANpkg('pryr')` `r Citep(bib[['pryr']])`
 * `r Biocpkg('biocthis')` `r Citep(bib[['biocthis']])`
+
+# Citation
+
+We hope that `r Biocpkg('tripr')` will be useful for your research. 
+Please use the following information to cite the package and the research 
+article. Thank you!
+
+```{r 'citation'}
+## Citation info
+citation("tripr")
+```
 
 # Session info {.unnumbered}
 
