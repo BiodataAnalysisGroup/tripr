@@ -186,15 +186,19 @@ app_server <- function(input, output, session) {
 
     # TODO: Where should user put its files so they are available for dataset?
     # dir
-    shinyDirChoose(input, "dir", roots = c(home = ".."), filetypes = c("", "txt"))
+    volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), shinyFiles::getVolumes()())
+    shinyDirChoose(input, "dir", roots = volumes, filetypes = c("", "txt"))
 
     dir <- reactive(input$dir)
-    output$dir <- renderPrint(dir())
+    output$dir <- renderText({  # use renderText instead of renderPrint
+        parseDirPath(volumes, input$dir)
+    })    
 
     # path
     path <- reactive({
-        home <- normalizePath("..")
-        file.path(home, paste(unlist(dir()$path[-1]), collapse = .Platform$file.sep))
+        ## home is the selected volume (~, R.installation, D://, etc.)
+        home <- normalizePath(volumes[input$dir$root])
+        file.path(home, paste(unlist(input$dir$path[-1]), collapse = .Platform$file.sep))
     })
 
     # files
@@ -257,7 +261,7 @@ app_server <- function(input, output, session) {
     })
 
     output$uiInputFiles <- renderUI({
-        if (is.null(dir())) {
+        if (is.null(input$dir)) {
             return()
         }
         a <- list.files(paste0(path(), "/", list.files(path())[1]))
@@ -273,7 +277,7 @@ app_server <- function(input, output, session) {
     })
 
     output$uiDatasets <- renderUI({
-        if (is.null(dir())) {
+        if (is.null(input$dir)) {
             return()
         }
         checkboxGroupInput(inputId = "Dataset", label = "Select Datasets", inline = TRUE, choices = list.files(path()))
@@ -342,7 +346,7 @@ app_server <- function(input, output, session) {
     }
 
     output$uiColumns <- renderUI({
-        if (is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset) | is.null(input$LoadData)) {
+        if (is.null(input$inputFiles) | is.null(input$dir) | is.null(input$Dataset) | is.null(input$LoadData)) {
             return()
         }
         if (input$LoadData == FALSE) {
@@ -872,7 +876,7 @@ app_server <- function(input, output, session) {
 
     # Execute Filtering if cleaning has alreary been applied
     output$uiExecute <- renderUI({
-        if (input$Continue == FALSE | is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset)) {
+        if (input$Continue == FALSE | is.null(input$inputFiles) | is.null(input$dir) | is.null(input$Dataset)) {
             return()
         }
 
@@ -885,7 +889,7 @@ app_server <- function(input, output, session) {
 
     ############################### Execute Button for pipeline if filtering has alreary been applied ###############################
     output$uiExecute_pipeline <- renderUI({
-        if ((input$Continue == FALSE | is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset) | newDataset == TRUE) & (input$select_load_or_compute_clonotypes == "compute_clonotypes")) {
+        if ((input$Continue == FALSE | is.null(input$inputFiles) | is.null(input$dir) | is.null(input$Dataset) | newDataset == TRUE) & (input$select_load_or_compute_clonotypes == "compute_clonotypes")) {
             return()
         }
         if (input$select_load_or_compute_clonotypes == "compute_clonotypes") {
@@ -915,7 +919,7 @@ app_server <- function(input, output, session) {
         withBusyIndicatorServer("Continue", {
             newDataset <<- FALSE
             loaded_datasets <<- unique(t(data.frame(strsplit(input$Dataset, "_")))[, 1])
-            if ((is.null(input$inputFiles) | is.null(dir()) | is.null(input$Dataset)) && just_restored_session_cleaning == FALSE) {
+            if ((is.null(input$inputFiles) | is.null(input$dir) | is.null(input$Dataset)) && just_restored_session_cleaning == FALSE) {
                 validate(
                     # "Please select a data set!"
                 )

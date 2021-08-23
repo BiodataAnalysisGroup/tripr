@@ -52,8 +52,6 @@ app_ui <- function(request) {
             # shinyjs::useShinyjs(),
             # tags$style(type="text/css", ""),
 
-            header = tagList(useShinyjs()), # extendShinyjs("www/app-shinyjs.js", functions = c("updateHistory"))
-
             ################## Home ##########
             tabPanel("Home",
                 value = "home",
@@ -98,7 +96,7 @@ app_ui <- function(request) {
 
                     br(),
                     h4("Select the directory where the folders of the patients' data are located or load previous session"),
-                    shinyDirButton("dir", "Choose directory", "Upload"),
+                    shinyDirButton("dir", "Choose directory", "Please select a folder"),
                     br(),
                     br(),
                     h4("Or"),
@@ -120,7 +118,7 @@ app_ui <- function(request) {
                     br(),
                     uiOutput("uiDatasets"),
                     br(),
-                    useShinyjs(),
+                    # useShinyjs(),
                     tags$style(appCSS),
                     uiOutput("uiLoadData"),
                     br(),
@@ -148,7 +146,7 @@ app_ui <- function(request) {
                 ),
                 sidebarPanel(
                     width = 9,
-                    shinyjs::useShinyjs(),
+                    # shinyjs::useShinyjs(),
                     checkboxInput("Functional", c(
                         "Only take into account Functional V-Gene",
                         list(
@@ -218,7 +216,7 @@ app_ui <- function(request) {
                     uiOutput("uiEnd"),
                     uiOutput("uiEnd_comment"),
                     br(),
-                    useShinyjs(),
+                    # useShinyjs(),
                     tags$style(appCSS),
 
                     # Wrap the button in the function `withBusyIndicatorUI()`
@@ -235,7 +233,7 @@ app_ui <- function(request) {
                 ),
                 sidebarPanel(
                     width = 9,
-                    shinyjs::useShinyjs(),
+                    # shinyjs::useShinyjs(),
                     checkboxInput("identity", c(
                         "V-REGION identity %",
                         list(
@@ -344,7 +342,7 @@ app_ui <- function(request) {
                     ),
                     uiOutput("uiAminoacid"),
                     br(),
-                    useShinyjs(),
+                    # useShinyjs(),
                     tags$style(appCSS),
                     uiOutput("uiExecute"),
                     uiOutput("confirmCleaningFiltering"),
@@ -888,7 +886,7 @@ app_ui <- function(request) {
                         tags$div(id = "placeholder")
                     ),
                     uiOutput("confirmMultiple_value_comparison"),
-                    useShinyjs(),
+                    # useShinyjs(),
                     tags$style(appCSS),
                     uiOutput("uiExecute_pipeline"),
                     br(),
@@ -1102,7 +1100,7 @@ app_ui <- function(request) {
                         tags$div(id = "placeholder")
                     ),
                     uiOutput("confirmLogo"),
-                    useShinyjs(),
+                    # useShinyjs(),
                     tags$style(appCSS),
                     # Wrap the button in the function `withBusyIndicatorUI()`
 
@@ -1864,11 +1862,7 @@ app_ui <- function(request) {
                     br(),
                     bookmarkButton()
                 )
-            ),
-
-            # To use js code in the app
-            useShinyjs(),
-            extendShinyjs(text = jscode, functions = c("enabletab", "disabletab"))
+            )
         )
     )
 }
