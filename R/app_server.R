@@ -184,14 +184,12 @@ app_server <- function(input, output, session) {
 
     ############################### Select Datasets ###############################
 
-    # TODO: Where should user put its files so they are available for dataset?
-    # dir
     volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), shinyFiles::getVolumes()())
     shinyDirChoose(input, "dir", roots = volumes, filetypes = c("", "txt"))
 
     dir <- reactive(input$dir)
     output$dir <- renderText({  # use renderText instead of renderPrint
-        parseDirPath(volumes, input$dir)
+        shinyFiles::parseDirPath(volumes, input$dir)
     })    
 
     # path
@@ -200,9 +198,6 @@ app_server <- function(input, output, session) {
         home <- normalizePath(volumes[input$dir$root])
         file.path(home, paste(unlist(input$dir$path[-1]), collapse = .Platform$file.sep))
     })
-
-    # files
-    # output$files <- renderPrint(list.files(path()))
 
     # Load Data
     output$uiLoadData <- renderUI({
@@ -225,7 +220,6 @@ app_server <- function(input, output, session) {
             return()
         }
         withBusyIndicatorServer("LoadData", {
-            # testColumnNames(list.files(path()), input$inputFiles, path()) #load all datasets that are located at the path
             testColumnNames(input$Dataset, input$inputFiles, path()) # load only selected datasets
         })
     })
@@ -303,7 +297,7 @@ app_server <- function(input, output, session) {
                 file_size <<- file_size + file.size(paste0(path(), "/", input$Dataset[i], "/", input$inputFiles[j]))
             }
         }
-        print(paste0(file_size / 1000000, "MB to be loaded"))
+        message(file_size / 1000000, "MB to be loaded")
     })
 
     observeEvent(input$select_load_or_compute_clonotypes, {
@@ -396,7 +390,6 @@ app_server <- function(input, output, session) {
         }
 
         correctInputColumns <- reactive({
-            # print(dataInputColumns())
             correctColumnNames(input$inputFiles, data$rawDataSet, list.files(path()), data$wrong_dataset, new_columns, data$worng_columns_id, loaded_datasets)
         })
 
@@ -416,12 +409,10 @@ app_server <- function(input, output, session) {
     vals <- reactiveValues(sum = 0)
     vals <- reactiveValues(excludedPoints = c(1, 2, 3))
 
-    # makeReactiveBinding("excludedPoints")
 
     # Save extra values in state$values when we bookmark
     onBookmark(function(state) {
         # load saved objects
-        # load("Multiple_value_comparison_result.rdata")
 
         state$values$dir <- dir
         state$values$path <- path()
@@ -437,7 +428,6 @@ app_server <- function(input, output, session) {
         state$values$highly_similar_clonotypes_results <- highly_similar_clonotypes_results
         state$values$public_clonotypes_results <- public_clonotypes_results
         state$values$cdr3_lengths <- cdr3_lengths
-        # state$values$Multiple_value_comparison_result<-Multiple_value_comparison_result
         state$values$insertedMultiple_value_comparison <- insertedMultiple_value_comparison
         state$values$Multiple_value_comparison_input_values <- Multiple_value_comparison_input_values
         state$values$columns_for_Multiple_value_comparison <- columns_for_Multiple_value_comparison
@@ -524,7 +514,6 @@ app_server <- function(input, output, session) {
 
         # Execute Filtering if cleaning has alreary been applied
         output$uiExecute <- renderUI({
-            # if (input$Continue==FALSE | newDataset==TRUE){return()}
             actionButton("Execute", "Execute",
                 style = "color: #fff; background-color: #5F021F; border-color: #fff"
             )
@@ -537,9 +526,6 @@ app_server <- function(input, output, session) {
 
         # Execute Button for pipeline if filtering has alreary been applied
         output$uiExecute_pipeline <- renderUI({
-            # if (length(imgtfilter_results)==0){return()}
-            # actionButton("Execute_pipeline", "Execute Pipeline",
-            #              style="color: #fff; background-color: #5F021F; border-color: #fff")
             withBusyIndicatorUI(actionButton("Execute_pipeline", "Execute Pipeline", style = "color: #fff; background-color: #5F021F; border-color: #fff"))
         })
 
@@ -602,8 +588,6 @@ app_server <- function(input, output, session) {
 
             # Update the link according to the new link of the session
             link <- paste0("http://127.0.0.1:3168/?_state_id_=", session_id)
-
-            # actionButton("load", "Load",onclick="window.open('http://127.0.0.1:3168/?_state_id_=b09f6c6f6e51b35f', '_blank')")
 
             helpText(a("Click Here to load session", href = link, target = "_blank"))
             a(h4("Load Session",
@@ -787,7 +771,7 @@ app_server <- function(input, output, session) {
         if (input$start_end == FALSE) {
             return()
         }
-        textInput("end_char", "End with:", value = "F", width = "110px")
+        textInput("end_char", "End with:", value = "W", width = "110px")
     })
 
     output$uiEnd_comment <- renderUI({
@@ -801,7 +785,7 @@ app_server <- function(input, output, session) {
         if (input$identity == FALSE) {
             return()
         }
-        numericInput("identityLow", "Identity Low %:", 95, min = 0, max = 100, width = "110px")
+        numericInput("identityLow", "Identity Low %:", 85, min = 0, max = 100, width = "110px")
     })
 
     output$uiIdentityHigh <- renderUI({
@@ -897,8 +881,6 @@ app_server <- function(input, output, session) {
                 return()
             }
         }
-        # actionButton("Execute_pipeline", "Execute Pipeline",
-        #             style="color: #fff; background-color: #fff; border-color: #fff")
         withBusyIndicatorUI(
             actionButton(
                 "Execute_pipeline", "Execute Pipeline",
@@ -976,7 +958,6 @@ app_server <- function(input, output, session) {
                 }
 
                 if (input$start_end) {
-                    # filter_id <- c(filter_id, 4)
                     if ((input$end_char == "")) {
                         end_char <- ""
                     } else {
@@ -1234,7 +1215,6 @@ app_server <- function(input, output, session) {
                     }
                     colnames(tab) <- c("Filter id", "Filter out", "Filter in")
                     return(tab)
-                    # imgtfilter_results$workflow
                 },
                 digits = 0
             )
@@ -1478,7 +1458,6 @@ app_server <- function(input, output, session) {
                 load("rData files/clono.rdata")
                 clono <<- clono
                 loaded_datasets <<- names(clono$clono_datasets)
-                # used columns
                 load("rData files/used_columns.rData")
                 used_columns <- e$used_columns
             } else {
@@ -1488,7 +1467,6 @@ app_server <- function(input, output, session) {
                 cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
                 cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
                 cdr3_lengths <<- sort(cdr3_lengths)
-                # save(cdr3_lengths,file=paste0(output_folder,"/cdr3_lengths.rData"))
             }
 
             if (input$select_clonotype == "V Gene + CDR3 Amino Acids") {
@@ -1546,7 +1524,6 @@ app_server <- function(input, output, session) {
             }
 
             just_restored_session_clonotypes <<- FALSE
-            # convergent_evolution_list_datasets<<-clono$convergent_evolution_list_datasets
 
             msgClonotypes <<- clono$confirm
 
@@ -1625,7 +1602,6 @@ app_server <- function(input, output, session) {
                         my_table <- clono$view_specific_clonotype_datasets[[input$clonotypesDataset]][[input$mydata]]
                     }
 
-                    # my_table <- viewClonotypes(data,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
                     specificClonotypes <<- my_table
 
                     return(my_table)
@@ -1725,7 +1701,6 @@ app_server <- function(input, output, session) {
 
                 colnames(freq_mat) <- data
                 rownames(freq_mat) <- cl
-                # freq_mat<<-round(freq_mat,2)
 
                 barplot(
                     freq_mat,
@@ -1739,30 +1714,6 @@ app_server <- function(input, output, session) {
                     )
                 )
             })
-
-            # if(input$shm_normal == TRUE){
-            #   output$shmNormalTable <- renderDataTable({
-            #     if(is.null(input$clonotypesDataset)) return()
-            #     if(input$clonotypesDataset == "All Data"){
-            #       my_table <- clono$SHM_normal[["All Data"]]
-            #     } else {
-            #       my_table <- clono$SHM_normal[[input$clonotypesDataset]]
-            #     }
-            #
-            #     return(my_table)
-            #   }, escape = FALSE, options = list(autoWidth = TRUE))
-            #
-            #   output$downloadShmNormal <- downloadHandler(
-            #     filename = function(){paste0("Clonotypes_SHM_normal_",input$select_clonotype,"_",input$clonotypesDataset,".txt")},
-            #     content = function(file) {
-            #       if (input$clonotypesDataset=="All Data"){
-            #         write.table(clono$SHM_normal[["All Data"]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
-            #       } else {
-            #         write.table(clono$SHM_normal[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
-            #       }
-            #     }
-            #   )
-            # }
 
             if (input$diagnosis == TRUE) {
                 output$diagnosisTable <- renderDataTable(
@@ -1800,7 +1751,6 @@ app_server <- function(input, output, session) {
                 h5(msgClonotypes, style = "color: #CD0000;")
             })
 
-            # save(clono, file=paste0(output_folder,"/clono.rdata"))
         })
     })
 
@@ -1830,7 +1780,6 @@ app_server <- function(input, output, session) {
         })
 
         output$select_highly_similar_clonotypes_parameters <- renderUI({
-            # mainPanel(
             fluidRow(
                 h4("Select number of missmatches"),
                 radioButtons(
@@ -1858,7 +1807,6 @@ app_server <- function(input, output, session) {
                 selectInput("take_gene_highly_similar", "Select type:", c("Yes", "No"), width = "320")
             )
 
-            # )
         })
 
         output$select_length_to_show_higlySimClono_ui <- renderUI({
@@ -1928,22 +1876,6 @@ app_server <- function(input, output, session) {
 
                 temp <- temp[, c("Gene", "CDR3", "N", "Freq", "prev_cluster")]
 
-                # Creates unnecessary .txt
-                # write.table(temp, "for_high_shm_testing.txt", sep = "\t", row.names = FALSE)
-
-                # if(input$high_shm_normal){
-                #   all_filter <- clono$filterin_highly_clono[which(clono$filterin_highly_clono$dataName == d), ]
-                #   all_filter$highly_cluster_id <- 0
-                #   all_filter$highly_freq_cluster_id <- 0
-                #   for (h in seq_len(nrow(temp)){
-                #     prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
-                #     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
-                #     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
-                #   }
-                #
-                #   filtered_High_SHM_similarity[[d]] = SHM_high_similarity(all_filter)
-                # }
-
                 if (save_tables_individually) {
                     write.table(temp, paste0(output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
@@ -1959,11 +1891,6 @@ app_server <- function(input, output, session) {
                     }
 
                     write.table(all_filter, paste0(output_folder, "/", "filterin_highly_clono_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
-
-                    # if(input$high_shm_normal){
-                    #   write.table(filtered_High_SHM_similarity[[d]], paste0("Clonotypes_high_SHM_similarity_",d,".txt"),
-                    #               sep = "\t", row.names = FALSE, col.names = TRUE)
-                    # }
                 }
             }
 
@@ -1986,39 +1913,6 @@ app_server <- function(input, output, session) {
 
             temp <- temp[, c("Gene", "CDR3", "N", "Freq", "prev_cluster")]
 
-            # if(input$high_shm_normal){
-            #
-            #   all_filter <- clono$filterin_highly_clono
-            #   all_filter$highly_cluster_id <- 0
-            #   all_filter$highly_freq_cluster_id <- 0
-            #   for (h in seq_len(nrow(temp)){
-            #     prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
-            #     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
-            #     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
-            #   }
-            #
-            #   filtered_High_SHM_similarity[["All Data"]] = SHM_high_similarity(all_filter)
-            #
-            #   output$highSHMsimilarity_table <- renderDataTable({
-            #     if(is.null(input$highlySimClonotypesDataset)) return()
-            #     if (input$highlySimClonotypesDataset == "All Data"){
-            #       my_table <- filtered_High_SHM_similarity[["All Data"]]
-            #     } else {
-            #       my_table <- filtered_High_SHM_similarity[[input$highlySimClonotypesDataset]]
-            #     }
-            #
-            #     return(my_table)
-            #   }, escape = FALSE, options = list(autoWidth = TRUE))
-            #
-            #   output$downloadHighSHMsimilarity <- downloadHandler(
-            #     filename = function(){paste0("Clonotypes_high_SHM_similarity_",input$highlySimClonotypesDataset,".txt")},
-            #     content = function(file) {
-            #       if (input$highlySimClonotypesDataset == "All Data") write.table(filtered_High_SHM_similarity[["All data"]], file,sep = "\t", row.names = FALSE, col.names = TRUE)
-            #       else write.table(filtered_High_SHM_similarity[[input$highlySimClonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
-            #     }
-            #   )
-            # }
-
             if (save_tables_individually) {
                 write.table(temp, paste0(output_folder, "/", "highly_sim_all_clonotypes_", "All Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
@@ -2034,11 +1928,6 @@ app_server <- function(input, output, session) {
                 }
 
                 write.table(all_filter, paste0(output_folder, "/", "filterin_highly_clono_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
-
-                # if(input$high_shm_normal){
-                #   write.table(filtered_High_SHM_similarity[["All Data"]], paste0("Clonotypes_high_SHM_similarity_All_Data.txt"),
-                #               sep = "\t", row.names = FALSE, col.names = TRUE)
-                # }
             }
 
             output$highlySimAllClonoTable <- renderDataTable(
@@ -2193,7 +2082,6 @@ app_server <- function(input, output, session) {
 
                 colnames(freq_mat) <- data
                 rownames(freq_mat) <- cl
-                # freq_mat<<-round(freq_mat,2)
 
                 barplot(
                     freq_mat,
@@ -2502,18 +2390,8 @@ app_server <- function(input, output, session) {
                         data_filterOut <- data %>% filter(data$Freq <= input$repertories_pies_threshold)
                         data <- data_filterIn
                         data[(nrow(data) + 1), ] <- c("Other genes", sum(data_filterOut$N), sum(data_filterOut$Freq))
-
-                        # pie(as.numeric(data$N), labels =round(as.numeric(data$Freq),2), main = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),col = rainbow(length(data$N)))
-                        # legend("topright", data$Gene, cex = 0.8,
-                        # fill = rainbow(length(data$N)))
-
                         # TODO: Fix Pie plots (wherever 'layout()' is used)
                         p <- plot_ly(data, labels = ~ data$Gene, values = ~ round(as.numeric(data$Freq), 2), type = "pie")
-                        # p <- plot_ly(data, labels = ~data$Gene, values = ~round(as.numeric(data$Freq),2), type = 'pie') %>%
-                        #   layout(title = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),
-                        #           xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                        #           yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-                        # p
                         return(p)
                     } else {
                         # Genes that have percentage<threshold are grouped into one cell
@@ -2523,17 +2401,7 @@ app_server <- function(input, output, session) {
                         data <- data_filterIn
                         data[(nrow(data) + 1), ] <- c("Other genes", sum(data_filterOut$N), sum(data_filterOut$Freq))
 
-                        # plot
-                        # pie(as.numeric(data$N), labels = round(as.numeric(data$Freq),2), main = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),col = rainbow(length(data$N)))
-                        # legend("topright", data$Gene, cex = 0.8,
-                        #       fill = rainbow(length(data$N)))
-
                         p <- plot_ly(data, labels = ~ data$Gene, values = ~ round(as.numeric(data$Freq), 2), type = "pie")
-                        # p <- plot_ly(data, labels = ~data$Gene, values = ~round(as.numeric(data$Freq),2), type = 'pie') %>%
-                        #   layout(title = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),
-                        # xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                        # yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-                        # p
                         return(p)
                     }
                 })
@@ -2685,16 +2553,7 @@ app_server <- function(input, output, session) {
                         data <- data_filterIn
                         data[(nrow(data) + 1), ] <- c("Other genes", sum(data_filterOut$N), sum(data_filterOut$Freq))
 
-                        # pie(as.numeric(data$N), labels =round(as.numeric(data$Freq),2), main = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),col = rainbow(length(data$N)))
-                        # legend("topright", data$Gene, cex = 0.8,
-                        # fill = rainbow(length(data$N)))
-
                         p <- plot_ly(data, labels = ~ data$Gene, values = ~ round(as.numeric(data$Freq), 2), type = "pie")
-                        # p <- plot_ly(data, labels = ~data$Gene, values = ~round(as.numeric(data$Freq),2), type = 'pie') %>%
-                        #   layout(title = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),
-                        # xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                        # yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-                        # p
                         return(p)
                     } else {
                         # Genes that have percentage<threshold are grouped into one cell
@@ -2703,18 +2562,7 @@ app_server <- function(input, output, session) {
                         data_filterOut <- data %>% filter(data$Freq <= input$HighlySim_repertories_pies_threshold)
                         data <- data_filterIn
                         data[(nrow(data) + 1), ] <- c("Other genes", sum(data_filterOut$N), sum(data_filterOut$Freq))
-
-                        # plot
-                        # pie(as.numeric(data$N), labels = round(as.numeric(data$Freq),2), main = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),col = rainbow(length(data$N)))
-                        # legend("topright", data$Gene, cex = 0.8,
-                        #       fill = rainbow(length(data$N)))
-
                         p <- plot_ly(data, labels = ~ data$Gene, values = ~ round(as.numeric(data$Freq), 2), type = "pie")
-                        # p <- plot_ly(data, labels = ~data$Gene, values = ~round(as.numeric(data$Freq),2), type = 'pie') %>%
-                        #   layout(title = paste0(strsplit(strsplit(as.character(imgtfilter_results$allData[[used_columns[["Summary"]][3]]][1])," ")[[1]][2],"V")[[1]][1],input[[paste0("selectRepertoires_",insertedRepertoires[i])]]," ", input$VisualisationDataset),
-                        # xaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE),
-                        # yaxis = list(showgrid = FALSE, zeroline = FALSE, showticklabels = FALSE))
-                        # p
                         return(p)
                     }
                 })
@@ -2855,10 +2703,6 @@ app_server <- function(input, output, session) {
                         numericInput(paste0("Identity_high_group", i), "High Limit:", 95, min = 0, max = 100, width = "140px")
                     )
                 )
-                # mainPanel(
-                # div(style="display:inline-block",numericInput(paste0("Identity_low_group",i),"Identity Low:", 90,  min = 0, max = 100, width="140px")),
-                # div(style="display:inline-block",numericInput(paste0("Identity_high_group",i),"Identity High:", 95,  min = 0, max = 100, width="140px"))
-                # )
             })
         })
         output$insert_identity_groups_ui <- renderUI({
@@ -3036,9 +2880,6 @@ app_server <- function(input, output, session) {
                         br(),
                         dataTableOutput(paste0("Multiple_value_comparison_tables", i)),
                         downloadButton(paste0("downloadMultiple_value_comparison", i), "Download")
-                        # br(),
-                        # br(),
-                        # plotOutput(paste0("Multiple_value_comparison_plot",i))
                     )
                 })
             })
@@ -3128,8 +2969,6 @@ app_server <- function(input, output, session) {
         if (input$pipeline_logo == FALSE) {
             return()
         }
-        # if (msgFreqTables=="") return()
-
         # When the button is clicked, wrap the code in a call to `withBusyIndicatorServer()`
         withBusyIndicatorServer("Execute_pipeline_2nd_part", {
             if (input$select_topN_clonotypes_for_freqTable != "all_clonotypes") {
@@ -3248,14 +3087,10 @@ app_server <- function(input, output, session) {
                     }
                     if (input$freqTableDataset == "All Data") {
                         my_table <- frequenciesTables_results$table_count
-                        # my_table[,2:ncol(my_table)]=my_table
-                        # my_table[,1]=row.names(my_table)
                         row.names(my_table) <- c()
                         colnames(my_table) <- seq_len((ncol(frequenciesTables_results$table_count) - 1))
                     } else {
                         my_table <- frequenciesTables_results$table_count_datasets[[input$freqTableDataset]]
-                        # my_table[,2:ncol(my_table)]=my_table
-                        # my_table[,1]=row.names(my_table)
                         row.names(my_table) <- c()
                         colnames(my_table) <- seq_len((ncol(frequenciesTables_results$table_count) - 1))
                     }
@@ -3309,14 +3144,10 @@ app_server <- function(input, output, session) {
                     }
                     if (input$freqTableDataset == "All Data") {
                         my_table <- frequenciesTables_results$table_freq
-                        # my_table[,2:ncol(my_table)]=my_table
-                        # my_table[,1]=row.names(my_table)
                         row.names(my_table) <- c()
                         colnames(my_table) <- seq_len((ncol(frequenciesTables_results$table_count) - 1))
                     } else {
                         my_table <- frequenciesTables_results$table_freq_datasets[[input$freqTableDataset]]
-                        # my_table[,2:ncol(my_table)]=my_table
-                        # my_table[,1]=row.names(my_table)
                         row.names(my_table) <- c()
                         colnames(my_table) <- seq_len((ncol(frequenciesTables_results$table_count) - 1))
                     }
@@ -3581,16 +3412,9 @@ app_server <- function(input, output, session) {
                 if (input$select_region_logo == "All V region" || input$select_region_logo == "CDR3") {
                     if (input$VisualisationDataset == "All Data") {
                         # Create custom colour scheme
-                        # cs1 = make_col_scheme(chars=c("F","W","A","I","L","V","M","C","P","G","Y","T","S","H","K","R","E","D","Q","N"),
-                        # cols=c("#1E90FF", "#BA55D3", "#0000FF", "#0000FF", "#0000FF", "#0000FF", "#C6E2FF", "#C6E2FF", "#FFD700", "#00EE00", "#C1FFC1", "#54FF9F", "#54FF9F", "#FF0000", "#FF0000", "#FF0000", "#FFD700", "#FFD700", "#ED9121", "#ED9121"))
-                        # ggseqlogo(frequenciesTables_results$region_with_specific_length, method = "prob", col_scheme=cs1)
-                        # write.table(frequenciesTables_results$region_with_specific_length,"fre.txt",sep="\t")
                         logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                     } else {
                         # Create custom colour scheme
-                        # cs1 = make_col_scheme(chars=c("F","W","A","I","L","V","M","C","P","G","Y","T","S","H","K","R","E","D","Q","N"),
-                        # cols=c("#1E90FF", "#BA55D3", "#0000FF", "#0000FF", "#0000FF", "#0000FF", "#C6E2FF", "#C6E2FF", "#FFD700", "#00EE00", "#C1FFC1", "#54FF9F", "#54FF9F", "#FF0000", "#FF0000", "#FF0000", "#FFD700", "#FFD700", "#ED9121", "#ED9121"))
-                        # ggseqlogo(frequenciesTables_results$region_with_specific_length_dataset[[input$VisualisationDataset]], method = "prob", col_scheme=cs1)
                         logo_plot <<- plot(motif_datasets[[input$VisualisationDataset]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                     }
                     table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
@@ -3641,8 +3465,6 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     png(file, width = 1000, height = 550)
-                    # dev.print(png, file,width=1000, height=550)
-                    # multiplot(logo_plot)
                     if (input$select_region_logo == "All V region" || input$regionFreqTable == "CDR3") {
                         if (input$LogoDataset == "All Data") {
                             logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
@@ -3706,12 +3528,7 @@ app_server <- function(input, output, session) {
                             br(),
                             downloadButton(paste0("downloadLogo_cl", i), "Download"),
                             br(),
-                            br() # ,
-                            # dataTableOutput(paste0("FreqCDR3Table_cl", i)),
-                            # br(),
-                            # br(),
-                            # downloadButton(paste0("downloadFreqCDR3Table_cl",i), "Download")
-                        )
+                            br()                        )
                     })
                 })
 
@@ -3867,10 +3684,9 @@ app_server <- function(input, output, session) {
             }
 
             if (just_restored_session_alignment == FALSE) {
-                # if (input$regionAlignment=="V.D.J.REGION" || input$regionAlignment=="V.J.REGION"){
                 if (length(highly_sim) == 0) {
                     if (input$AAorNtAlignment == "both") {
-                        print("V1")
+                        message("Alignment Step 1.a")
                         alignmentRegion_results <<- alignment(
                             imgtfilter_results$allData,
                             input$regionAlignment,
@@ -3887,7 +3703,7 @@ app_server <- function(input, output, session) {
                             FtopN, input$thrClonoAlignment, Fthr, FALSE
                         )
 
-                        print("V2")
+                        message("Alignment Step 2.a")
                         alignmentRegion_results_nt <<- alignment(
                             imgtfilter_results$allData,
                             input$regionAlignment,
@@ -3923,7 +3739,7 @@ app_server <- function(input, output, session) {
                     }
                 } else {
                     if (input$AAorNtAlignment == "both") {
-                        print("V3")
+                        message("Alignment Step 1.b")
                         alignmentRegion_results <<- alignment(
                             imgtfilter_results$allData,
                             input$regionAlignment,
@@ -3940,7 +3756,7 @@ app_server <- function(input, output, session) {
                             FtopN, input$thrClonoAlignment, Fthr, TRUE
                         )
 
-                        print("V4")
+                        message("Alignment Step 2.b")
                         alignmentRegion_results_nt <<- alignment(
                             imgtfilter_results$allData,
                             input$regionAlignment,
@@ -4050,7 +3866,6 @@ app_server <- function(input, output, session) {
             ######################################### Grouped Alignment #########################################
 
             if (input$regionAlignment != "CDR3") {
-                # groupedAlignmentRegion<-groupedAlignment(alignmentRegion)
             }
 
             if (just_restored_session_alignment == FALSE) {
@@ -4297,10 +4112,7 @@ app_server <- function(input, output, session) {
                 msgMutation <<- mutation_results$confirm
             }
 
-            # output$uiSelectGeneMutation <- renderUI({
-            # selectInput("select_gene_mutation", "Select gene of germline:",names(mutation_results$mutation_change_allData), width="200")
-            # })
-
+           
             output$MutationTable <- renderDataTable(
                 {
                     if (is.null(input$mutationDataset)) {
@@ -4522,10 +4334,8 @@ app_server <- function(input, output, session) {
         if (!input$Execute) {
             return()
         }
-        # cleaning_workflow[,1]=cleaning_criteria[cleaning_workflow[,1]]
         cleaning_workflow[, 1] <- cleaning_parameters
         my_table <- as.data.frame(cleaning_workflow)
-        # my_table=as.data.frame(cleaning_parameters)
         colnames(my_table) <- c("Preselection parameters", "Filter Out", "Filter In")
         return(my_table)
     })
@@ -4983,8 +4793,6 @@ app_server <- function(input, output, session) {
                         bty = "n"
                     )
                 )
-                # barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2)
-                # legend("topright", fill=rainbow(nrow(freq_mat)), legend=cl,cex = 0.6)
                 dev.off()
             }
 
@@ -5057,8 +4865,6 @@ app_server <- function(input, output, session) {
                         bty = "n"
                     )
                 )
-                # barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2)
-                # legend("topright", fill=rainbow(nrow(freq_mat)), legend=cl,cex = 0.6)
                 dev.off()
             }
 
@@ -5491,7 +5297,6 @@ app_server <- function(input, output, session) {
 
 
                 # Separate data
-                # mutational_status_table_datasets<<-list()
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         mut <- filteredData_id %>%
@@ -5582,7 +5387,6 @@ app_server <- function(input, output, session) {
 
 
                 # Separate data
-                # mutational_status_table_datasets<<-list()
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         mut <- filteredData_id %>%
@@ -5683,7 +5487,6 @@ app_server <- function(input, output, session) {
 
             allData <- list()
             for (i in seq_len(length(fileNames))) {
-                # clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
                 nucleotides[, i] <- clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
             }
             # plot
@@ -5708,7 +5511,6 @@ app_server <- function(input, output, session) {
 
             allData <- list()
             for (i in seq_len(length(fileNames))) {
-                # clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
                 nucleotides[, i] <- clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
             }
             # plot
@@ -5733,7 +5535,6 @@ app_server <- function(input, output, session) {
 
             allData <- list()
             for (i in seq_len(length(fileNames))) {
-                # clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN,]
                 nucleotides[, i] <- clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
             }
             # plot
@@ -5760,7 +5561,6 @@ app_server <- function(input, output, session) {
 
             allData <- list()
             for (i in seq_len(length(fileNames))) {
-                # clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
                 nucleotides[, i] <- clono$convergent_evolution_list_datasets_only_num[[fileNames[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
             }
             # plot
@@ -5769,16 +5569,6 @@ app_server <- function(input, output, session) {
                 linewidth = 6
             )
             p <- plot_ly(y = (fileNames), x = seq_len(input$nucleotides_per_clonotype_topN), z = t(nucleotides))
-            # p <- plot_ly(y = (fileNames), x = seq_len(input$nucleotides_per_clonotype_topN), z = t(nucleotides)) %>% add_surface()%>%
-            #   layout(
-            #     title = "Nucleotides per Clonotype",
-            #     scene = list(
-            #       xaxis = list(title = "Clonotypes"),
-            #       yaxis = list(title = "Samples"),
-            #       zaxis = list(title = "Num of Nucleotides")
-            #     ),
-            #     xaxis = ax, yaxis = ax
-            #   )
             return(p)
         })
         ############################## Distributions #####################################
@@ -6115,43 +5905,6 @@ app_server <- function(input, output, session) {
             }
             in.path <- paste0(tmp_path, "/", folder_name)
 
-            ################################### Initial-Clean-Filter Tables ######################################
-            # if (cleaning_confirm!="")
-            # for (j in seq_len((length(loaded_datasets)+1))){
-            # if (j==(length(loaded_datasets)+1)){
-            # filename=paste0(in.path,"/","Initial_table_","All Data",".txt")
-            # write.table(imgtcleaning_results$allDataInitial, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # filename=paste0(in.path,"/","Clean_table_","All Data",".txt")
-            # write.table(imgtcleaning_results$allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # filename=paste0(in.path,"/","Clean_table_out_","All Data",".txt")
-            # write.table(imgtcleaning_results$filterOutSum, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # }else{
-            # filename=paste0(in.path,"/","Initial_table_",loaded_datasets[j],".txt")
-            # write.table(imgtcleaning_results$initial_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # filename=paste0(in.path,"/","Clean_table_",loaded_datasets[j],".txt")
-            # write.table(imgtcleaning_results$cleaned_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # filename=paste0(in.path,"/","Clean_table_out_",loaded_datasets[j],".txt")
-            # write.table(imgtcleaning_results$cleaned_out_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-
-            # }
-            # }
-
-            # if (msg!="")
-            # for (j in seq_len((length(loaded_datasets)+1))){
-            # if (j==(length(loaded_datasets)+1)){
-            # filename=paste0(in.path,"/","Filtered_table_","All Data",".txt")
-            # write.table(imgtfilter_results$allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # filename=paste0(in.path,"/","Filtered_out_table_out_","All Data",".txt")
-            # write.table(imgtfilter_results$filterOutSum, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # }else{
-            # filename=paste0(in.path,"/","Filtered_table_",loaded_datasets[j],".txt")
-            # write.table(imgtfilter_results$filtered_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            # filename=paste0(in.path,"/","Filtered_out_table_out_",loaded_datasets[j],".txt")
-            # write.table(imgtfilter_results$filtered_out_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-
-            # }
-            # }
-
             ########################################### Clonotypes ###############################################
             if (msgClonotypes != "") {
                 for (j in seq_len((length(loaded_datasets) + 1))) {
@@ -6273,7 +6026,6 @@ app_server <- function(input, output, session) {
 
             ########################################### Multiple value comparison  ##############################
             if (length(msgMultiple_value_comparison) > 0) {
-                # load("rData files/Multiple_value_comparison_result.rdata")
                 for (i in seq_len(length(insertedMultiple_value_comparison))) {
                     for (j in seq_len((length(loaded_datasets) + 1))) {
                         val1 <- input[[paste0("select_MultipleValues_column1_", strsplit(insertedMultiple_value_comparison[i], "_")[[1]][2])]]
@@ -6353,7 +6105,6 @@ app_server <- function(input, output, session) {
             ########################################### Mutations ###############################################
             if (msgMutation != "") {
                 for (j in seq_len((length(loaded_datasets) + 1))) {
-                    # for (s in names(mutation_results$mutation_change_allData)){
                     if (j == (length(loaded_datasets) + 1)) {
                         if (input$AAorNtMutations == "both") {
                             filename <- paste0(in.path, "/", "Mutations_thr", input$ThrAAMutations, "_", "aa", "_", "All Data", ".txt")
@@ -6377,13 +6128,11 @@ app_server <- function(input, output, session) {
                             write.table(mutation_results$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
-                    # }
                 }
 
                 if (FclonoSeperately) {
                     for (cl in seq_len(length(cl_ids_mutations))) {
                         for (j in seq_len((length(loaded_datasets) + 1))) {
-                            # for (l in names(mutation_allData)){
                             if (j == (length(loaded_datasets) + 1)) {
                                 if (input$AAorNtMutations == "both") {
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", input$ThrAAMutations, "_", "aa", "_", "All_Data", ".txt")
@@ -6407,7 +6156,6 @@ app_server <- function(input, output, session) {
                                     write.table(mutation_results_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                 }
                             }
-                            # }
                         }
                     }
                 }
@@ -6429,14 +6177,6 @@ app_server <- function(input, output, session) {
 
             ####### tar it
             tar(file, in.path)
-            # tar(file,in.path, tar='internal')
-            # suppressWarnings(tar(file,in.path, tar='internal'))
         }
     )
-
-
-
-
-
-    # }}) #login
 }

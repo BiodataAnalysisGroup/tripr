@@ -45,12 +45,10 @@ app_ui <- function(request) {
         shinyjs::useShinyjs(),
         shinyjs::extendShinyjs(text = jscode, functions = c("enabletab", "disabletab")),
         navbarPage(
-            "TRIP Tool",
+            "T-cell Receptor/Immunoglobulin Profiler (tripr)",
             id = "navbar",
             position = "fixed-top",
             inverse = TRUE,
-            # shinyjs::useShinyjs(),
-            # tags$style(type="text/css", ""),
 
             ################## Home ##########
             tabPanel("Home",
@@ -88,12 +86,7 @@ app_ui <- function(request) {
                 ),
                 mainPanel(
                     width = 9,
-                    # fileInput("file1", "IMGT output", multiple = TRUE),
                     textOutput("sourced"),
-
-                    # textInput("file_name", "File names"),
-                    # h elpText("Separate the different file names with comma e.g. T3304,T3396"),
-
                     br(),
                     h4("Select the directory where the folders of the patients' data are located or load previous session"),
                     shinyDirButton("dir", "Choose directory", "Please select a folder"),
@@ -102,12 +95,6 @@ app_ui <- function(request) {
                     h4("Or"),
                     br(),
                     actionButton("restorePreviousSession", "Restore Previous Session"),
-
-
-                    # br(),
-                    # br(),
-                    # actionButton("sessionRestored", "Restored Previous Session"),
-
                     br(),
                     br(),
                     uiOutput("uiPreviousSessions"),
@@ -118,7 +105,6 @@ app_ui <- function(request) {
                     br(),
                     uiOutput("uiDatasets"),
                     br(),
-                    # useShinyjs(),
                     tags$style(appCSS),
                     uiOutput("uiLoadData"),
                     br(),
@@ -146,7 +132,6 @@ app_ui <- function(request) {
                 ),
                 sidebarPanel(
                     width = 9,
-                    # shinyjs::useShinyjs(),
                     checkboxInput("Functional", c(
                         "Only take into account Functional V-Gene",
                         list(
@@ -216,7 +201,6 @@ app_ui <- function(request) {
                     uiOutput("uiEnd"),
                     uiOutput("uiEnd_comment"),
                     br(),
-                    # useShinyjs(),
                     tags$style(appCSS),
 
                     # Wrap the button in the function `withBusyIndicatorUI()`
@@ -233,7 +217,6 @@ app_ui <- function(request) {
                 ),
                 sidebarPanel(
                     width = 9,
-                    # shinyjs::useShinyjs(),
                     checkboxInput("identity", c(
                         "V-REGION identity %",
                         list(
@@ -342,7 +325,6 @@ app_ui <- function(request) {
                     ),
                     uiOutput("uiAminoacid"),
                     br(),
-                    # useShinyjs(),
                     tags$style(appCSS),
                     uiOutput("uiExecute"),
                     uiOutput("confirmCleaningFiltering"),
@@ -506,9 +488,6 @@ app_ui <- function(request) {
                             )
                         ),
 
-                        # conditionalPanel(
-                        # condition = "input.select_load_or_compute_clonotypes == 'compute_clonotypes'", )
-
                         selectInput("select_clonotype", "Select type:", c(
                             "V Gene + CDR3 Amino Acids",
                             "V Gene and Allele + CDR3 Amino Acids",
@@ -524,17 +503,6 @@ app_ui <- function(request) {
                         ),
                         width = "320"
                         ),
-
-                        # checkboxInput("shm_normal", c("SHM normal",
-                        #                               list(tags$style(type = "text/css", "#q_clonotypes {vertical-align: top;}"),
-                        #                                    bsButton("q_shm_normal", label = "", icon = icon("question"), size = "extra-small"))),
-                        #               width="500px"),
-                        #
-                        # bsPopover(id = "q_shm_normal", title = "SHM normal",
-                        #           content = paste0("Text to write about SHM normal"),
-                        #           placement = "right",
-                        #           trigger = "focus",
-                        #           options = list(container = "body")),
 
                         checkboxInput("diagnosis", c(
                             "Diagnosis",
@@ -575,20 +543,8 @@ app_ui <- function(request) {
                     ),
                     conditionalPanel(
                         condition = "input.pipeline_highly_similar_clonotypes % 2 == 1",
-                        # br(),
                         uiOutput("select_highly_similar_clonotypes_parameters"),
                         uiOutput("confirmhighlySimClonotypes")
-                        # checkboxInput("high_shm_normal", c("High SHM similarity",
-                        #                                    list(tags$style(type = "text/css", "#q_clonotypes {vertical-align: top;}"),
-                        #                                    bsButton("q_high_shm_normal", label = "", icon = icon("question"),
-                        #                                             size = "extra-small"))),
-                        #               width="500px"),
-                        #
-                        # bsPopover(id = "q_high_shm_normal", title = "High SHM similarity",
-                        #           content = paste0("Text to write about High SHM similarity"),
-                        #           placement = "right",
-                        #           trigger = "focus",
-                        #           options = list(container = "body"))
                     ),
                     conditionalPanel(
                         condition = "output.num_of_datasets>1 | input.select_load_or_compute_clonotypes == 'load_clonotypes'",
@@ -781,8 +737,6 @@ app_ui <- function(request) {
                         ),
                         uiOutput("confirmMutational_status")
                     ),
-                    # conditionalPanel(
-                    # condition = "'1_Summary.txt' %in% input.inputFiles",
 
                     #### CDR3 Distribution ####
 
@@ -812,10 +766,7 @@ app_ui <- function(request) {
                             )
                         )
                     ),
-                    # ),
 
-                    # conditionalPanel(
-                    # condition = "'6_Junction.txt' %in% input.inputFiles",
 
                     #### Pi Distribution ####
 
@@ -846,7 +797,6 @@ app_ui <- function(request) {
                         )
                     ),
 
-                    # ),
 
                     #### Multiple value comparison ####
 
@@ -886,7 +836,6 @@ app_ui <- function(request) {
                         tags$div(id = "placeholder")
                     ),
                     uiOutput("confirmMultiple_value_comparison"),
-                    # useShinyjs(),
                     tags$style(appCSS),
                     uiOutput("uiExecute_pipeline"),
                     br(),
@@ -912,7 +861,6 @@ app_ui <- function(request) {
                     ),
                     conditionalPanel(
                         condition = "input.pipeline_CDR3Diff1 % 2 == 1",
-                        # uiOutput("uiSelectGene1Diff"),
                         numericInput("cdr3MaxLength1Diff", "Select max CDR3 length:", 12, min = 0, max = 150, width = "140px"),
                         numericInput("cdr3Position1Diff", "Select CDR3 position with difference:", 8, min = 0, max = 150, width = "140px")
                     ),
@@ -939,7 +887,6 @@ app_ui <- function(request) {
                             condition = "input.pipeline_alignment % 2 == 1",
                             selectInput("regionAlignment", "Region for Alignment:", c("V.D.J.REGION", "V.J.REGION"), width = "170px"),
                             selectInput("AAorNtAlignment", "AA or Nt:", c("aa", "nt", "both"), width = "170px"),
-                            # numericInput("MaxLengthRegion", "Max length of region:", 127,  min = 0, max = 150, width="140px"),
                             selectInput("useGermline", "Germline:", c("Use Allele's germline", "Use Gene's germline", "Insert Germline"), width = "180px"),
                             conditionalPanel(
                                 condition = "input.useGermline  == 'Insert Germline'",
@@ -967,15 +914,6 @@ app_ui <- function(request) {
                             )
                         ),
 
-                        # checkboxInput("select_clonotypes_for_alignment", "Select clonotypes separately", width="500px"),
-
-                        # conditionalPanel(
-                        # condition = "input.select_clonotypes_for_alignment  % 2 == 1",
-                        # textInput("clonotypes_for_alignment", "cluster ids"),
-                        # helpText("Separate the different cluster ids with comma e.g. 1,2,4")
-                        # ),
-                        # br()
-
                         uiOutput("confirmAlignment"),
                         uiOutput("confirmGroupedAlignment")
                     ),
@@ -1000,7 +938,6 @@ app_ui <- function(request) {
                         conditionalPanel(
                             condition = "input.pipeline_mutations % 2 == 1",
                             selectInput("AAorNtMutations", "AA or Nt:", c("aa", "nt", "both"), width = "170px"),
-                            # numericInput("MaxLengthRegion", "Max length of region:", 127,  min = 0, max = 150, width="140px"),
 
                             conditionalPanel(
                                 condition = "input.AAorNtMutations  == 'aa' | input.AAorNtMutations  == 'both'",
@@ -1043,7 +980,7 @@ app_ui <- function(request) {
                             br()
                         ),
                         uiOutput("confirmMutations")
-                    ), # uiOutput("confirmGroupedAlignment")
+                    ),
 
                     #### Logo ####
 
@@ -1100,7 +1037,6 @@ app_ui <- function(request) {
                         tags$div(id = "placeholder")
                     ),
                     uiOutput("confirmLogo"),
-                    # useShinyjs(),
                     tags$style(appCSS),
                     # Wrap the button in the function `withBusyIndicatorUI()`
 
@@ -1139,7 +1075,6 @@ app_ui <- function(request) {
                         condition = "input.clonotypes % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('clonoTitle'),
                         dataTableOutput("clonoTable"),
 
                         # The pop-up window
@@ -1161,7 +1096,6 @@ app_ui <- function(request) {
                         condition = "input.shm_normal_clonotypes % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('clonoTitle'),
                         dataTableOutput("shmNormalTable"),
                         downloadButton("downloadShmNormal", "Download")
                     ),
@@ -1169,7 +1103,6 @@ app_ui <- function(request) {
                         condition = "input.view_diagnosis % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('clonoTitle'),
                         dataTableOutput("diagnosisTable"),
                         downloadButton("downloadDiagnosis", "Download")
                     ),
@@ -1208,7 +1141,6 @@ app_ui <- function(request) {
                         condition = "input.highly_similar_all_clonotypes_btn % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('clonoTitle'),
                         dataTableOutput("highlySimAllClonoTable"),
                         br(),
                         downloadButton("downloadHighlySimAllClonoTable", "Download"),
@@ -1227,7 +1159,6 @@ app_ui <- function(request) {
                         condition = "input.highly_similar_clonotypes_btn % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('clonoTitle'),
                         dataTableOutput("highlySimClonoTable"),
                         br(),
                         downloadButton("downloadAllhighlySimClonotypes", "Download"),
@@ -1236,8 +1167,7 @@ app_ui <- function(request) {
                         dataTableOutput("highlySimClono_allGroups_Table"),
                         br(),
                         downloadButton("downloadAllhighlySimClonotypes_allGroups")
-                    ), # plotOutput("clonotypes_bar_plot")
-
+                    ),
                     conditionalPanel(
                         condition = "input.high_shm_normal % 2 == 1",
                         br(),
@@ -1359,7 +1289,7 @@ app_ui <- function(request) {
                         br(),
                         br(),
                         uiOutput("uiMultiple_value_comparisonTables")
-                    ), # downloadButton("downloadMultiple_value_comparison", "Download")
+                    ),
 
                     br()
                 )
@@ -1514,7 +1444,6 @@ app_ui <- function(request) {
                         condition = "input.countTable % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('countCDR3TableTitle'),
                         dataTableOutput("countCDR3Table"),
                         downloadButton("downloadcountCDR3Table", "Download")
                     ),
@@ -1527,7 +1456,6 @@ app_ui <- function(request) {
                         condition = "input.freqTable % 2 == 1",
                         br(),
                         br(),
-                        # uiOutput('frequencyCDR3TableTitle'),
                         dataTableOutput("frequencyCDR3Table"),
                         downloadButton("downloadfrequencyCDR3Table", "Download")
                     ),
@@ -1594,7 +1522,6 @@ app_ui <- function(request) {
                     br(),
                     conditionalPanel(
                         condition = "input.pipeline_clonotypes == 1",
-                        # plotOutput("clonotypes_bar_plot_visualisation"),
                         actionButton("view_clonotype_bar", "View Clonotype bar plots",
                             style = "color: #fff; background-color: #5F021F; border-color: #fff"
                         ),
@@ -1626,7 +1553,6 @@ app_ui <- function(request) {
                     ),
                     conditionalPanel(
                         condition = "input.pipeline_highly_similar_clonotypes == 1",
-                        # plotOutput("clonotypes_bar_plot_visualisation"),
                         actionButton("view_higly_sim_clonotype_bar", "View Highly Similar Clonotype bar plots",
                             style = "color: #fff; background-color: #5F021F; border-color: #fff"
                         ),
@@ -1683,23 +1609,6 @@ app_ui <- function(request) {
                         br()
                     ),
 
-                    ###
-                    # conditionalPanel(
-                    # condition = "input.pipeline_Multiple_value_comparison == 1",
-                    # actionButton("view_multiple_value_plots", "View Multiple value plots",
-                    # style="color: #fff; background-color: #5F021F; border-color: #fff"),
-
-                    # br(),
-
-                    # conditionalPanel(
-                    # condition = "input.view_multiple_value_plots % 2 == 1",
-                    # br(),
-                    # uiOutput("uiMultiple_value_plots")
-                    # ),
-
-                    # br()
-                    # ),
-
                     conditionalPanel(
                         condition = "input.pipeline_mutational_status == 1",
                         actionButton("view_mutational_status", "View Somatic hypermutation status plots",
@@ -1736,12 +1645,10 @@ app_ui <- function(request) {
                     ),
                     conditionalPanel(
                         condition = "input.pipeline_clonotypes == 1 && output.num_of_datasets>1",
-                        # condition= "unique(t(data.frame(strsplit(input$Dataset,'_')))[,1])>1",
                         actionButton("nucleotides_per_clonotype", "View nucleotides per clonotype",
                             style = "color: #fff; background-color: #5F021F; border-color: #fff"
                         ),
                         br(),
-                        # unique(t(data.frame(strsplit(input$Dataset,"_")))[,1])
 
                         conditionalPanel(
                             condition = "input.nucleotides_per_clonotype % 2 == 1",
@@ -1777,10 +1684,6 @@ app_ui <- function(request) {
                                 br()
                             )
 
-                            # checkboxGroupInput(inputId = "nucleotides_per_clonotype_Datasets",
-                            #                    label = "Select Datasets",
-                            #                    inline=TRUE,
-                            #                    choices = input$Dataset)
                         ),
                         br()
                     ),

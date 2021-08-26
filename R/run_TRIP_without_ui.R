@@ -1,14 +1,235 @@
 # run_TRIP_without_ui.R
 
-run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selection, identity_range, vgenes, dgenes, jgenes, cdr3_length_range, aminoacid,
-    pipeline, select_clonotype, highly_sim_params, shared_clonotypes_params, highly_shared_clonotypes_params, repertoires_params, identity_groups,
-    multiple_values_params, alignment_params, mutations_params) {
+#' Run tripr analysis via R command line
+#'
+#' \code{run_TRIP()} is a wrapper of \{tripr\} shiny analysis tool for use via R
+#'  command line. 
+#' Output of analysis is saved in \emph{tripr/extdata/output} folder, where R 
+#' libraries are saved (typically \emph{R/library}).
+#'
+#' @param datapath (character) The directory where the folders of the data 
+#' is located. Note that every sample of the dataset must have \strong{its 
+#' own individual folder} and every sample folder must 
+#' be in \strong{one root folder}. Note that \strong{every} file in the root 
+#' folder will be used in the analysis. \cr
+#' Supposedly the dataset is in user's \emph{Documents/} folder, one could use: 
+#' \code{fs::path_home("Documents", "dataset")}, with the help of 
+#' \link[fs]{path_home} function.
+#' See the package vignette for more.
+#'
+#' @param output_path (character) The directory where the output data will 
+#' be stored. Please provide a valid path, ideally the same way as datapath
+#' by using the \link[fs]{path_home} function. \cr
+#' The default value points to \emph{Documents/tripr_output} directory.
+#'
+#' @param filelist (character vector) The character vector of files of the IMGT 
+#' output that will be used through the analysis from each sample.
+#' @param cell (character) 'Bcell' (default) or 'Tcell'.
+#' @param throughput (character) 'High Throughput' (default) or 
+#' 'Low Throughput'.
+#' @param preselection (character) Preselection options: \cr
+#'    1 == Only take into account Functional V-Gene, \cr
+#'    2 == Only take into account CDR3 with no Special Characters (X,*,#,.), \cr
+#'    3 == Only take into account Productive Sequences, \cr
+#'    4 == Only take into account CDR3 with valid start/end landmarks., \cr
+#'    For Preselection option 4, select start/end landmarks.,\cr
+#'    Use the vertical line '|' to add more than one start or end landmarks,\cr
+#'    Use comma ',' to seperate the list of options, use semicolon ':' to 
+#'    seperate start and end landmarks.
+#'
+#' @param selection (character) Selection options: \cr
+#'    5 == V-REGION identity % , \cr
+#'    6 == Select Specific V Gene , \cr
+#'    7 == Select Specific J Gene , \cr
+#'    8 == Select Specific D Gene , \cr
+#'    9 == Select CDR3 length range ,\cr
+#'    10 == Only select CDR3 containing specific amino-acid sequence. \cr
+#'    Use comma ',' to seperate the list of options.
+#' @param identity_range (character) V-REGION identity %Low and %High, \cr
+#'    Use colon ':' to seperate identity low and high
+#' @param vgenes (character) Filter in specific V Genes, \cr
+#' Separate the different V-Gene names with '|' e.g. TRBV11-2|TRBV29-1*03 (F)
+#' @param dgenes (character) Filter in specific D Genes, \cr
+#'     Separate the different D-Gene names with | e.g. TRBD2|TRBD1
+#' @param jgenes (character) Filter in specific J Genes, \cr
+#'     Separate the different J-Gene names with | e.g. TRBJ2-6|TRBJ2-2
+#' @param cdr3_length_range (character) Filter in rows with CDR3 lengths 
+#' within a range, \cr
+#'    Use colon ':' to seperate identity low and high
+#' @param aminoacid (character) Filter in rows with CDR3 containing specific 
+#' amino-acid sequence
+#' @param pipeline (character) Pipeline options: \cr
+#'    1 == Clonotypes Computation, \cr
+#'    2 == Highly Similar Clonotypes computation, \cr
+#'    3 == Shared Clonotypes Computation, \cr
+#'    4 == Highly Similar Shared Clonotypes Computation, \cr
+#'    5 == Repertoires Extraction, \cr
+#'    6 == Repertoires Comparison, \cr
+#'    7 == Highly Similar Repertoires Extraction, \cr
+#'    8 == Insert Identity groups, \cr
+#'    9 == Somatic hypermutation status,  \cr
+#'    10 == CDR3 Distribution, \cr
+#'    11 == Pi Distribution, \cr
+#'    12 == Multiple value comparison, \cr
+#'    13 == CDR3 with 1 length difference, \cr
+#'    14 == Alignment, \cr
+#'    15 == Somatic hypermutations,  \cr
+#'    16 == Logo, \cr
+#'    17 == SHM normal, \cr
+#'    18 == SHM High similarity, \cr
+#'    19 == Diagnosis, \cr
+#'    Use comma ',' to seperate the list of options
+#' @param select_clonotype (character) Compute clonotypes. \cr
+#' Select one the following options: \cr
+#'    "V Gene + CDR3 Amino Acids", \cr
+#'    "V Gene and Allele + CDR3 Amino Acids", \cr
+#'    "V Gene + CDR3 Nucleotide", \cr
+#'    "V Gene and Allele + CDR3 Nucleotide", \cr
+#'    "J Gene + CDR3 Amino Acids", \cr
+#'    "J Gene and Allele + CDR3 Amino Acids", \cr
+#'    "J Gene + CDR3 Nucleotide", \cr
+#'    "J Gene and Allele + CDR3 Nucleotide", \cr
+#'    "CDR3 Amino Acids", \cr
+#'    "CDR3 Nucleotide", \cr
+#'    "Sequence
+#' @param highly_sim_params (character) Select number of missmatches, the 
+#' threshold of 
+#' the clonotype frequency and whether you want to take gene into account.
+#' Use dashes '-' to show the length of the CDR3 sequences and the number 
+#' of allowed missmatches and spaces ' ' to separate. For the CDR3 lengths 
+#' with not specified number of missmatches the default value is 1.
+#' Use comma ',' to separate the three options.
+#' @param shared_clonotypes_params (character) Shared clonotypes computation.\cr
+#'    Select 'reads' of 'threshold' for clonotypes, the number of reads or 
+#'    the threshold percentage accordingly, and whether you want to take 
+#'    gene into account.
+#'    Use comma ',' to seperate the 3 options
+#' @param highly_shared_clonotypes_params (character) Highly Similar Shared 
+#' Clonotypes Computation \cr
+#'  Select 'reads' of 'threshold' for clonotypes, the number of 
+#'  reads or the threshold percentage accordingly, and whether you want 
+#'  to take gene into account.
+#'  Use comma ',' to seperate the 3 options
+#' @param repertoires_params (character) Repertoires Extraction \cr
+#'    Options: \cr
+#'    1 == V Gene \cr
+#'    2 == V Gene and allele \cr
+#'    3 == J Gene \cr
+#'    4 == J Gene and allele \cr
+#'    5 == D Gene \cr
+#'    6 == D Gene and allele \cr
+#'    Use comma ',' to seperate the selected options
+#' @param identity_groups (character) Insert identity groups \cr
+#'    Insert low and high values as follows: \cr
+#'    low_values:high_values \cr
+#'    Seperate low_values and high_values using comma ','.
+#' @param multiple_values_params (character) Multiple value comparison \cr
+#'    Options: \cr
+#'    1 == V GENE   \cr
+#'    2 == V GENE and allele \cr
+#'    3 == J GENE  \cr
+#'    4 == J GENE and allele \cr
+#'    5 == D GENE  \cr
+#'    6 == D GENE and allele \cr
+#'    7 == CDR3-IMGT length  \cr
+#'    8 == D-REGION reading frame \cr
+#'    9 == Molecular mass \cr
+#'    10 == pI  \cr
+#'    11 == V-REGION identity %  \cr
+#'    Use colon ':' to indicate combinations of 2 values, use comma "," to 
+#' seperate the selected options
+#' @param alignment_params (character) Alignment parameters: \cr
+#'    Region for Alignment: 1 == V.D.J.REGION or 2 == V.J.REGION  \cr
+#'    AA or Nt: Select 'aa' or 'nt' or 'both' \cr
+#'    Germline: 1 == Use Allele's germline or 2 == Use Gene's germline \cr
+#'    Use: 1 == All clonotypes or 2 == Select top N clonotypes or 3 == Select 
+#'    threshold for clonotypes  \cr
+#'    Use comma ',' to seperate the 4 parameters.
+#'    If you select option 2 or 3 at the 4th parameter you have to set 
+#'    the N or the threshold as well using colon ':'.
+#' @param mutations_params (character) Somatic hypermutations parameters: \cr
+#'    AA or Nt: Select 'aa' or 'nt' or 'both'  \cr
+#'    Set threshold for AA \cr
+#'    Set threshold for Nt \cr
+#'    Use: 1 == All clonotypes or 2 == Select top N clonotypes or  
+#'    3 == Select threshold for clonotypes  \cr
+#'    Use comma ',' to seperate the 3 parameters.
+#'    If you select option 2 or 3 at the 3rd parameter you have to set 
+#'    the N or the threshold as well using colon ':'.
+#'
+#' @return None
+#'
+#' @examples
+#' 
+#'
+#'## Do not run
+#'
+#'run_TRIP(
+#'    output_path=fs::path_home("Documents/my_output"),
+#'    filelist=c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", 
+#'        "4_IMGT-gapped-AA-sequences.txt", "6_Junction.txt"),
+#'    cell="Bcell", 
+#'    throughput="High Throughput", 
+#'    preselection="1,2,3,4C:W", 
+#'    selection="5", 
+#'    identity_range="88:100", 
+#'    cdr3_length_range="", 
+#'    pipeline="1", 
+#'    select_clonotype="V Gene + CDR3 Amino Acids")
+#'
+#'
+#' @export
+#'
+
+
+
+run_TRIP <- function(
+    datapath=fs::path_package("extdata", "dataset", package="tripr"),
+    output_path=fs::path_home("Documents/tripr_output"), 
+    filelist=c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", 
+        "4_IMGT-gapped-AA-sequences.txt", "6_Junction.txt"),
+    cell="Bcell", 
+    throughput="High Throughput", 
+    preselection="1,4C:W", 
+    selection="5", 
+    identity_range="85:100", 
+    vgenes="", 
+    dgenes="", 
+    jgenes="", 
+    cdr3_length_range="", 
+    aminoacid="",
+    pipeline="1", 
+    select_clonotype="V Gene + CDR3 Amino Acids", 
+    highly_sim_params=paste0("1-1 2-1 3-1 4-1 5-1 6-1 7-1 8-1 9-1 10-1 11-1 ",
+        "12-1 13-1 14-1 15-2 16-2 17-2 18-2 19-2 20-2 21-2 23-2 24-2 25-2 ",
+        "26-2 27-2 28-2 29-3 30-3 31-3 32-3 33-3 34-3 35-3 36-3 37-3 38-3 ",
+        "39-3 40-3 41-3 42-3 43-3 44-3 45-3 46-3 47-3 48-3 49-3 50-3,1,Yes"), 
+    shared_clonotypes_params="reads,1,Yes", 
+    highly_shared_clonotypes_params="reads,1,Yes", 
+    repertoires_params="1,4,6", 
+    identity_groups="85:97,97:99,99:100,100:100",
+    multiple_values_params="2:7,2:3,2:5,2:11", 
+    alignment_params="1,both,1,2:20", 
+    mutations_params="both,0.5,0.5,2:20") {
+
+    ##### Create output folder ######
+    if (save_tables_individually | save_lists_for_bookmark) {
+        ## output folder name as system time
+        output_path <- paste0(output_path, 
+            "/output_", format(Sys.time(), "%H_%M"))
+        message("Output will be saved in: ", fs::path(output_path))
+        # output path
+        e$output_folder <- paste0(fs::path(output_path), "/output_tables")
+        if (!file.exists(paste0(e$output_folder))) {
+            fs::dir_create(paste0(e$output_folder))
+        }
+    }
 
     ##### Input data parameters ####
     name <- list.files(datapath) # dataset names eg c("B1","B2")
     allDatasets <- name
     loaded_datasets <- list.files(datapath) # dataset names eg c("B1","B2")
-    files <- filelist # selected imgt files eg c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", "4_IMGT-gapped-AA-sequences.txt","6_Junction.txt" )
+    files <- filelist # selected imgt files 
 
     if (cell == "Bcell") {
         cell_id <- 2
@@ -92,6 +313,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         )
     }
 
+    used_columns <- e$used_columns
     cdr3_lengths <- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
     ## Suppresses 'NAs introduced by coercion' Warning
     cdr3_lengths <- suppressWarnings(as.numeric(cdr3_lengths)) #+2
@@ -268,15 +490,12 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         select_highly_sim_num_of_missmatches <- "select_highly_sim_num_of_missmatches_number"
         num_of_missmatches <- rep(1, length(cdr3_lengths))
 
-        # if (select_highly_sim_num_of_missmatches != 'select_highly_sim_num_of_missmatches_number'){
         for (i in seq_len(length(cdr3_lengths))) {
             if (cdr3_lengths[i] %in% missmatches_user2[, 1]) {
                 id_length <- which(missmatches_user2[, 1] == cdr3_lengths[i])
                 num_of_missmatches[i] <- missmatches_user2[id_length, 2]
             }
-            # num_of_missmatches <- c(num_of_missmatches,round(cdr3_lengths[i]*num_of_missmatches[i]/100,0))
         }
-        # }
 
         highly_similar_clonotypes_results <- highly_similar_clonotypes(
             clono$clono_allData,
@@ -319,15 +538,13 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
                     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                 }
-
-                # filtered_High_SHM_similarity[[d]] = SHM_high_similarity(all_filter)
             }
 
             if (save_tables_individually) {
-                write.table(temp, paste0(output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                write.table(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
                 if (pipeline_SHM_High_similarity) {
-                    write.table(filtered_High_SHM_similarity[[d]], paste0(output_folder, "/", "SHM_high_similarity_", d, ".txt"),
+                    write.table(filtered_High_SHM_similarity[[d]], paste0(e$output_folder, "/", "SHM_high_similarity_", d, ".txt"),
                         sep = "\t", row.names = FALSE, col.names = TRUE
                     )
                 }
@@ -362,14 +579,13 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                 all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
             }
 
-            # filtered_High_SHM_similarity[["All Data"]] = SHM_high_similarity(all_filter)
         }
 
         if (save_tables_individually) {
-            write.table(temp, paste0(output_folder, "/", "highly_sim_all_clonotypes_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+            write.table(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
             if (pipeline_SHM_High_similarity) {
-                write.table(filtered_High_SHM_similarity[["All Data"]], paste0(output_folder, "/", "SHM_high_similarity_All_Data.txt"),
+                write.table(filtered_High_SHM_similarity[["All Data"]], paste0(e$output_folder, "/", "SHM_high_similarity_All_Data.txt"),
                     sep = "\t", row.names = FALSE, col.names = TRUE
                 )
             }
@@ -745,9 +961,6 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             Multiple_value_comparison_input_values[2, i] <- options[as.numeric(strsplit(values[i], ":")[[1]][2])]
         }
 
-        # Multiple_value_comparison_input_values[1,] = c("V GENE", "J GENE")
-        # Multiple_value_comparison_input_values[2,] = c("J GENE", "CDR3-IMGT length")
-
         for (i in seq_len(ncol(Multiple_value_comparison_input_values))) {
             val1 <- Multiple_value_comparison_input_values[1, i]
             val2 <- Multiple_value_comparison_input_values[2, i]
@@ -913,7 +1126,6 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
             }
         }
 
-        # if (length(highly_sim)==0){
         if (AAorNtAlignment == "both") {
             alignmentRegion_results <- alignment(
                 imgtfilter_results$allData, regionAlignment, Germline, loaded_datasets, only_one_germline,
@@ -935,20 +1147,6 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                 topNClonoAlignment, FtopN, thrClonoAlignment, Fthr, FALSE
             )
         }
-        # }else{
-        #  if (AAorNtAlignment=="both"){
-        #    alignmentRegion_results <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-        #                                         use_genes_germline,Tcell==TRUE,"aa",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
-        #                                         clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,TRUE)
-        #    alignmentRegion_results_nt <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,
-        #                                            use_genes_germline,Tcell==TRUE,"nt",highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
-        #                                            clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,TRUE)
-        #  }else{
-        #    alignmentRegion_results <- alignment(imgtfilter_results$allData,regionAlignment,Germline,loaded_datasets,only_one_germline,use_genes_germline,
-        #                                         Tcell==TRUE,AAorNtAlignment,highly_sim,highly_sim_datasets,clono$view_specific_clonotype_allData,
-        #                                         clono$view_specific_clonotype_datasets,topNClonoAlignment,FtopN,thrClonoAlignment,Fthr,TRUE)
-        #  }
-        # }
 
         ####### Grouped alignment ########
         if (AAorNtAlignment == "both") n <- "aa" else n <- "nt"
@@ -1036,11 +1234,11 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
     clonotypes_barchart_down_threshold <- 0.1
     clonotypes_barchart_up_threshold <- 1
 
-    folder_name <- paste("Analysis", trunc(as.numeric(Sys.time())), sep = "_")
-    if (!file.exists(paste0(tmp_path, "/inst/extdata/output/", folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-        dir.create(paste0(tmp_path, "/inst/extdata/output/", folder_name)) # make the dir if not
+    folder_name <- "/Analysis"
+    if (!file.exists(paste0(fs::path(output_path), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
+        fs::dir_create(paste0(fs::path(output_path), folder_name)) # make the dir if not
     }
-    in.path <- paste0(tmp_path, "/inst/extdata/output/", folder_name) # go into the dir, alternatively you could just set the path of the file each time
+    in.path <- paste0(fs::path(output_path), folder_name) # go into the dir, alternatively you could just set the path of the file each time
 
     # check if the following have run
 
@@ -1112,8 +1310,6 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                 bty = "n"
             )
         )
-        # barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2)
-        # legend("topright", fill=rainbow(nrow(freq_mat)), legend=cl,cex = 0.6)
         dev.off()
     }
 
@@ -1192,8 +1388,6 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                 bty = "n"
             )
         )
-        # barplot(freq_mat, col=rainbow(nrow(freq_mat)),names.arg=c("All Data",loaded_datasets), width=2)
-        # legend("topright", fill=rainbow(nrow(freq_mat)), legend=cl,cex = 0.6)
         dev.off()
     }
 
@@ -1545,7 +1739,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     d$Freq <- 100 * d$n / nrow(clono$clono_allData)
                     colnames(d) <- c("Pi", "n", "Freq")
                     d$Pi <- suppressWarnings(as.numeric(d$Pi))
-                    pi_distribution <<- d[order(d$Pi), ]
+                    e$pi_distribution <- d[order(d$Pi), ]
                 } else {
                     d <- c()
                     for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
@@ -1584,7 +1778,7 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
                     d$Freq <- 100 * d$n / nrow(highly_sim)
                     colnames(d) <- c("Pi", "n", "Freq")
                     d$Pi <- as.numeric(d$Pi)
-                    pi_distribution <<- d[order(d$Pi), ]
+                    e$pi_distribution <- d[order(d$Pi), ]
                 } else {
                     d <- c()
                     for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
@@ -1787,7 +1981,6 @@ run_TRIP <- function(datapath, filelist, cell, throughput, preselection, selecti
         allData <- list()
         input_datasets <- ""
         for (i in seq_len(length(fileNames))) {
-            # clono$convergent_evolution_list_allData[seq_len(nucleotides_per_clonotype_topN),]
             nucleotides[, i] <- clono$convergent_evolution_list_datasets_only_num[[loaded_datasets[i]]][seq_len(nucleotides_per_clonotype_topN)]
             input_datasets <- paste(input_datasets, fileNames[i], sep = "_")
         }

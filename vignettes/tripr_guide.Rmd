@@ -64,7 +64,6 @@ bib <- c(
     RColorBrewer = citation("RColorBrewer")[1],
     RefManageR = citation("RefManageR")[1],
     rmarkdown = citation("rmarkdown")[1],
-    sessioninfo = citation("sessioninfo")[1],
     shiny = citation("shiny")[1],
     testthat = citation("testthat")[1],
     biocthis = citation("biocthis")[1],
@@ -78,7 +77,8 @@ bib <- c(
     gridExtra = citation("gridExtra")[1],
     dplyr = citation("dplyr")[1],
     pryr = citation("pryr")[1],
-    shinyBS = citation("shinyBS")[1]
+    shinyBS = citation("shinyBS")[1],
+    fs = citation("fs")[1]
 )
 ```
 
@@ -122,7 +122,7 @@ as input the output files of the
 [IMGT/HighV-Quest tool](http://www.imgt.org/HighV-QUEST/home.action). 
 Users can select to analyze the data from each of the input samples separately, 
 or the combined data files from all samples and visualize the results 
-accordingly.
+accordingly. Functions for an `R` command-line use are also available.
 
 ## Installation
 
@@ -151,7 +151,10 @@ Once `tripr` is successfully installed, it can be loaded as follow:
 library(tripr)
 ```
 
-In order to start the app, please run the following command:
+
+# Running `tripr` as a `shiny` application
+
+In order to start the `shiny` app, please run the following command:
 
 ```{r demostart, eval=FALSE}
 tripr::run_app()
@@ -161,8 +164,6 @@ tripr::run_app()
 If this does not happen automatically, 
 please open a browser and navigate to the address shown on the `R` console
 (for example, `Listening on http://127.0.0.1:6134`).
-
-# Running `tripr`
 
 ## Home
 
@@ -208,7 +209,7 @@ for Low-Throughput data all criteria are applied at the same time.
     Preselection process.
 
 
-### Preselection
+### Preselection{#preselection}
 The Preselection process comprises 4 different criteria:
 
 - __Only take into account Functional V-Gene__: <br/>
@@ -265,7 +266,7 @@ knitr::include_graphics(path = system.file("app", "www",
 
 All 4 tables can be downloaded as text files.
 
-### Selection
+### Selection{#selection}
 
 The sequences that passed through the Preselection process (“Clean table”) are 
 used as input for the data Selection (filtering) process. 
@@ -322,7 +323,7 @@ knitr::include_graphics(path = system.file("app", "www", "Selection_visual.png",
 
 All the tables can be downloaded as text files.
 
-## Pipelines & Step dependencies
+## Pipelines & Step dependencies {#pipelines}
 
 Users can select the workflow that they want to apply to their dataset(s).
 
@@ -670,6 +671,119 @@ knitr::include_graphics(path = system.file("app", "www",
                                            package="tripr", mustWork=TRUE))
 ```
 
+# Running `tripr` via `R` command line
+
+As mentioned before, `tripr` can also be used via `R` command line with 
+the `run_TRIP()` function.
+
+## Usage
+
+`run_TRIP()` works as a wrapper function for the analysis that `tripr` 
+provides. To see its detailed documentation write:
+
+```{r eval = FALSE}
+    ?tripr::run_TRIP
+```
+
+Some of its most important arguments:
+
+* `datapath` : The path to the directory where data is located. 
+    Note that every sample of the dataset must have its 
+    **own individual folder** 
+    and every sample folder must be in **one root folder**. 
+    Note that **every** file in the root folder will be used in 
+    the analysis. 
+
+    Supposedly the dataset is in user's _Documents_ folder, one 
+    could use: `fs::path_home("Documents", "dataset")`, with the help of 
+    [fs](https://www.rdocumentation.org/packages/fs) package. 
+
+    The default value is
+    ```{r eval=FALSE}
+        fs::path_package("extdata", "dataset", package = "tripr")
+    ```
+    which uses the example dataset of 2 B-cell samples.
+
+* `output_path` : The directory where the output data will 
+    be stored. Please provide a valid path, ideally the same way as `datapath`
+    by using the [fs](https://www.rdocumentation.org/packages/fs) package. 
+
+    The default value points to *Documents/tripr_output* directory.
+
+* `filelist` : The character vector of files of the 
+    [IMGT/HighV-Quest tool](http://www.imgt.org/HighV-QUEST/home.action) 
+    output that will be used through the analysis. 
+
+    The default value is 
+    ```{r eval=FALSE}
+        c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", 
+            "4_IMGT-gapped-AA-sequences.txt", "6_Junction.txt")
+    ```
+    which uses only 4 of the 10 .txt files that the 
+    [IMGT/HighV-Quest tool](http://www.imgt.org/HighV-QUEST/home.action) 
+    tool provides as output.
+
+* `preselection` : Preselection Options (1:4). See [Preselection](#preselection)
+
+* `selection` : Selection Options (5:10). See [Selection](#selection)
+
+* `pipeline` : Pipeline Options (1:19). The user can select multiple pipelines
+    by seperating them with comma ','. 
+    
+    See [Pipelines](#pipelines) and run `?tripr::run_TRIP` for more details.
+
+
+## Output of Command Line tool
+
+Every output of `tripr` analysis with `run_TRIP()` function will be stored in
+the `output_path` directory as mentioned before. Therefore, no table or plot 
+will be presented through `RStudio` or any other graphics device when the
+analysis is run, on contrary with the `shiny` app, where the user has access
+to output tables and plots via the User Interface.
+
+Output Directory contains two folders:
+
+1. **output** : Where data tables are stored.
+2. **Analysis** : Where plots are stored.
+
+The output directory has a unique name for every analysis, that points
+to the system time that it was run.
+
+## Example with `run_TRIP()`
+
+An example of `run_TRIP()` analysis, using the example dataset of 2 B-cells 
+that is provided, is presented below.
+
+```{r eval=TRUE}
+    datapath <- fs::path_package("extdata/dataset", package="tripr")
+    output_path <- fs::path_home("Documents/my_output")
+    cell <- "Bcell"
+    preselection <- "1,2,3,4C:W"
+    selection <- "5"
+    filelist <- c("1_Summary.txt", 
+                  "2_IMGT-gapped-nt-sequences.txt", 
+                  "4_IMGT-gapped-AA-sequences.txt", 
+                  "6_Junction.txt")
+    throughput <- "High Throughput"
+    preselection <- "1,2,3,4C:W"
+    selection <- "5"
+    identity_range <- "88:100"
+    pipeline <- "1"
+    select_clonotype <- "V Gene + CDR3 Amino Acids"
+
+    run_TRIP(
+        datapath=datapath,
+        output_path=output_path,
+        filelist=filelist,
+        cell=cell, 
+        throughput=throughput, 
+        preselection=preselection, 
+        selection=selection, 
+        identity_range=identity_range,
+        pipeline=pipeline, 
+        select_clonotype=select_clonotype)
+```
+
 # Tool dependencies
 
 The `r Biocpkg('tripr')` package was 
@@ -684,7 +798,6 @@ made possible thanks to:
 * `r CRANpkg('plotly')` `r Citep(bib[['plotly']])`
 * `r CRANpkg('RColorBrewer')` `r Citep(bib[['RColorBrewer']])`
 * `r CRANpkg('rmarkdown')` `r Citep(bib[['rmarkdown']])`
-* `r CRANpkg('sessioninfo')` `r Citep(bib[['sessioninfo']])`
 * `r CRANpkg('shiny')` `r Citep(bib[['shiny']])`
 * `r CRANpkg('shinyBS')` `r Citep(bib[['shinyBS']])`
 * `r CRANpkg('testthat')` `r Citep(bib[['testthat']])`
@@ -698,6 +811,7 @@ made possible thanks to:
 * `r CRANpkg('gridExtra')` `r Citep(bib[['gridExtra']])`
 * `r CRANpkg('dplyr')` `r Citep(bib[['dplyr']])`
 * `r CRANpkg('pryr')` `r Citep(bib[['pryr']])`
+* `r CRANpkg('fs')` `r Citep(bib[['fs']])`
 * `r Biocpkg('biocthis')` `r Citep(bib[['biocthis']])`
 
 # Citation

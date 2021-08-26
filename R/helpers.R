@@ -2,15 +2,8 @@ testColumnNames <- function(name, files, datapath) {
     # Set Working Directory on level back
 
     d <- "Datasets loaded:"
-    # for (i in seq_len(length(name))){
-    #   d = paste(d,name[i])
-    # }
 
     d <- paste(d, name, collapse = " ")
-
-    # logfile
-    # logFile = paste0(getwd(),"/log_file ",trunc(as.numeric(Sys.time())),".txt")
-    # cat(paste0("Function","\t","Parameters","\t","Num of input rows","\t","Num of input columns","\t","Start time","\t","End time","\t","Memory used"), file=logFile, append=FALSE, sep = "\n")
 
 
     cat(paste0("testColumnNames", "\t"), file = logFile, append = TRUE)
@@ -60,8 +53,6 @@ testColumnNames <- function(name, files, datapath) {
     e$all_used_columns <- all_used_columns
     e$used_columns <- used_columns
 
-    # save(used_columns,file=paste0(output_folder,"/used_columns.rData"))
-
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c()
     if ("1_Summary.txt" %in% files) {
@@ -79,11 +70,8 @@ testColumnNames <- function(name, files, datapath) {
         )
     }
 
-    # for (i in seq_len(length(name)))
-    # name[i]<-strsplit(name[i],"_")[[1]][1]
     # Log start time and memory currently used
     start.time <- Sys.time()
-    # mem_used()
 
     rawDataSet <- list()
     count_wrong <- 0
@@ -93,7 +81,6 @@ testColumnNames <- function(name, files, datapath) {
 
     # Load datasets individually
     for (i in seq_len(length(name))) {
-        # name[i]=strsplit(name[i],"_")[[1]][1]
         firstSepData <- TRUE
         if (strsplit(name[i], "_")[[1]][1] != name[i] && suppressWarnings(as.numeric(strsplit(name[i], "_")[[1]][2])) > 1) firstSepData <- FALSE
         rawDataSet[[name[i]]] <- data.frame(dataName = strsplit(name[i], "_")[[1]][1])
@@ -135,18 +122,6 @@ testColumnNames <- function(name, files, datapath) {
             }
         }
 
-        # mem_used()  # log memory used
-
-        # if ("Summary.Deleted.n.nt" %in% colnames(rawDataSet[[name[i]]])){
-        # rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% select(-c(Summary.Deleted.n.nt))
-        # }
-        # if ("Summary.X" %in% colnames(rawDataSet[[i]])){
-        #  rawDataSet[[i]] <- rawDataSet[[i]] %>% select(-c(Summary.X))
-        # }
-        # if ("Nt.sequences.V.REGION.reading.frame" %in% colnames(rawDataSet[[name[i]]])){
-        # rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% select(-c(Nt.sequences.V.REGION.reading.frame))
-        # }
-
         if (length(worng_columns_id_temp) > 0) {
             wrong_dataset <- c(wrong_dataset, name[i])
             count_wrong <- count_wrong + 1
@@ -158,7 +133,6 @@ testColumnNames <- function(name, files, datapath) {
         }
     }
     for (i in seq_len(length(name))) {
-        # name[i]=strsplit(name[i],"_")[[1]][1]
         firstSepData <- TRUE
 
         if (strsplit(name[i], "_")[[1]][1] != name[i] && suppressWarnings(as.numeric(strsplit(name[i], "_")[[1]][2])) == 0) {
@@ -215,7 +189,6 @@ testColumnNames <- function(name, files, datapath) {
 ######################################################################################################################################
 
 correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, new_columns = list(), worng_columns_id = list(), name) {
-    # print(list(files,rawDataSet, allDatasets, wrong_dataset, new_columns, worng_columns_id,name))
     nr <- 0
     for (i in names(rawDataSet)) {
         nr <- nrow(rawDataSet[[i]]) + nr
@@ -257,19 +230,15 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
 
     # Log start time and memory currently used
     start.time <- Sys.time()
-    # mem_used()
     correct <- 0
 
     w <- 0
     for (i in seq_len(length(wrong_dataset))) {
         w <- w + length(worng_columns_id[[i]])
         # update columns
-        # k=match(wrong_dataset,allDatasets)
         # wrong column names
 
         for (j in seq_len(length(new_columns[[i]]))) {
-            # filter_column[worng_columns_id[i]]=new_columns[i]
-            # return(wrong_dataset)
             if (length(which(names(rawDataSet[[wrong_dataset[i]]]) == new_columns[[i]][j])) > 0) {
                 correct <- correct + 1
             }
@@ -319,10 +288,6 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
         "Productive Sequences"
     )
 
-    # worng_columns_id=c(1,2)
-
-    # return(paste0("filterStart= ",filterStart,"filterEnd= ",filterEnd,"VGene=",VGene,"lala"))
-
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c(
         used_columns[["Summary"]][3],
@@ -343,9 +308,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
     # Log start time and memory currently used
     start.time <- Sys.time()
-    # mem_used()
 
-    # usedDatasetId=match(name,allDatasets)
     # Combine raw name
     for (i in seq_len(length(name))) {
         if (i == 1) {
@@ -357,17 +320,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
     test_column <- c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1])
 
-    # used_column=c("dataName")
-    # for (i in seq_len(length(filter_id))){
-    # used_column=c(used_column,filter_column[filter_id[i]])
-    # }
-
-    # used_column=c(used_column,test_column)
-    # return(names(allData))
-
     # Drop all the columns that will not be used
-    # unusedColumns <- allData[,-match(used_column,names(allData))]
-    # allData <- allData %>% select(used_column)
 
     # IMPORTANT: Datasets should start with T
     # dataSetIDs <- as.list(levels(unique(allData$dataName)))
@@ -418,11 +371,9 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
     # Apply the requested filters
     if (any(filter_id == 1)) {
-        # unique(datapoint$1_Summary.txt.V.GENE.and.allele)  -> Filter out " P "  e.g. Homsap TRBV21-1*01 P (see comment)"
         i <- which(filter_id == 1)
         filterOut[[1]] <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[1]]], filter_out_char1))
         if (nrow(filterOut[[1]]) > 0) filterOut[[1]] <- cbind(filterOut[[1]], FilterId = cleaning_criteria[1])
-        # workflow[i,3]=nrow(allData)-nrow(filterOut[[filter_id[i]]])
 
         allData <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[1]]], filter_out_char1))
 
@@ -454,7 +405,6 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
         filterOut[[2]] <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[2]]], filter_out_char2))
         if (nrow(filterOut[[2]]) > 0) filterOut[[2]] <- cbind(filterOut[[2]], FilterId = cleaning_criteria[2])
 
-        # workflow[i,3]=nrow(allData)-nrow(filterOut[[filter_id[i]]])
         allDataInitial_tmp <- allData
         allData <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[2]]], filter_out_char2))
 
@@ -480,7 +430,6 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
     }
 
     if (any(filter_id == 3)) {
-        # unique(datapoint$1_Summary.txt.Functionality)  -> Filter in "productive" and "productive (see comment)"
         i <- which(filter_id == 3)
 
         if (Tcell) {
@@ -528,24 +477,18 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
     }
 
     if (any(filter_id == 4)) {
-        # datapoint$1_Summary.txt.AA.JUNCTION  -> Filter in "Start with C and end with F"
         i <- which(filter_id == 4)
         if (filterStart == "" && filterEnd == "") {
             filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
-            # if (nrow(filterOut[[4]])>0) filterOut[[4]]=cbind(filterOut[[4]],FilterId=cleaning_criteria[4])
-            # workflow[i,3]=nrow(allData)-nrow(filterOut[[filter_id[i]]])
         } else if (filterEnd == "") {
             filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
-            # workflow[i,3]=nrow(allData)-nrow(filterOut[[filter_id[i]]])
             allData <- allData %>% dplyr::filter((stringr::str_detect(allData[[filter_column[4]]], filterStart)))
         } else if (filterStart == "") {
             filterOut[[4]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[4]]], filterEnd))
-            # workflow[i,3]=nrow(allData)-nrow(filterOut[[filter_id[i]]])
             allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[4]]], filterEnd))
         } else {
             filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
             filterOut[[4]] <- rbind(filterOut[[4]], (allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterEnd)))))
-            # workflow[i,3]=nrow(allData)-nrow(filterOut[[filter_id[i]]])
             allData <- allData %>% dplyr::filter((stringr::str_detect(allData[[filter_column[4]]], filterStart)))
             allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[4]]], filterEnd))
         }
@@ -669,7 +612,6 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
 
     # Log start time and memory currently used
     start.time <- Sys.time()
-    # mem_used()
 
     test_column <- c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1])
 
@@ -677,13 +619,6 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     for (i in seq_len(length(filter_id))) {
         used_column <- c(used_column, filter_column[filter_id[i]])
     }
-
-    # used_column=c(used_column,test_column)
-    # return(names(allData))
-
-    # Drop all the columns that will not be used
-    # unusedColumns <- allData[,-match(used_column,names(allData))]
-    # allData <- allData %>% select(used_column)
 
     # IMPORTANT: Datasets should start with T
     # dataSetIDs <- as.list(levels(unique(allData$dataName)))
@@ -700,7 +635,6 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     # Apply the requested filters
 
     if (any(filter_id == 5)) {
-        # datapoint$1_Summary.txt.V.REGION.identity..  -> Filter in value between 95 and 100
         i <- which(filter_id == 5)
         ins_del <- which(!is.na(allData[[filter_column[11]]]))
 
@@ -714,8 +648,6 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
         if (nrow(filterOut[[5]]) > 0) filterOut[[5]] <- cbind(filterOut[[5]], FilterId = criteria[5])
         workflow[i, 3] <- nrow(allData)
 
-
-        # write.table(filterOut5, file = "filterOut5.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -738,14 +670,11 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     if (any(filter_id == 6)) {
-        # datapoint$1_Summary.txt.V-GENE.and.allele -> Filter in specific V Genes
         i <- which(filter_id == 6)
         filterOut[[6]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[6]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", VGene)))))
         if (nrow(filterOut[[6]]) > 0) filterOut[[6]] <- cbind(filterOut[[6]], FilterId = criteria[6])
         workflow[i, 3] <- nrow(allData) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[6]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", VGene)))))
-
-        # write.table(filterOut16, file = "filterOut6.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -768,14 +697,11 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     if (any(filter_id == 7)) {
-        # datapoint$1_Summary.txt.J-GENE.and.allele  -> Filter in specific J Genes
         i <- which(filter_id == 7)
         filterOut[[7]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[7]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", JGene)))))
         if (nrow(filterOut[[7]]) > 0) filterOut[[7]] <- cbind(filterOut[[7]], FilterId = criteria[7])
         workflow[i, 3] <- nrow(allData) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[7]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", JGene)))))
-
-        # write.table(filterOut7, file = "filterOut7.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -798,14 +724,11 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     if (any(filter_id == 8)) {
-        # datapoint$1_Summary.txt.D-GENE.and.allele  -> Filter in specific D Genes
         i <- which(filter_id == 8)
         filterOut[[8]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[8]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", DGene)))))
         if (nrow(filterOut[[8]]) > 0) filterOut[[8]] <- cbind(filterOut[[8]], FilterId = criteria[8])
         workflow[i, 3] <- nrow(allData) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[8]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", DGene)))))
-
-        # write.table(filterOut8, file = "filterOut8.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -828,15 +751,11 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     if (any(filter_id == 9)) {
-        # datapoint$CDR3-IMGT.length  -> Filter in value between 95 and 100
         i <- which(filter_id == 9)
         filterOut[[9]] <- allData[which(as.numeric(allData[[filter_column[9]]]) > lengthHigh | as.numeric(allData[[filter_column[9]]]) < lengthLow), ]
         if (nrow(filterOut[[9]]) > 0) filterOut[[9]] <- cbind(filterOut[[9]], FilterId = criteria[9])
         workflow[i, 3] <- nrow(allData) - nrow(filterOut[[filter_id[i]]])
         allData <- allData[which(as.numeric(allData[[filter_column[9]]]) <= lengthHigh & as.numeric(allData[[filter_column[9]]]) >= lengthLow), ]
-
-        # return(lengthLow)
-        # write.table(filterOut9, file = "filterOut9.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -859,14 +778,11 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     if (any(filter_id == 10)) {
-        # datapoint$1_Summary.txt.AA.JUNCTION  -> Filter in CDR3 containing specific amino-acid sequence
         i <- which(filter_id == 10)
         filterOut[[10]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[10]]], aminoacid))
         if (nrow(filterOut[[10]]) > 0) filterOut[[10]] <- cbind(filterOut[[10]], FilterId = criteria[10])
         workflow[i, 3] <- nrow(allData) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[10]]], aminoacid))
-
-        # write.table(filterOut10, file = "filterOut10.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -889,12 +805,6 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     # Provide a 1_Summary.txt of the datasets
-    # (allData %>% dplyr::group_by(dataName) %>%  summarize(n()))[[2]][1]
-
-    # write.table(allData, file = "allDataAfterFiltering.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
-
-
-    # mem_used() # log memory used after filtering (no significant change should be evident)
 
     filterOutSum <- c()
     if (length(filter_id) > 0) {
@@ -962,7 +872,7 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
         for (i in seq_len(length(name))) {
             filtered_datasets[[name[i]]] <- allData %>% dplyr::filter(allData$dataName == name[i])
             if (save_tables_individually_filter_in) {
-                write.table((filtered_datasets[[name[i]]]), paste0(output_folder, "/", "filter_in_", name[i], ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                write.table((filtered_datasets[[name[i]]]), paste0(e$output_folder, "/", "filter_in_", name[i], ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
             }
         }
     }
@@ -980,7 +890,7 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     }
 
     if (save_tables_individually_filter_in) {
-        write.table((allData), paste0(output_folder, "/", "filter_in_All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+        write.table((allData), paste0(e$output_folder, "/", "filter_in_All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
     confirm <- paste0("Datasets filtered: ", a, ". Filters applied: ", b)
@@ -1029,10 +939,6 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
 
     cleaning_criteria <- c("Functional V-Gene", "CDR3 with no Special Characters", "Productive Sequence", "Productive Sequences")
 
-    # worng_columns_id=c(1,2)
-
-    # return(paste0("filterStart= ",filterStart,"filterEnd= ",filterEnd,"VGene=",VGene,"lala"))
-
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c(used_columns[["Summary"]][3], used_columns[["Summary"]][18], used_columns[["Summary"]][2], used_columns[["Summary"]][18], used_columns[["Summary"]][4], used_columns[["Summary"]][3], used_columns[["Summary"]][8], used_columns[["Summary"]][11], used_columns[["Summary"]][15], used_columns[["Summary"]][18], "Summary.V.REGION.identity....with.ins.del.events.")
     filterOut <- list()
@@ -1041,9 +947,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
 
     # Log start time and memory currently used
     start.time <- Sys.time()
-    # mem_used()
 
-    # usedDatasetId=match(name,allDatasets)
     # Combine raw name
     for (i in seq_len(length(name))) {
         if (i == 1) {
@@ -1059,13 +963,6 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
     for (i in seq_len(length(filter_id))) {
         used_column <- c(used_column, filter_column[filter_id[i]])
     }
-
-    # used_column=c(used_column,test_column)
-    # return(names(allData))
-
-    # Drop all the columns that will not be used
-    # unusedColumns <- allData[,-match(used_column,names(allData))]
-    # allData <- allData %>% select(used_column)
 
     # IMPORTANT: Datasets should start with T
     # dataSetIDs <- as.list(levels(unique(allData$dataName)))
@@ -1117,7 +1014,6 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
     # Apply the requested filters
 
     if (any(filter_id == 1)) {
-        # unique(datapoint$1_Summary.txt.V.GENE.and.allele)  -> Filter out " P "  e.g. Homsap TRBV21-1*01 P (see comment)"
         i <- which(filter_id == 1)
         filterOut[[1]] <- allDataInitial %>% dplyr::filter(stringr::str_detect(allDataInitial[[filter_column[1]]], filter_out_char1))
         if (nrow(filterOut[[1]]) > 0) filterOut[[1]] <- cbind(filterOut[[1]], FilterId = cleaning_criteria[1])
@@ -1173,7 +1069,6 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
     }
 
     if (any(filter_id == 3)) {
-        # unique(datapoint$1_Summary.txt.Functionality)  -> Filter in "productive" and "productive (see comment)"
         i <- which(filter_id == 3)
 
         if (Tcell) {
@@ -1221,11 +1116,9 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
     }
 
     if (any(filter_id == 4)) {
-        # datapoint$1_Summary.txt.AA.JUNCTION  -> Filter in "Start with C and end with F"
         i <- which(filter_id == 4)
         if (filterStart == "" && filterEnd == "") {
             filterOut[[4]] <- allDataInitial %>% dplyr::filter(!(stringr::str_detect(allDataInitial[[filter_column[4]]], filterStart)))
-            # if (nrow(filterOut[[4]])>0) filterOut[[4]]=cbind(filterOut[[4]],FilterId=cleaning_criteria[4])
             workflow[i, 3] <- nrow(allDataInitial) - nrow(filterOut[[filter_id[i]]])
         } else if (filterEnd == "") {
             filterOut[[4]] <- allDataInitial %>% dplyr::filter(!(stringr::str_detect(allDataInitial[[filter_column[4]]], filterStart)))
@@ -1362,13 +1255,6 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
         used_column <- c(used_column, filter_column[filter_id[i]])
     }
 
-    # used_column=c(used_column,test_column)
-    # return(names(allData))
-
-    # Drop all the columns that will not be used
-    # unusedColumns <- allData[,-match(used_column,names(allData))]
-    # allData <- allData %>% select(used_column)
-
     # IMPORTANT: Datasets should start with T
     # dataSetIDs <- as.list(levels(unique(allData$dataName)))
 
@@ -1384,7 +1270,6 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     # Apply the requested filters
 
     if (any(filter_id == 5)) {
-        # datapoint$1_Summary.txt.V.REGION.identity..  -> Filter in value between 95 and 100
         i <- which(filter_id == 5)
         ins_del <- which(!is.na(allData[[filter_column[11]]]))
 
@@ -1397,9 +1282,6 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
 
         if (nrow(filterOut[[5]]) > 0) filterOut[[5]] <- cbind(filterOut[[5]], FilterId = criteria[5])
         workflow[i, 3] <- nrow(allDataInitial) - nrow(filterOut[[filter_id[i]]])
-
-
-        # write.table(filterOut5, file = "filterOut5.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -1422,14 +1304,11 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     }
 
     if (any(filter_id == 6)) {
-        # datapoint$1_Summary.txt.V-GENE.and.allele -> Filter in specific V Genes
         i <- which(filter_id == 6)
         filterOut[[6]] <- allDataInitial %>% dplyr::filter(!stringr::str_detect(allDataInitial[[filter_column[6]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", VGene)))))
         if (nrow(filterOut[[6]]) > 0) filterOut[[6]] <- cbind(filterOut[[6]], FilterId = criteria[6])
         workflow[i, 3] <- nrow(allDataInitial) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[6]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", VGene)))))
-
-        # write.table(filterOut16, file = "filterOut6.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -1452,14 +1331,11 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     }
 
     if (any(filter_id == 7)) {
-        # datapoint$1_Summary.txt.J-GENE.and.allele  -> Filter in specific J Genes
         i <- which(filter_id == 7)
         filterOut[[7]] <- allDataInitial %>% dplyr::filter(!stringr::str_detect(allDataInitial[[filter_column[7]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", JGene)))))
         if (nrow(filterOut[[7]]) > 0) filterOut[[7]] <- cbind(filterOut[[7]], FilterId = criteria[7])
         workflow[i, 3] <- nrow(allDataInitial) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[7]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", JGene)))))
-
-        # write.table(filterOut7, file = "filterOut7.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -1482,14 +1358,11 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     }
 
     if (any(filter_id == 8)) {
-        # datapoint$1_Summary.txt.D-GENE.and.allele  -> Filter in specific D Genes
         i <- which(filter_id == 8)
         filterOut[[8]] <- allDataInitial %>% dplyr::filter(!stringr::str_detect(allDataInitial[[filter_column[8]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", DGene)))))
         if (nrow(filterOut[[8]]) > 0) filterOut[[8]] <- cbind(filterOut[[8]], FilterId = criteria[8])
         workflow[i, 3] <- nrow(allDataInitial) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[8]]], gsub("[(]", "[(]", gsub("[)]", "[)]", gsub("[*]", "[*]", DGene)))))
-
-        # write.table(filterOut8, file = "filterOut8.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -1512,14 +1385,10 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     }
 
     if (any(filter_id == 9)) {
-        # datapoint$CDR3-IMGT.length  -> Filter in value between 95 and 100
         i <- which(filter_id == 9)
         filterOut[[9]] <- allDataInitial[which(as.numeric(allDataInitial[[filter_column[9]]]) > lengthHigh | as.numeric(allDataInitial[[filter_column[9]]]) < lengthLow), ]
         if (nrow(filterOut[[9]]) > 0) filterOut[[9]] <- cbind(filterOut[[9]], FilterId = criteria[9])
         allData <- allData[which(as.numeric(allData[[filter_column[9]]]) <= lengthHigh & as.numeric(allData[[filter_column[9]]]) >= lengthLow), ]
-
-        # return(lengthLow)
-        # write.table(filterOut9, file = "filterOut9.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -1543,14 +1412,11 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     }
 
     if (any(filter_id == 10)) {
-        # datapoint$1_Summary.txt.AA.JUNCTION  -> Filter in CDR3 containing specific amino-acid sequence
         i <- which(filter_id == 10)
         filterOut[[10]] <- allDataInitial %>% dplyr::filter(!stringr::str_detect(allDataInitial[[filter_column[10]]], aminoacid))
         if (nrow(filterOut[[10]]) > 0) filterOut[[10]] <- cbind(filterOut[[10]], FilterId = criteria[10])
         workflow[i, 3] <- nrow(allDataInitial) - nrow(filterOut[[filter_id[i]]])
         allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[10]]], aminoacid))
-
-        # write.table(filterOut10, file = "filterOut10.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
 
         workflow[i, 1] <- filter_id[i] - 4
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
@@ -1573,10 +1439,6 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     }
 
     # Provide a 1_Summary.txt of the datasets
-    # (allData %>% dplyr::group_by(dataName) %>%  summarize(n()))[[2]][1]
-
-    # write.table(allData, file = "allDataAfterFiltering.txt", sep = "\t", row.names = FALSE, col.names = TRUE)
-
 
     # mem_used() # log memory used after filtering (no significant change should be evident)
     filterOutSum <- c()
@@ -1676,7 +1538,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     used_columns <- e$used_columns
     # logfile
 
-    print("Clonotype Analysis Step 1")
+    message("Clonotype Analysis Step 1")
 
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
@@ -1699,24 +1561,18 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     freq_cluster_id <- c()
     v.gene.and.allele <- c()
     aa.junction <- c()
-    # functionlity = c()
-    # junction.frame = c()
-    # SHM_normal = list()
 
     if (length(name) > 1) {
         if (length(gene) > 0) {
-            print("Clonotype Analysis Step 2.a")
+            message("Clonotype Analysis Step 2.a")
 
             if (allele == FALSE) {
-                # a2 = strsplit(allData[[gene]],"[*]")
                 allData[[gene]] <- stringr::str_split(allData[[gene]], "\\*", simplify = TRUE)[, 1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
             }
 
             distinctVGenes_CDR3 <- allData %>%
                 dplyr::group_by(Genes = allData[[gene]], CDR3 = allData[[junction]]) %>%
                 dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
-
-            # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
 
             distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
                 distinctVGenes_CDR3$CDR3,
@@ -1737,9 +1593,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
 
-                # dplyr::group_by(view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]]) %>%
-                # dplyr::summarise(convergent_evolution=n())
-
                 # Create convergent evolution list
                 convergent_evolution_list_allData[[as.character(i)]] <- ce
                 convergent_evolution <- c(convergent_evolution, paste0("cluster ", i, " : ", nrow(ce)))
@@ -1749,13 +1602,11 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 cluster_id[inputVGenes_CDR3] <- i
             }
         } else {
-            print("Clonotype Analysis Step 2.b")
+            message("Clonotype Analysis Step 2.b")
 
             distinctVGenes_CDR3 <- allData %>%
                 dplyr::group_by(clonotype = allData[[junction]]) %>%
                 dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
-
-            # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
 
             for (i in seq_len(nrow(distinctVGenes_CDR3))) {
 
@@ -1770,9 +1621,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                     )
 
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-
-                # dplyr::group_by(view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]]) %>%
-                # dplyr::summarise(convergent_evolution = n())
 
                 # Create coergenet evolution list
                 convergent_evolution_list_allData[[as.character(i)]] <- ce
@@ -1799,21 +1647,16 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
         clono_allData_freq <- cbind(allData_initial, "cluster_id" = cluster_id, "freq_cluster_id" = freq_cluster_id)
 
-        # if(run_shm){
-        #   SHM_normal[["All Data"]] = SHM_final_normal(clono_allData_freq)
-        # }
-
         if (save_tables_individually) {
             if (junction == "Summary.Sequence") {
                 clono_write <- clono_allData
             } else {
-                # clono_write = as.data.frame(distinctVGenes_CDR3[,c("Genes","CDR3")])
                 clono_write <- merge(distinctVGenes_CDR3[, c("Genes", "CDR3")], clono_allData[, c("N", "Freq", "Convergent Evolution")])
                 colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution")
             }
 
             write.table(clono_write,
-                paste0(output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
+                paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
@@ -1821,16 +1664,13 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             )
 
             write.table(cbind(allData_initial, "cluster_id" = cluster_id, "freq_cluster_id" = freq_cluster_id),
-                paste0(output_folder, "/", "filterin_clono_All_Data", ".txt"),
+                paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
                 quote = FALSE
             )
 
-            # if(run_shm){
-            #   write.table(SHM_normal[["All Data"]], paste0(output_folder,"/","SHM_normal_clono_All_Data",".txt"),sep = "\t", row.names = FALSE, col.names = TRUE)
-            # }
         }
     }
 
@@ -1852,10 +1692,10 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
     group.freq.seq <- list()
 
-    print("Clonotype Analysis Step 3")
+    message("Clonotype Analysis Step 3")
 
     one_run <- function(j) {
-        print("Clonotype Analysis Step 5")
+        message("Clonotype Analysis Step 5")
 
         data <- allData %>% dplyr::filter(allData$dataName == name[j])
         data_initial <- allData_initial %>% dplyr::filter(allData$dataName == name[j])
@@ -1868,13 +1708,11 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         cluster_id[[name[j]]] <- c()
         v.gene.and.allele <- c()
         aa.junction <- c()
-        # SHM_normal <-  c()
 
         group.freq.seq[[name[j]]] <- data
 
         if (length(gene) > 0) {
             if (allele == FALSE) {
-                # a2 = strsplit(data[[gene]],"[*]")
                 data[[gene]] <- stringr::str_split(data[[gene]], "\\*", simplify = TRUE)[, 1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
             }
 
@@ -1884,8 +1722,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                     CDR3 = data[[junction]]
                 ) %>%
                 dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
-
-            # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
 
             distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
                 distinctVGenes_CDR3$CDR3,
@@ -1918,8 +1754,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                     )
 
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-                # dplyr::group_by(view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]]) %>%
-                # dplyr::summarise(convergent_evolution = n())
 
                 # Create convergent evolution
                 convergent_evolution_list_datasets[[name[j]]][[as.character(i)]] <- ce
@@ -1934,8 +1768,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             distinctVGenes_CDR3 <- data %>%
                 dplyr::group_by(clonotype = data[[junction]]) %>%
                 dplyr::count(sort = TRUE) # dplyr::summarise(n=n())
-
-            # distinctVGenes_CDR3 = distinctVGenes_CDR3[order(-distinctVGenes_CDR3$n),]
 
             group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>% dplyr::group_by(clonotype = group.freq.seq[[name[j]]][[junction]])
             group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
@@ -1953,8 +1785,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                     )
 
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-                # dplyr::group_by(view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]]) %>%
-                # dplyr::summarise(convergent_evolution = n())
 
                 # Create convergent evolution list
                 convergent_evolution_list_datasets[[name[j]]][[as.character(i)]] <- ce
@@ -1965,9 +1795,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 v.gene.and.allele <- c(v.gene.and.allele, unique(data_initial[inputVGenes_CDR3, ]$Summary.V.GENE.and.allele))
                 aa.junction <- c(aa.junction, unique(data_initial[inputVGenes_CDR3, ]$Summary.AA.JUNCTION))
 
-                # functionlity = c(functionlity, unique(data_initial[inputVGenes_CDR3, ]$Summary.Functionality))
-                # junction.frame = c(junction.frame, unique(data_initial[inputVGenes_CDR3, ]$Summary.JUNCTION.frame))
-
                 # Calculate clonotype frequency
                 freq_cluster_id[[name[j]]][[name[j]]][[name[j]]][inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(data_initial)
                 cluster_id[[name[j]]][inputVGenes_CDR3] <- i
@@ -1975,7 +1802,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         }
 
         clono_datasets[[name[j]]] <- distinctVGenes_CDR3[, c("clonotype", "n")]
-        # clono_datasets[[name[j]]] = clono_datasets[[name[j]]][order(-clono_datasets[[name[j]]]$n),]
         clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], Freq = 100 * clono_datasets[[name[j]]]$n / nrow(data))
         clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], convergent_evolution)
         colnames(clono_datasets[[name[j]]]) <- c("clonotype", "N", "Freq", "Convergent Evolution")
@@ -1988,10 +1814,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
         clono_datasets_freq[[name[j]]] <- cbind(data_initial, "cluster_id" = cluster_id[[name[j]]], "freq_cluster_id" = freq_cluster_id[[name[j]]])
 
-        # if(run_shm){
-        #   SHM_normal = SHM_final_normal(clono_datasets_freq)
-        # }
-
         if (run_diagnosis) {
             group.freq.seq[[name[j]]] <- get_frequent_sequence(group.freq.seq[[name[j]]])
         }
@@ -2001,7 +1823,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 clono_write <- clono_datasets[[name[j]]]
             } else {
 
-                # clono_write = as.data.frame(distinctVGenes_CDR3[,c("Genes","CDR3")])
                 ## CHANGED cbind() to merge()
                 clono_write <- merge(
                     distinctVGenes_CDR3[, c("Genes", "CDR3")],
@@ -2014,7 +1835,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             # Printing clonotypes file
 
             write.table(clono_write,
-                paste0(output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
+                paste0(e$output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
@@ -2024,7 +1845,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             # Printing whole integrated clonotypes file
 
             write.table(clono_datasets_freq[[name[j]]],
-                paste0(output_folder, "/", "filterin_clono_", name[j], ".txt"),
+                paste0(e$output_folder, "/", "filterin_clono_", name[j], ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
@@ -2033,20 +1854,11 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
             # Printing SHM file
 
-            # if(run_shm){
-            #   write.table(SHM_normal,
-            #               paste0(output_folder, "/", "SHM_normal_clono_", name[j], ".txt"),
-            #               sep = "\t",
-            #               row.names = FALSE,
-            #               col.names = TRUE,
-            #               quote = FALSE)
-            # }
-
             # Printing diagnosis file
 
             if (run_diagnosis) {
                 write.table(group.freq.seq[[name[j]]],
-                    paste0(output_folder, "/", "diagnosis_", name[j], ".txt"),
+                    paste0(e$output_folder, "/", "diagnosis_", name[j], ".txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = TRUE,
@@ -2058,7 +1870,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         result <- list()
 
         result[["clono_datasets"]] <- clono_datasets[[name[j]]]
-        # result[["SHM_normal"]] = SHM_normal
         result[["filterin_highly_clono"]] <- clono_datasets_freq[[name[j]]]
         result[["view_specific_clonotype_datasets"]] <- view_specific_clonotype_datasets[[name[j]]]
         result[["convergent_evolution_list_datasets"]] <- convergent_evolution_list_datasets[[name[j]]]
@@ -2069,22 +1880,19 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     }
 
     if (Sys.info()[1] == "Windows") {
-        print("Clonotype Analysis Step 4")
+        message("Clonotype Analysis Step 4.a")
 
-        # cl <- makeCluster(num_of_cores)
-        # clono_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
         a <- lapply(seq_len(length(name)), one_run)
 
         for (i in seq_len(length(name))) {
             view_specific_clonotype_datasets[[name[i]]] <- a[[i]]$view_specific_clonotype_datasets
             clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
-            # SHM_normal[[name[i]]] = a[[i]]$SHM_normal
             convergent_evolution_list_datasets[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets
             convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
             diagnosis[[name[i]]] <- a[[i]]$Diagnosis
         }
     } else {
-        print("C7")
+        message("Clonotype Analysis Step 4.b")
 
         a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = parallel::detectCores(all.tests = FALSE, logical = TRUE), mc.preschedule = TRUE)
         # a = lapply(seq_len(length(name)), one_run) ## for debugging use lapply
@@ -2092,7 +1900,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         for (i in seq_len(length(name))) {
             view_specific_clonotype_datasets[[name[i]]] <- a[[i]]$view_specific_clonotype_datasets
             clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
-            # SHM_normal[[name[i]]] = a[[i]]$SHM_normal
             convergent_evolution_list_datasets[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets
             convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
             diagnosis[[name[i]]] <- a[[i]]$Diagnosis
@@ -2101,7 +1908,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
     if (length(name) == 1) {
         clono_allData <- clono_datasets[[name[1]]]
-        # SHM_normal[["All Data"]] = SHM_normal[[name[1]]]
         convergent_evolution_list_allData <- convergent_evolution_list_datasets
         view_specific_clonotype_allData <- view_specific_clonotype_datasets[[name[1]]]
         clono_allData_freq <- a[[1]]$filterin_highly_clono
@@ -2116,18 +1922,13 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution")
             }
 
-            write.table(clono_write, paste0(output_folder, "/", "Clonotypes_All Data", ".txt"),
+            write.table(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
                 sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
             )
 
-            write.table(clono_allData_freq, paste0(output_folder, "/", "filterin_clono_All_Data", ".txt"),
+            write.table(clono_allData_freq, paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
                 sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
             )
-
-            # if(run_shm){
-            #   write.table(SHM_normal[["All Data"]], paste0(output_folder,"/","SHM_normal_clono_All_Data",".txt"),
-            #               sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE)
-            # }
         }
     }
 
@@ -2136,7 +1937,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     result <- list(
         "clono_allData" = clono_allData,
         "clono_datasets" = clono_datasets,
-        # "SHM_normal" = SHM_normal,
         "filterin_highly_clono" = clono_allData_freq,
         "view_specific_clonotype_allData" = view_specific_clonotype_allData,
         "convergent_evolution_list_allData" = convergent_evolution_list_allData,
@@ -2157,8 +1957,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 ######################################################################################################################################
 
 get_frequent_sequence <- function(data) {
-    # library(data.table)
-    # library(stringr)
 
     clonos <- as.list(unique(data$clonotype))
 
@@ -2190,71 +1988,6 @@ get_frequent_sequence <- function(data) {
 
     return(out)
 }
-
-######################################################################################################################################
-
-# SHM_final_normal <- function(data){
-#   data = data.table::as.data.table(data)
-#   info = data[ ,c("Summary.V.GENE.and.allele",
-#                   "IMGT.gapped.AA.sequences.CDR3.IMGT",
-#                   "IMGT.gapped.nt.sequences.V.D.J.REGION",
-#                   "cluster_id")]
-#
-#   #################### Remove duplicates from nt seq ####################
-#
-#   info.f2 = info[!duplicated(info$IMGT.gapped.nt.sequences.V.D.J.REGION), ]
-#   info.f2 = info.f2[!(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION == ""), ]
-#
-#   info.f2$Region1 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 1, 104)    # Region1 -> 1-104
-#   info.f2$Region2 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 105, 118)  # Region2 -> 105-118
-#
-#   #################### Grouping based on Region1 ####################
-#
-#   metrics = unique(info.f2$Region1)
-#   matrix = matrix("a", nrow = length(metrics), ncol = 2)
-#   matrix = data.table::as.data.table(matrix)
-#
-#   #################### Find the consensus Region2 that have the same Region1 ####################
-#
-#   for(z in seq_len(length(metrics))){
-#     r1 = info.f2$Region1[1]
-#     grouping = info.f2[which(info.f2$Region1 == r1),]
-#     cons = stringr::str_split(grouping$Region2, pattern = "")
-#     cons = list.rbind(cons)
-#     df1 = data.table(t(cons))
-#
-#     x = apply(df1, 1, function(x) {
-#       x1 = table(x)
-#       data.table(Count = max(x1), Names = names(x1)[which.max(x1)])
-#     })
-#
-#     x = rbindlist(x)
-#     x = x$Names
-#
-#     consensus = paste0(x[1], x[2], x[3], x[4], x[5], x[6], x[7],
-#                       x[8], x[9], x[10], x[11], x[12], x[13], x[14])
-#
-#     matrix[,1][z] = grouping$Region1[1]
-#     matrix[,2][z] = consensus
-#
-#     info.f2 = info.f2[-which(info.f2$Region1 == r1),]
-#   }
-#
-#   names(matrix) = paste(c("Region1", "consensus"))
-#
-#   info.f2 = info[!duplicated(info$IMGT.gapped.nt.sequences.V.D.J.REGION), ]
-#   info.f2$Region1 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 1, 104)
-#   info.f2$Region2 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 105, 118)
-#
-#   # join the tables based on the same Region1
-#   total = join(info.f2, matrix, type = "inner")
-#
-#   ################### Paste Region1 and consensus ####################
-#
-#   total$final = paste0(total$Region1, total$consensus)
-#
-#   return(total)
-# }
 
 ######################################################################################################################################
 
@@ -2383,7 +2116,6 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
                 temp <- as.character(extra_clono[["Convergent Evolution"]][k])
                 extra_clono$prev_cluster[k] <- as.numeric(strsplit(strsplit(temp, "cluster ")[[1]][2], " :")[[1]][1])
             }
-            # print(extra_clono)
             if (!(is.null(clonotype))) {
                 extra_clono$HS_cluster_id <- (max(highly_sim_clonotypes[[paste0("length ", cdr3_lengths[i])]]$HS_cluster_id) + 1):(max(highly_sim_clonotypes[[paste0("length ", cdr3_lengths[i])]]$HS_cluster_id) + nrow(extra_clono))
             } else {
@@ -2396,9 +2128,9 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
         row.names(highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[i])]]) <- seq_len(nrow(highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[i])]]))
 
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Highly_sim_Clonotypes_", "All_Data_length_", cdr3_lengths[i], ".txt")
+            filename <- paste0(e$output_folder, "/", "Highly_sim_Clonotypes_", "All_Data_length_", cdr3_lengths[i], ".txt")
             write.table(highly_sim_clonotypes[[paste0("length ", cdr3_lengths[i])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-            filename <- paste0(output_folder, "/", "Highly_sim_Clonotypes_groups_", "All_Data_length_", cdr3_lengths[i], ".txt")
+            filename <- paste0(e$output_folder, "/", "Highly_sim_Clonotypes_groups_", "All_Data_length_", cdr3_lengths[i], ".txt")
             write.table(highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[i])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
     }
@@ -2532,9 +2264,9 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
             }
 
             if (save_tables_individually) {
-                filename <- paste0(output_folder, "/", "Highly_sim_Clonotypes_", name[j], "_length_", cdr3_lengths[i], ".txt")
+                filename <- paste0(e$output_folder, "/", "Highly_sim_Clonotypes_", name[j], "_length_", cdr3_lengths[i], ".txt")
                 write.table(highly_sim_clonotypes_datasets[[name[j]]][[paste0("length ", cdr3_lengths[i])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-                filename <- paste0(output_folder, "/", "Highly_sim_Clonotypes_groups_", name[j], "_length_", cdr3_lengths[i], ".txt")
+                filename <- paste0(e$output_folder, "/", "Highly_sim_Clonotypes_groups_", name[j], "_length_", cdr3_lengths[i], ".txt")
                 write.table(highly_sim_clonotypes_allGroups_datasets[[name[j]]][[paste0("length ", cdr3_lengths[i])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
         }
@@ -2584,88 +2316,6 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
 
     return(result)
 }
-
-######################################################################################################################################
-
-# SHM_high_similarity <- function(data){
-#   data = data.table::as.data.table(data)
-#   info = data[,c("dataName",
-#                  "Summary.V.GENE.and.allele",
-#                  "IMGT.gapped.AA.sequences.CDR3.IMGT",
-#                  "IMGT.gapped.nt.sequences.V.D.J.REGION",
-#                  "cluster_id",
-#                  "freq_cluster_id",
-#                  "highly_cluster_id")]
-#
-#   #################### High Similar ####################
-#
-#   highly_cluster_ids = unique(info$highly_cluster_id)
-#   info = lapply(highly_cluster_ids, function(x, mat){
-#
-#     mat = mat[which(mat$highly_cluster_id == x), ]
-#     max_cluster = mat$cluster_id[which.max(mat$freq_cluster_id)]
-#     mat = mat[which(mat$cluster_id == max_cluster), ]
-#
-#     return(mat)
-#   }, info)
-#
-#   info = rbindlist(info)
-#
-#   #################### Remove duplicates from nt seq ####################
-#
-#   info.f2 = info[!duplicated(info$IMGT.gapped.nt.sequences.V.D.J.REGION), ]
-#   info.f2 = info.f2[!(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION == ""), ]
-#
-#   info.f2$Region1 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 1, 104)
-#   info.f2$Region2 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 105, 118)
-#
-#   #################### Grouping based on Region1 ####################
-#
-#   metrics = unique(info.f2$Region1)
-#   matrix = matrix("a", nrow = length(metrics), ncol = 2)
-#   matrix = data.table::as.data.table(matrix)
-#
-#   #################### Find the consensus Region2 that have the same Region1 ####################
-#
-#   for(z in seq_len(length(metrics))){
-#     r1 = info.f2$Region1[1]
-#     grouping = info.f2[which(info.f2$Region1 == r1),]
-#     cons = stringr::str_split(grouping$Region2, pattern = "")
-#     cons = list.rbind(cons)
-#     df1 = data.table(t(cons))
-#
-#     x = apply(df1, 1, function(x) {
-#       x1 = table(x)
-#       data.table(Count = max(x1), Names = names(x1)[which.max(x1)])
-#     })
-#
-#     x = rbindlist(x)
-#     x = x$Names
-#
-#     consensus = paste0(x[1], x[2], x[3], x[4], x[5], x[6], x[7],
-#                        x[8], x[9], x[10], x[11], x[12], x[13], x[14])
-#
-#     matrix[,1][z] = grouping$Region1[1]
-#     matrix[,2][z] = consensus
-#
-#     info.f2 = info.f2[-which(info.f2$Region1 == r1),]
-#   }
-#
-#   names(matrix) = paste(c("Region1", "consensus"))
-#
-#   info.f2 = info[!duplicated(info$IMGT.gapped.nt.sequences.V.D.J.REGION), ]
-#   info.f2$Region1 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 1, 104)
-#   info.f2$Region2 = substring(info.f2$IMGT.gapped.nt.sequences.V.D.J.REGION, 105, 118)
-#
-#   # join the tables based on the same Region1
-#   total = join(info.f2, matrix, type = "inner")
-#
-#   ################### Paste Region1 and consensus ####################
-#
-#   total$final = paste0(total$Region1, total$consensus)
-#
-#   return(total)
-# }
 
 ######################################################################################################################################
 
@@ -2735,10 +2385,10 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
 
     if (save_tables_individually) {
         if (highly) {
-            filename <- paste0(output_folder, "/", "public_highly_clonotypes", ".txt")
+            filename <- paste0(e$output_folder, "/", "public_highly_clonotypes", ".txt")
             write.table(public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         } else {
-            filename <- paste0(output_folder, "/", "public_clonotypes", ".txt")
+            filename <- paste0(e$output_folder, "/", "public_clonotypes", ".txt")
             write.table(public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
     }
@@ -2811,10 +2461,6 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
-    # for (i in seq_len(nrow(clono_allData))){
-    # my_table <- viewClonotypes(clono_allData,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
-    # }
-
     for (i in seq_len(nrow(clono_allData))) {
         clono_allData[i, 1] <- strsplit(as.character(clono_allData[i, 1]), " - ")[[1]][1]
     }
@@ -2845,15 +2491,13 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
             colnames(Repertoires_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
-                filename <- paste0(output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
+                filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
                 write.table(Repertoires_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(Repertoires_datasets[[name[j]]])
         }
 
         if (Sys.info()[1] == "Windows") {
-            # cl <- makeCluster(num_of_cores)
-            # Repertoires_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
             Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
             Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -2923,15 +2567,13 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
             colnames(freq_gene_name_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
-                filename <- paste0(output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
+                filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
                 write.table(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(freq_gene_name_datasets[[name[j]]])
         }
 
         if (Sys.info()[1] == "Windows") {
-            # cl <- makeCluster(num_of_cores)
-            # freq_gene_name_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
             freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
             freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -2946,7 +2588,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     colnames(Repertoires_allData) <- c("Gene", "N", "Freq")
 
     if (save_tables_individually) {
-        filename <- paste0(output_folder, "/", "Repertoires_", g, "_", "All_Data", ".txt")
+        filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", "All_Data", ".txt")
         write.table(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
@@ -2984,10 +2626,6 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
         g <- gene
     }
 
-    # for (i in seq_len(nrow(clono_allData))){
-    # my_table <- viewClonotypes(clono_allData,allele,gene,junction,clonotype[[1]][1],clonotype[[1]][2])
-    # }
-
     clono_allData_initial <- clono_allData
     clono_datasets_initial <- clono_datasets
 
@@ -3021,7 +2659,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
             colnames(Repertoires_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
-                filename <- paste0(output_folder, "/", "Repertoires_HighlySim_", g, "_", name[j], ".txt")
+                filename <- paste0(e$output_folder, "/", "Repertoires_HighlySim_", g, "_", name[j], ".txt")
                 write.table(Repertoires_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(Repertoires_datasets[[name[j]]])
@@ -3051,9 +2689,6 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
                                 t(data.frame(unlist(s)))
                             })[, 1])
                         }
-
-                        # a2=strsplit(a[[gene]],"[*]")
-                        # a[[gene]]=as.character(plyr::ldply(a2,function(s){t(data.frame(unlist(s)))})[,1])
                     }
                     freq_gene <- a %>%
                         dplyr::group_by(a[[gene]]) %>%
@@ -3105,7 +2740,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
                 colnames(freq_gene_name_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
                 if (save_tables_individually) {
-                    filename <- paste0(output_folder, "/", "Repertoires_HiglySim_", g, "_", name[j], ".txt")
+                    filename <- paste0(e$output_folder, "/", "Repertoires_HiglySim_", g, "_", name[j], ".txt")
                     write.table(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             }
@@ -3114,7 +2749,6 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
         }
 
         if (Sys.info()[1] == "Windows") {
-            # cl <- makeCluster(num_of_cores)
             freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
             freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3129,7 +2763,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
     colnames(Repertoires_allData) <- c("Gene", "N", "Freq")
 
     if (save_tables_individually) {
-        filename <- paste0(output_folder, "/", "Repertoires_HighlySim_", g, "_", "All_Data", ".txt")
+        filename <- paste0(e$output_folder, "/", "Repertoires_HighlySim_", g, "_", "All_Data", ".txt")
         write.table(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
@@ -3185,10 +2819,10 @@ repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, na
 
     if (save_tables_individually) {
         if (highly_sim) {
-            filename <- paste0(output_folder, "/", "highlySim_repertoires_comparison_table_", id, ".txt")
+            filename <- paste0(e$output_folder, "/", "highlySim_repertoires_comparison_table_", id, ".txt")
             write.table(unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         } else {
-            filename <- paste0(output_folder, "/", "repertoires_comparison_table_", id, ".txt")
+            filename <- paste0(e$output_folder, "/", "repertoires_comparison_table_", id, ".txt")
             write.table(unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
     }
@@ -3283,8 +2917,6 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 }
 
                 if (Sys.info()[1] == "Windows") {
-                    # cl <- makeCluster(num_of_cores)
-                    # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
                     multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3346,8 +2978,6 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 }
 
                 if (Sys.info()[1] == "Windows") {
-                    # cl <- makeCluster(num_of_cores)
-                    # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
                     multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3403,8 +3033,6 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
             }
 
             if (Sys.info()[1] == "Windows") {
-                # cl <- makeCluster(num_of_cores)
-                # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
                 multi_datasets <- lapply(seq_len(length(name)), one_run)
             } else {
                 multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3436,7 +3064,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
         Multiple_value_comparison_datasets[[name[j]]] <- data.frame(Multiple_value_comparison_datasets[[name[j]]], stringsAsFactors = FALSE)
 
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Multiple_value_comparison_", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", name[j], ".txt")
+            filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", name[j], ".txt")
             write.table(Multiple_value_comparison_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
 
@@ -3444,8 +3072,6 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     }
 
     if (Sys.info()[1] == "Windows") {
-        # cl <- makeCluster(num_of_cores)
-        # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
         Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
         Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3454,7 +3080,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     names(Multiple_value_comparison_datasets) <- name
 
     if (save_tables_individually) {
-        filename <- paste0(output_folder, "/", "Multiple_value_comparison_", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", "All_Data", ".txt")
+        filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", "All_Data", ".txt")
         write.table(Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
@@ -3548,8 +3174,6 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 }
 
                 if (Sys.info()[1] == "Windows") {
-                    # cl <- makeCluster(num_of_cores)
-                    # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
                     multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3623,8 +3247,6 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 }
 
                 if (Sys.info()[1] == "Windows") {
-                    # cl <- makeCluster(num_of_cores)
-                    # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
                     multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3699,8 +3321,6 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
             }
 
             if (Sys.info()[1] == "Windows") {
-                # cl <- makeCluster(num_of_cores)
-                # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
                 multi_datasets <- lapply(seq_len(length(name)), one_run)
             } else {
                 multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3732,7 +3352,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
         Multiple_value_comparison_datasets[[name[j]]] <- data.frame(Multiple_value_comparison_datasets[[name[j]]], stringsAsFactors = FALSE)
 
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Multiple_value_comparison_highly_similar", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", name[j], ".txt")
+            filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_highly_similar", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", name[j], ".txt")
             write.table(Multiple_value_comparison_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
 
@@ -3740,8 +3360,6 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
     }
 
     if (Sys.info()[1] == "Windows") {
-        # cl <- makeCluster(num_of_cores)
-        # Multiple_value_comparison_datasets=clusterApply(cl=cl,seq_len(length(name)),one_run)
         Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
         Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
@@ -3750,7 +3368,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
     names(Multiple_value_comparison_datasets) <- name
 
     if (save_tables_individually) {
-        filename <- paste0(output_folder, "/", "Multiple_value_comparison_highly_similar", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", "All_Data", ".txt")
+        filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_highly_similar", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", "All_Data", ".txt")
         write.table(Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
@@ -3838,7 +3456,6 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
         table_count[is.na(table_count)] <- 0
 
         row.names(table_count) <- table_count[, 1]
-        # table_count<-table_count[,2:ncol(table_count)]
 
         # Create frequency table
         table_freq <- table_count
@@ -3872,7 +3489,7 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
     } else {
         table_freq <- c()
         table_count <- c()
-        print("no data for this")
+        warning("No data for this")
     }
 
     ###################################### Separate datasets #######################################
@@ -3941,7 +3558,6 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
 
             table_count_datasets[[name[j]]][is.na(table_count_datasets[[name[j]]])] <- 0
             row.names(table_count_datasets[[name[j]]]) <- table_count_datasets[[name[j]]][, 1]
-            # table_count_datasets[[name[j]]]<-table_count_datasets[[name[j]]][,2:ncol(table_count_datasets[[name[j]]])]
 
             # Create frequency table
             table_freq_datasets[[name[j]]] <- table_count_datasets[[name[j]]]
@@ -4163,7 +3779,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             t(data.frame(unlist(s)))
         })[, 1])
 
-        # max_length_region=ncol(Tgermlines)-1
         if (max_length_region > (ncol(Tgermlines) - 1)) {
             extra_dots <- matrix(".", nrow(Tgermlines), max_length_region - ncol(Tgermlines))
             Tgermlines <- cbind(Tgermlines, extra_dots)
@@ -4172,10 +3787,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             Tgermlines[is.na(Tgermlines)] <- "."
         }
     }
-
-    # if (only_one_germline){
-    #   #max_length_region=length(strsplit(germline,"")[[1]])
-    # }
 
     if (region %in% colnames(input)) {
 
@@ -4188,7 +3799,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         } else {
             if (!highly) {
                 for (i in seq_len(length(view_specific_clonotype_allData))) {
-                    # index=as.numeric(row.names(view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]]))
                     index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
                     if (index[1] > 0) {
                         freq_cluster_id[index] <- clono_allData$Freq[i]
@@ -4232,7 +3842,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         region_split <- t(region_split)
         row.names(region_split) <- NULL
 
-        # region_alignment<-cbind(as.data.frame(cluster_id),Functionality=input[[used_columns[["Summary"]][2]]])
         region_alignment <- cbind(as.data.frame(cluster_id),
             as.data.frame(freq_cluster_id),
             Functionality = "productive"
@@ -4257,8 +3866,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_alignment <- region_alignment %>% dplyr::filter(as.numeric(as.character(freq_cluster_id)) >= thrClono | region_alignment$cluster_id == "-")
         }
 
-        # region_alignment=region_alignment %>% dplyr::filter(Functionality=="productive")
-        # region_alignment$Functionality="productive"
         if (only_one_germline) {
             germline <- strsplit(germline, "")[[1]]
             germline <- data.frame(t(germline), stringsAsFactors = FALSE)
@@ -4266,9 +3873,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             germline <- as.data.frame(germline, stringsAsFactors = FALSE)
             colnames(germline) <- colnames(region_alignment[, seq_len(ncol(germline))])
             alignment_with_germline <- rbind(germline, region_alignment[, seq_len(ncol(germline))])
-            # for (i in 3:length(alignment_with_germline)){
-            #  alignment_with_germline[,i] = factor(alignment_with_germline[,i], levels=c(levels(alignment_with_germline[,i]), "-"))
-            # }
 
             a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
                 x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
@@ -4277,19 +3881,14 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             # add the first and the second columns
             temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), seq_len(2)], temp)
             # add the last columns
-            # print((length(alignment_with_germline)+1):length(region_alignment))
             if ((length(alignment_with_germline) + 1) < length(region_alignment)) {
                 temp2 <- rbind(temp2, region_alignment[, (length(alignment_with_germline) + 1):length(region_alignment)])
             }
-            # print(temp2)
             # add the germline (first row)
             germline_new <- germline
-            # print(germline_new)
             # germline_new[,(length(germline)+1):length(region_alignment)]="."
-            # print(germline_new)
             colnames(germline_new) <- colnames(temp2)
             output <- rbind(germline_new[1, ], temp2)
-            # print(output)
         } else {
             if (use_genes_germline) {
                 Tgermlines <- Tgermlines %>% dplyr::filter(stringr::str_detect(Tgermlines$V1, "[*]01 F"))
@@ -4319,7 +3918,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
             df3 <- alignment_with_germline
 
-            # print(nrow(alignment_with_germline))
             germline <- c()
             output <- c()
             a <- c()
@@ -4345,13 +3943,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                     t <- matrix(data = t, nrow = length(productive), byrow = TRUE)
 
                     a <- y[productive, ..XColumns] == t & y[productive, ..XColumns] != "."
-
-                    # a = t(apply(y[productive, ..XColumns], 1,
-                    #             function(x){
-                    #
-                    #               x == y[germline, ..XColumns] & x != "."
-                    #
-                    #             })) #x: a row of input[count,XColumns]
 
                     temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
 
@@ -4384,7 +3975,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                 if (!highly) {
                     for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))) {
                         index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
-                        # index=as.numeric(row.names(view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]]))
                         if (index[1] > 0) {
                             cluster_id[index] <- i
                             freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
@@ -4403,7 +3993,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                         }
 
                         index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
-                        # index=as.numeric(row.names(view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]]))
                         if (index[1] > 0) {
                             cluster_id[index] <- i
                             freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
@@ -4443,8 +4032,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_alignment$cluster_id <- as.character(cluster_id)
             region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
 
-            # region_alignment=region_alignment %>% dplyr::filter(Functionality=="productive")
-
 
             if (FtopN) {
                 region_alignment <- region_alignment %>%
@@ -4457,11 +4044,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
 
             if (only_one_germline) {
-                # print(germline)
                 alignment_with_germline <- rbind(germline, region_alignment[, seq_len(length(germline))])
-                # for (i in 3:length(alignment_with_germline)){
-                #  alignment_with_germline[,i] = factor(alignment_with_germline[,i], levels=c(levels(alignment_with_germline[,i]), "-"))
-                # }
 
                 a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
                     x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
@@ -4475,7 +4058,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                 }
                 # add the germline (first row)
                 germline_new <- germline
-                # germline_new[,(length(germline)+1):length(region_alignment)]="."
                 colnames(germline_new) <- colnames(temp2)
                 output <- rbind(germline_new[1, ], temp2)
             } else {
@@ -4514,13 +4096,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
                         a <- y[productive, ..XColumns] == t & y[productive, ..XColumns] != "."
 
-                        # a = t(apply(y[productive, ..XColumns], 1,
-                        #             function(x){
-                        #
-                        #               x == y[germline, ..XColumns] & x != "."
-                        #
-                        #             })) #x: a row of input[count,XColumns]
-
                         temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
 
                         temp.names <- colnames(alignment_with_germline[, seq_len(6)])
@@ -4537,7 +4112,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))
 
             if (save_tables_individually) {
-                filename <- paste0(output_folder, "/", "Alignment_", AAorNtAlignment, "_", name[j], ".txt")
+                filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", name[j], ".txt")
                 write.table(alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
@@ -4561,7 +4136,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         names(alignment_datasets) <- name
 
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
+            filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
             write.table(alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
 
@@ -4784,7 +4359,7 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
 
         mutation_change_datasets[[name[j]]] <- output
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Mutations_thr", thr, "_", AAorNtMutations, "_", name[j], cl_id, ".txt")
+            filename <- paste0(e$output_folder, "/", "Mutations_thr", thr, "_", AAorNtMutations, "_", name[j], cl_id, ".txt")
             write.table(mutation_change_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
 
@@ -4800,7 +4375,7 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
     names(mutation_change_datasets) <- name
 
     if (save_tables_individually) {
-        filename <- paste0(output_folder, "/", "Mutations_thr", thr, "_", AAorNtMutations, "_", "All_Data", cl_id, ".txt")
+        filename <- paste0(e$output_folder, "/", "Mutations_thr", thr, "_", AAorNtMutations, "_", "All_Data", cl_id, ".txt")
         write.table(mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
@@ -4841,11 +4416,11 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
         distinct_changes <- input[, list(Freq = .N), by = XColumns]
         grouped_alignment_datasets[[name[j]]] <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1))])
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
+            filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
             write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
         if (save_tables_individually) {
-            filename <- paste0(output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", name[j], ".txt")
+            filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", name[j], ".txt")
             write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
         return(grouped_alignment_datasets[[name[j]]])
@@ -4860,7 +4435,7 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
     names(grouped_alignment_datasets) <- name
 
     if (save_tables_individually) {
-        filename <- paste0(output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
+        filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
         write.table(grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 

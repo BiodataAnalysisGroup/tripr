@@ -9,3 +9,5 @@ dev/
 .rprofile
 .rproj
 log_files/
+output/
+*.Rproj
