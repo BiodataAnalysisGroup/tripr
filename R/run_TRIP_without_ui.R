@@ -212,6 +212,8 @@ run_TRIP <- function(
     alignment_params="1,both,1,2:20", 
     mutations_params="both,0.5,0.5,2:20") {
 
+    ## Only for command-line tool
+    save_tables_individually <- TRUE
     ##### Create output folder ######
     if (save_tables_individually | save_lists_for_bookmark) {
         ## output folder name as system time

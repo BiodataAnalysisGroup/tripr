@@ -134,8 +134,9 @@ Bioconductor (version "3.14").
 To install `tripr` package enter the following commands in your `R` session:
 
 ```{r eval = FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
+}
 
 BiocManager::install("tripr")
 

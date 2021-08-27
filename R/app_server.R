@@ -1877,10 +1877,10 @@ app_server <- function(input, output, session) {
                 temp <- temp[, c("Gene", "CDR3", "N", "Freq", "prev_cluster")]
 
                 if (save_tables_individually) {
-                    write.table(temp, paste0(output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                    write.table(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
                     # save filter in + highly clono id
-                    all_filter <- read.csv(paste0(output_folder, "/", "filterin_clono_", d, ".txt"), sep = "\t", stringsAsFactors = FALSE)
+                    all_filter <- read.csv(paste0(e$output_folder, "/", "filterin_clono_", d, ".txt"), sep = "\t", stringsAsFactors = FALSE)
                     all_filter$highly_cluster_id <- 0
                     all_filter$highly_freq_cluster_id <- 0
 
@@ -1890,7 +1890,7 @@ app_server <- function(input, output, session) {
                         all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                     }
 
-                    write.table(all_filter, paste0(output_folder, "/", "filterin_highly_clono_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                    write.table(all_filter, paste0(e$output_folder, "/", "filterin_highly_clono_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             }
 
@@ -1914,10 +1914,10 @@ app_server <- function(input, output, session) {
             temp <- temp[, c("Gene", "CDR3", "N", "Freq", "prev_cluster")]
 
             if (save_tables_individually) {
-                write.table(temp, paste0(output_folder, "/", "highly_sim_all_clonotypes_", "All Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                write.table(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", "All Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
                 # save filter in + highly clono id
-                all_filter <- read.csv(paste0(output_folder, "/", "filterin_clono_", "All_Data", ".txt"), sep = "\t", stringsAsFactors = FALSE)
+                all_filter <- read.csv(paste0(e$output_folder, "/", "filterin_clono_", "All_Data", ".txt"), sep = "\t", stringsAsFactors = FALSE)
                 all_filter$highly_cluster_id <- 0
                 all_filter$highly_freq_cluster_id <- 0
 
@@ -1927,7 +1927,7 @@ app_server <- function(input, output, session) {
                     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                 }
 
-                write.table(all_filter, paste0(output_folder, "/", "filterin_highly_clono_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                write.table(all_filter, paste0(e$output_folder, "/", "filterin_highly_clono_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
             output$highlySimAllClonoTable <- renderDataTable(
@@ -2958,7 +2958,7 @@ app_server <- function(input, output, session) {
             })
 
             if (save_lists_for_bookmark) {
-                save(Multiple_value_comparison_result, file = paste0(output_folder, "/Multiple_value_comparison_result.rdata"))
+                save(Multiple_value_comparison_result, file = paste0(e$output_folder, "/Multiple_value_comparison_result.rdata"))
             }
         })
         return()
@@ -4716,11 +4716,11 @@ app_server <- function(input, output, session) {
             paste("Analysis_Plots_", Sys.time(), ".tar", sep = "")
         }, # name the .tar file
         content <- function(file) {
-            folder_name <- paste("Analysis", trunc(as.numeric(Sys.time())))
-            if (!file.exists(paste0(tmp_path, "/", folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-                dir.create(paste0(tmp_path, "/", folder_name))
-            } # make the dir if not
-            in.path <- paste0(tmp_path, "/", folder_name) # go into the dir, alternatively you could just set the path of the file each time
+            folder_name <- "/Analysis"
+            if (!file.exists(paste0(fs::path(output_path), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
+                fs::dir_create(paste0(fs::path(output_path), folder_name)) # make the dir if not
+            }
+            in.path <- paste0(fs::path(output_path), folder_name) # go into the dir, alternatively you could just set the path of the file each time
 
             # check if the following have run
 
@@ -5899,11 +5899,11 @@ app_server <- function(input, output, session) {
             paste("Analysis_Tables_", Sys.time(), ".tar", sep = "")
         }, # name the .tar file
         content <- function(file) {
-            folder_name <- paste("AnalysisTables", trunc(as.numeric(Sys.time())))
-            if (!file.exists(paste0(tmp_path, "/", folder_name))) {
-                dir.create(paste0(tmp_path, "/", folder_name))
+            folder_name <- "/AnalysisTables"
+            if (!file.exists(paste0(fs::path(output_path), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
+                fs::dir_create(paste0(fs::path(output_path), folder_name)) # make the dir if not
             }
-            in.path <- paste0(tmp_path, "/", folder_name)
+            in.path <- paste0(fs::path(output_path), folder_name) # go into the dir, alternatively you could just set the path of the file each time
 
             ########################################### Clonotypes ###############################################
             if (msgClonotypes != "") {
