@@ -5,13 +5,13 @@
     if (!file.exists(paste0(system.file("extdata", package="tripr"), 
             "/output"))) {
         fs::dir_create(paste0(system.file("extdata", package="tripr"), 
-                            "output"),
+                            "/output"),
                         mode = "u=rwx,go=rwx")
     }
     if (!file.exists(paste0(system.file("extdata", package="tripr"), 
             "/log_files"))) {
         fs::dir_create(paste0(system.file("extdata", package="tripr"), 
-                            "log_files"),
+                            "/log_files"),
                         mode = "u=rwx,go=rwx")
     }
     logFile <- paste0(system.file("extdata/log_files", package="tripr"), 
