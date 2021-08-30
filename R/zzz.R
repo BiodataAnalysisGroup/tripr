@@ -3,8 +3,16 @@
     utils::globalVariables(c("used_columns", "..XColumns", "..temp.names",
         "output_folder", "pi_distribution", "logFile"))
     if (!file.exists(paste0(system.file("extdata", package="tripr"), 
+            "/output"))) {
+        fs::dir_create(paste0(system.file("extdata", package="tripr"), 
+                            "output"),
+                        mode = "u=rwx,go=rwx")
+    }
+    if (!file.exists(paste0(system.file("extdata", package="tripr"), 
             "/log_files"))) {
-        fs::dir_create(system.file("extdata", package="tripr"), "log_files")
+        fs::dir_create(paste0(system.file("extdata", package="tripr"), 
+                            "log_files"),
+                        mode = "u=rwx,go=rwx")
     }
     logFile <- paste0(system.file("extdata/log_files", package="tripr"), 
         "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
@@ -19,7 +27,7 @@
     # output path
     e$output_folder <- paste0(fs::path(output_path), "/output_tables")
     # Create output_folder directory .onLoad
-    fs::dir_create(paste0(e$output_folder))
+    fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
 }
 
 .onAttach <- function(libname, pkgname) {

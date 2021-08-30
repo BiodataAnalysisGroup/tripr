@@ -1,0 +1,17 @@
+inst/script/dataset_example.txt for extdata/dataset
+
+The input for tripr is the ouput of the IMGT/HighV-QUEST analysis. The steps to 
+get this data are the following:
+-Register and enter to IMGT/HighV-QUEST (http://www.imgt.org/HighV-QUEST/home.action).
+-Indicate the organism from which the sample derives (Homo sapiens in this case).
+-Select the type of receptor studied (the options are IG, IGL, IGK, IGH, TR, TRA, TRB, TRG, and TRD).
+-Upload the sequencing data as FASTA files.
+-Start the analysis.
+-Once the data is ready, download from the “Analysis history” tab. Each sample’s
+    output consists of a folder with 10 files in txt format with immunogenetic 
+    information. This folder is the input for the tripr analysis tool.
+
+
+IMGT/HighV-QUEST
+http://www.imgt.org
+

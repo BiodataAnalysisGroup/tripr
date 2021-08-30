@@ -225,7 +225,7 @@ run_TRIP <- function(
         # output path
         e$output_folder <- paste0(fs::path(output_path), "/output_tables")
         if (!file.exists(paste0(e$output_folder))) {
-            fs::dir_create(paste0(e$output_folder))
+            fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
         }
     }
 
@@ -1244,7 +1244,7 @@ run_TRIP <- function(
 
     folder_name <- "/Analysis"
     if (!file.exists(paste0(fs::path(output_path), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-        fs::dir_create(paste0(fs::path(output_path), folder_name)) # make the dir if not
+        fs::dir_create(paste0(fs::path(output_path), folder_name), mode = "u=rwx,go=rwx") # make the dir if not
     }
     in.path <- paste0(fs::path(output_path), folder_name) # go into the dir, alternatively you could just set the path of the file each time
 
