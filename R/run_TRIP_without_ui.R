@@ -211,7 +211,9 @@ run_TRIP <- function(
     multiple_values_params="2:7,2:3,2:5,2:11", 
     alignment_params="1,both,1,2:20", 
     mutations_params="both,0.5,0.5,2:20") {
-
+    
+    message("Datapath you provided: ", datapath)
+    
     ## Only for command-line tool
     save_tables_individually <- TRUE
     ##### Create output folder ######
