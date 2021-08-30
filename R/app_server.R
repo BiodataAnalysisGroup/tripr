@@ -303,10 +303,12 @@ app_server <- function(input, output, session) {
     observeEvent(input$select_load_or_compute_clonotypes, {
         if (input$select_load_or_compute_clonotypes == "load_clonotypes") {
             # used columns
-            load("rData files/used_columns.rData")
-            used_columns <- e$used_columns
-            load("rData files/cdr3_lengths.rData")
-            cdr3_lengths <<- cdr3_lengths
+            message("Currently Unavailable")
+            message("Please use only 'Compute Clonotypes'")
+            # load("rData files/used_columns.rData")
+            # used_columns <- e$used_columns
+            # load("rData files/cdr3_lengths.rData")
+            # cdr3_lengths <<- cdr3_lengths
         }
     })
 
@@ -4716,12 +4718,11 @@ app_server <- function(input, output, session) {
             paste("Analysis_Plots_", Sys.time(), ".tar", sep = "")
         }, # name the .tar file
         content <- function(file) {
-            folder_name <- "/Analysis"
-            if (!file.exists(paste0(fs::path(output_path), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-                fs::dir_create(paste0(fs::path(output_path), folder_name)) # make the dir if not
-            }
-            in.path <- paste0(fs::path(output_path), folder_name) # go into the dir, alternatively you could just set the path of the file each time
-
+            folder_name <- paste("/Analysis", trunc(as.numeric(Sys.time())))
+            if (!file.exists(paste0(system.file("extdata/output", package="tripr"), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
+                dir.create(paste0(system.file("extdata/output", package="tripr"), folder_name))
+            } # make the dir if not
+            in.path <- paste0(system.file("extdata/output", package="tripr"), folder_name) # go into the dir, alternatively you could just set the path of the file each time
             # check if the following have run
 
             ####### clonotype plots  #######
@@ -5899,12 +5900,11 @@ app_server <- function(input, output, session) {
             paste("Analysis_Tables_", Sys.time(), ".tar", sep = "")
         }, # name the .tar file
         content <- function(file) {
-            folder_name <- "/AnalysisTables"
-            if (!file.exists(paste0(fs::path(output_path), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-                fs::dir_create(paste0(fs::path(output_path), folder_name)) # make the dir if not
+            folder_name <- paste0("/AnalysisTables_", format(Sys.time(), "%H%M%S"))
+            if (!file.exists(paste0(system.file("extdata/output", package="tripr"), "/", folder_name))) {
+                dir.create(paste0(system.file("extdata/output", package="tripr"), "/", folder_name))
             }
-            in.path <- paste0(fs::path(output_path), folder_name) # go into the dir, alternatively you could just set the path of the file each time
-
+            in.path <- paste0(system.file("extdata/output", package="tripr"), folder_name) # go into the dir, alternatively you could just set the path of the file each time
             ########################################### Clonotypes ###############################################
             if (msgClonotypes != "") {
                 for (j in seq_len((length(loaded_datasets) + 1))) {

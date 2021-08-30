@@ -218,7 +218,7 @@ run_TRIP <- function(
     if (save_tables_individually | save_lists_for_bookmark) {
         ## output folder name as system time
         output_path <- paste0(output_path, 
-            "/output_", format(Sys.time(), "%H_%M"))
+            "/output_", format(Sys.time(), "%H%M%S"))
         message("Output will be saved in: ", fs::path(output_path))
         # output path
         e$output_folder <- paste0(fs::path(output_path), "/output_tables")
@@ -228,8 +228,8 @@ run_TRIP <- function(
     }
 
     ## Log file
-    logFile <- paste0(fs::path_package("extdata", "log_files", package="tripr"),
-         "/log_file_", format(Sys.time(), "%H_%M"), ".txt")
+    # logFile <- paste0(fs::path_package("extdata", "log_files", package="tripr"),
+    #      "/log_file_", format(Sys.time(), "%H_%M"), ".txt")
 
     ##### Input data parameters ####
     name <- list.files(datapath) # dataset names eg c("B1","B2")

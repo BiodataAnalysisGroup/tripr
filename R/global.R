@@ -41,15 +41,25 @@ logo_per_region <- NULL
 Dataset <- NULL
 logo_result_cl <- NULL
 logo_per_region_cl <- NULL
+logFile <- NULL
 
 tmp_path <- getwd() # change it to "/tmp" for server
 
 num_of_cores <- parallel::detectCores(all.tests = FALSE, logical = TRUE) # change this to the custom number of threads
 
 # logfile
-fs::dir_create(paste0(fs::path_package("extdata", package="tripr"), "/log_files"))
-logFile <- paste0(fs::path_package("extdata", "log_files", package="tripr"), "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
-cat(paste0("Function", "\t", "Parameters", "\t", "Num of input rows", "\t", "Num of input columns", "\t", "Start time", "\t", "End time", "\t", "Memory used"), file = logFile, append = FALSE, sep = "\n")
+# if (!file.exists(paste0(tmp_path, "/inst/extdata/log_files"))) {
+#     fs::dir_create(paste0(tmp_path, "/inst/extdata/log_files"))
+# }
+
+# if (!file.exists(paste0(system.file("extdata", package="tripr"), "/log_files"))) {
+#     fs::dir_create(system.file("extdata", package="tripr"), "log_files")
+# }
+# logFile <- paste0(system.file("extdata/log_files", package="tripr"), "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
+# logFile <- paste0(tmp_path, "/inst/extdata/log_files/log_file_", trunc(as.numeric(Sys.time())), ".txt")
+
+
+# cat(paste0("Function", "\t", "Parameters", "\t", "Num of input rows", "\t", "Num of input columns", "\t", "Start time", "\t", "End time", "\t", "Memory used"), file = logFile, append = FALSE, sep = "\n")
 
 use_only_useful_columns <- TRUE # libraries.R TRUE
 save_lists_for_bookmark <- FALSE # libraries.R FALSE

@@ -83,7 +83,6 @@ Collate:
     "app_ui.R"
     "run_app.R"
     "zzz.R"
-StagedInstall: no
 URL: https://github.com/BiodataAnalysisGroup/TRIP
 BugReports: https://github.com/BiodataAnalysisGroup/TRIP/issues
 BiocType: Software

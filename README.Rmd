@@ -47,14 +47,16 @@ Functions for an `R` command-line use are also available.
 
 ## Installation
 
-`tripr` is distributed as a [Bioconductor](https://www.bioconductor.org/) 
+<!-- When accepted in Bioconductor -->
+
+<!-- `tripr` is distributed as a [Bioconductor](https://www.bioconductor.org/) 
 package and requires `R` (version "4.1"), which can be installed on any 
 operating system from [CRAN](https://cran.r-project.org/), and 
 Bioconductor (version "3.14").
 
 To install `tripr` package enter the following commands in your `R` session:
 
-```{r eval = FALSE}
+```{r eval=FALSE}
 if (!requireNamespace("BiocManager", quietly = TRUE)) {
     install.packages("BiocManager")
 }
@@ -63,6 +65,13 @@ BiocManager::install("tripr")
 
 ## Check that you have a valid Bioconductor installation
 BiocManager::valid()
+``` 
+-->
+
+To install `tripr` from github use:
+
+```{r eval=FALSE}
+remotes::install_github("iofeidis/tripr", dependencies = TRUE)
 ```
 
 ## Launching the app
@@ -75,5 +84,10 @@ library(tripr)
 
 ## User Guide
 
-Have a look at our thorough `tripr` user guide here.
+Have a look at our thorough `tripr` user guide with:
+
+<!-- Temporary solution until vignette is uploaded on Bioconductor -->
+```{r eval=FALSE}
+browseURL(url = "vignettes/tripr_guide.html") 
+```
 

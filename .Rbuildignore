@@ -6,3 +6,4 @@
 ^\.travis\.yml$
 ^dev$
 ^CITATION\.cff$
+^README\.Rmd$
