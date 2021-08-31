@@ -14,13 +14,7 @@
                             "/log_files"),
                         mode = "u=rwx,go=rwx")
     }
-    logFile <- paste0(system.file("extdata/log_files", package="tripr"), 
-        "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
-    cat(paste0("Function", "\t", "Parameters", "\t", "Num of input rows", "\t", 
-        "Num of input columns", "\t", "Start time", "\t", "End time", "\t", 
-            "Memory used"), file = logFile, append = FALSE, sep = "\n")
-    assign('logFile', logFile, envir = topenv())
-
+    logfile()
     ## output folder name as system time
     output_path <- paste0(system.file("extdata/output", package="tripr"), 
         "/output_", format(Sys.time(), "%H%M%S"))

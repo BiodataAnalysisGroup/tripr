@@ -11,7 +11,7 @@ library(tripr)
 
 message("See run_TRIP() documentation by typing '?tripr::run_TRIP'")
 
-# Change with the default values with your new ones
+# Change the default values with your preferred ones
 
 run_TRIP(
     # Replace the datapath with yours like (if it's on your working directory):
