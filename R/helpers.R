@@ -2008,7 +2008,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
         clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
             t(data.frame(unlist(s)))
         })[, 2])
-        clono_allData_only_cdr3 <- data.table::as.data.table(clono_allData_only_cdr3[, seq_len(3)])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
+        clono_allData_only_cdr3 <- data.table::as.data.table(clono_allData_only_cdr3[, 1:3])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
         clono_allData_only_cdr3 <- clono_allData_only_cdr3[order(-clono_allData_only_cdr3$N), ]
     }
 
@@ -2148,7 +2148,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
             clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
                 t(data.frame(unlist(s)))
             })[, 2])
-            clono_allData_only_cdr3 <- data.table::as.data.table(clono_allData_only_cdr3[, seq_len(3)])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
+            clono_allData_only_cdr3 <- data.table::as.data.table(clono_allData_only_cdr3[, 1:3])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
             clono_allData_only_cdr3 <- clono_allData_only_cdr3[order(-clono_allData_only_cdr3$N), ]
         }
         if (stringr::str_detect(clono_datasets[[name[j]]]$clonotype[1], " - ") && take_gene == "Yes") {
@@ -2333,7 +2333,7 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
         clono_allData$clonotype <- as.character(plyr::ldply(a2, function(s) {
             t(data.frame(unlist(s)))
         })[, 2])
-        clono_allData <- data.table::as.data.table(clono_allData[, seq_len(3)])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
+        clono_allData <- data.table::as.data.table(clono_allData[, 1:3])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
         clono_allData <- clono_allData[order(-clono_allData$N), ]
     }
 
@@ -2345,7 +2345,7 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
     if (use_reads) {
         clono_allData <- clono_allData %>% dplyr::filter(N > public_clonotype_thr)
     } else {
-        clono_allData <- clono_allData[seq_len(public_clonotype_thr), ]
+        clono_allData <- clono_allData[1:public_clonotype_thr, ]
     }
 
     public_clono <- data.frame(clonotype = unique(clono_allData$clonotype), stringsAsFactors = FALSE)
@@ -2357,14 +2357,14 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
             clono_datasets[[n]]$clonotype <- as.character(plyr::ldply(a2, function(s) {
                 t(data.frame(unlist(s)))
             })[, 2])
-            clono_datasets[[n]] <- data.table::as.data.table(clono_datasets[[n]][, seq_len(3)])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
+            clono_datasets[[n]] <- data.table::as.data.table(clono_datasets[[n]][, 1:3])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
             clono_datasets[[n]] <- clono_datasets[[n]][order(-clono_datasets[[n]]$N), ]
         }
 
         if (use_reads) {
             clono_datasets[[n]] <- clono_datasets[[n]] %>% dplyr::filter(N > public_clonotype_thr)
         } else {
-            clono_datasets[[n]] <- clono_datasets[[n]][seq_len(public_clonotype_thr), ]
+            clono_datasets[[n]] <- clono_datasets[[n]][1:public_clonotype_thr, ]
         }
 
         ids_dataset <- which(clono_datasets[[n]]$clonotype %in% public_clono$clonotype)
@@ -3795,8 +3795,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         cluster_id <- c()
         freq_cluster_id <- c()
         if (length(view_specific_clonotype_allData) == 0) {
-            cluster_id[seq_len(nrow(input))] <- 0
-            freq_cluster_id[seq_len(nrow(input))] <- 0
+            cluster_id[1:nrow(input)] <- 0
+            freq_cluster_id[1:nrow(input)] <- 0
         } else {
             if (!highly) {
                 for (i in seq_len(length(view_specific_clonotype_allData))) {
@@ -3832,7 +3832,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
         for (i in seq_len(length(region_split))) {
             if (length(region_split[[i]]) > max_length_region) {
-                region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
+                region_split[[i]] <- region_split[[i]][1:max_length_region]
             }
             if (length(region_split[[i]]) < max_length_region) {
                 region_split[[i]][length(region_split[[i]]):max_length_region] <- "."
@@ -3872,15 +3872,15 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             germline <- data.frame(t(germline), stringsAsFactors = FALSE)
             germline <- c("-", "-", "germline", "-", "-", "-", germline)
             germline <- as.data.frame(germline, stringsAsFactors = FALSE)
-            colnames(germline) <- colnames(region_alignment[, seq_len(ncol(germline))])
-            alignment_with_germline <- rbind(germline, region_alignment[, seq_len(ncol(germline))])
+            colnames(germline) <- colnames(region_alignment[, 1:ncol(germline)])
+            alignment_with_germline <- rbind(germline, region_alignment[, 1:ncol(germline)])
 
             a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
                 x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
             })) # x: a row of input[count,XColumns]
             temp <- replace(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], a == TRUE, "-")
             # add the first and the second columns
-            temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), seq_len(2)], temp)
+            temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), 1:2], temp)
             # add the last columns
             if ((length(alignment_with_germline) + 1) < length(region_alignment)) {
                 temp2 <- rbind(temp2, region_alignment[, (length(alignment_with_germline) + 1):length(region_alignment)])
@@ -3911,7 +3911,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                 alignment_with_germline <- rbind(germlines, region_alignment)
             } else {
                 germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines)
-                germlines <- germlines[, seq_len(ncol(region_alignment))]
+                germlines <- germlines[, 1:ncol(region_alignment)]
                 colnames(germlines) <- colnames(region_alignment)
 
                 alignment_with_germline <- rbind(germlines, region_alignment)
@@ -3947,7 +3947,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
                     temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
 
-                    temp.names <- colnames(alignment_with_germline[, seq_len(6)])
+                    temp.names <- colnames(alignment_with_germline[, 1:6])
 
                     temp2 <- cbind(y[productive, ..temp.names], temp)
 
@@ -3958,8 +3958,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
         }
 
-        ## DEBUG, output has NOT cluster_id inside
-        # print(str(output))
         alignment_allData <- output %>% select(-c(Functionality))
 
         ################################ for Separate datasets ###############################
@@ -3972,8 +3970,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             freq_cluster_id <- c()
 
             if (length(view_specific_clonotype_allData) == 0) {
-                cluster_id[seq_len(nrow(input_tmp))] <- 0
-                freq_cluster_id[seq_len(nrow(input))] <- 0
+                cluster_id[1:nrow(input_tmp)] <- 0
+                freq_cluster_id[1:nrow(input)] <- 0
             } else {
                 if (!highly) {
                     for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))) {
@@ -4008,7 +4006,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_split <- strsplit(input_tmp[[region]], "")
             for (i in seq_len(length(region_split))) {
                 if (length(region_split[[i]]) > max_length_region) {
-                    region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
+                    region_split[[i]] <- region_split[[i]][1:max_length_region]
                 }
 
                 if (length(region_split[[i]]) < max_length_region) {
@@ -4035,10 +4033,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_alignment$cluster_id <- as.character(cluster_id)
             region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
 
-
-            ## DEBUG
-            print(str(region_alignment))
-
             if (FtopN) {
                 region_alignment <- region_alignment %>%
                     dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
@@ -4050,16 +4044,14 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
 
             if (only_one_germline) {
-                alignment_with_germline <- rbind(germline, region_alignment[, seq_len(length(germline))])
-                ## DEBUG: cluster_id is inside
-                # print(colnames(alignment_with_germline))
+                alignment_with_germline <- rbind(germline, region_alignment[, 1:length(germline)])
 
                 a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
                     x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
                 })) # x: a row of input[count,XColumns]
                 temp <- replace(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], a == TRUE, "-")
                 # add the first and the second columns
-                temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), seq_len(2)], temp)
+                temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), 1:2], temp)
                 # add the last columns
                 if ((length(alignment_with_germline) + 1) < length(region_alignment)) {
                     temp2 <- rbind(temp2, region_alignment[, (length(alignment_with_germline) + 1):length(region_alignment)])
@@ -4089,12 +4081,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
                 alignment_with_germline <- data.table::as.data.table(alignment_with_germline)
                 
-
-                ## DEBUG: cluster_id is inside
-                # print(colnames(alignment_with_germline))
-                # all is 'productive'
-                # print(region_alignment$Functionality)
-
                 for (germ in unique(alignment_with_germline$V.GENE.and.allele)) {
                     y <- alignment_with_germline[which(alignment_with_germline$V.GENE.and.allele == germ), ]
 
@@ -4112,23 +4098,18 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
                         temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
 
-                        temp.names <- colnames(alignment_with_germline[, seq_len(6)])
+                        temp.names <- colnames(alignment_with_germline[, 1:6])
 
                         temp2 <- cbind(y[productive, ..temp.names], temp)
 
                         temp.names <- c(temp.names, XColumns)
-
-                        ## DEBUG
-                        # print(temp.names)
 
                         output <- rbind(output, y[germline, ..temp.names], temp2)
                     }
                 }
             }
 
-            ## DEBUG, output has NOT cluster_id inside
-            # print(str(output))
-        
+
             alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))
 
             if (save_tables_individually) {
@@ -4136,8 +4117,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                 write.table(alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
-            ## DEBUG
-            # print(colnames(alignment_datasets[[name[j]]]))
             return(alignment_datasets[[name[j]]])
         }
 
@@ -4169,8 +4148,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             "alignment_datasets" = alignment_datasets,
             "confirm" = confirm
         )
-        ## DEBUG
-        # print(str(alignment_allData))
 
         # log time end and memory used
         cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
@@ -4430,21 +4407,15 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
     XColumns <- seq_len((ncol(alignment_allData) - 6))
     XColumns <- as.character(XColumns)
     XColumns <- c("V.GENE.and.allele", "cluster_id", "freq_cluster_id", XColumns)
-    
-    ## DEBUG
-    # print(str(XColumns))
-    # print(XColumns)
-    # print(str(input))
-    # print(head(input))
 
     distinct_changes <- input[, list(Freq = .N), by = XColumns]
-    grouped_alignment_allData <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1))])
+    grouped_alignment_allData <- cbind(N = distinct_changes$Freq, distinct_changes[, 1:(ncol(distinct_changes) - 1)])
 
     grouped_alignment_datasets <- list()
     one_run <- function(j) {
         input <- data.table(alignment_datasets[[name[j]]])
         distinct_changes <- input[, list(Freq = .N), by = XColumns]
-        grouped_alignment_datasets[[name[j]]] <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1))])
+        grouped_alignment_datasets[[name[j]]] <- cbind(N = distinct_changes$Freq, distinct_changes[, 1:(ncol(distinct_changes) - 1)])
         if (save_tables_individually) {
             filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
             write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
@@ -4557,7 +4528,7 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
 
                 v_cdr3_cluster_id <- c()
                 for (j in seq_len(nrow(distinctVGenes_CDR3))) {
-                    v_cdr3_cluster_id[j] <- which((do.call(paste0, cdr3_split_new[j, ]) == do.call(paste0, temp[, seq_len(max_length_cdr3)])))
+                    v_cdr3_cluster_id[j] <- which((do.call(paste0, cdr3_split_new[j, ]) == do.call(paste0, temp[, 1:max_length_cdr3])))
                 }
 
                 multiple_objects_id <- c()
@@ -4644,7 +4615,7 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
 
                     v_cdr3_cluster_id <- c()
                     for (j in seq_len(nrow(distinctVGenes_CDR3))) {
-                        v_cdr3_cluster_id[j] <- which((do.call(paste0, cdr3_split_new[j, ]) == do.call(paste0, temp[, seq_len(max_length_cdr3)])))
+                        v_cdr3_cluster_id[j] <- which((do.call(paste0, cdr3_split_new[j, ]) == do.call(paste0, temp[, 1:max_length_cdr3])))
                     }
 
                     multiple_objects_id <- c()
