@@ -75,7 +75,8 @@ library(tripr)
 
 ## User Guide
 
-Have a look at our thorough `tripr` user guide with:
+Have a look at our thorough `tripr` user guide (on [*dev*
+branch](https://github.com/iofeidis/tripr/tree/dev)) with:
 
 <!-- Temporary solution until vignette is uploaded on Bioconductor -->
 
