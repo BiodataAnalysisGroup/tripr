@@ -1651,7 +1651,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             if (junction == "Summary.Sequence") {
                 clono_write <- clono_allData
             } else {
-                clono_write <- merge(distinctVGenes_CDR3[, c("Genes", "CDR3")], clono_allData[, c("N", "Freq", "Convergent Evolution")])
+                ## Changed cbind to merge
+                clono_write <- as.data.frame(cbind(distinctVGenes_CDR3[, c("Genes", "CDR3")], clono_allData[, c("N", "Freq", "Convergent Evolution")]))
                 colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution")
             }
 
@@ -1824,10 +1825,10 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             } else {
 
                 ## CHANGED cbind() to merge()
-                clono_write <- merge(
+                clono_write <- as.data.frame(cbind(
                     distinctVGenes_CDR3[, c("Genes", "CDR3")],
                     clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")]
-                )
+                ))
 
                 colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution")
             }
@@ -3957,6 +3958,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
         }
 
+        ## DEBUG, output has NOT cluster_id inside
+        # print(str(output))
         alignment_allData <- output %>% select(-c(Functionality))
 
         ################################ for Separate datasets ###############################
@@ -4033,6 +4036,9 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
 
 
+            ## DEBUG
+            print(str(region_alignment))
+
             if (FtopN) {
                 region_alignment <- region_alignment %>%
                     dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
@@ -4045,6 +4051,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
             if (only_one_germline) {
                 alignment_with_germline <- rbind(germline, region_alignment[, seq_len(length(germline))])
+                ## DEBUG: cluster_id is inside
+                # print(colnames(alignment_with_germline))
 
                 a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
                     x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
@@ -4080,6 +4088,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                 XColumns <- as.character(XColumns)
 
                 alignment_with_germline <- data.table::as.data.table(alignment_with_germline)
+                
+
+                ## DEBUG: cluster_id is inside
+                # print(colnames(alignment_with_germline))
+                # all is 'productive'
+                # print(region_alignment$Functionality)
 
                 for (germ in unique(alignment_with_germline$V.GENE.and.allele)) {
                     y <- alignment_with_germline[which(alignment_with_germline$V.GENE.and.allele == germ), ]
@@ -4104,11 +4118,17 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
                         temp.names <- c(temp.names, XColumns)
 
+                        ## DEBUG
+                        # print(temp.names)
+
                         output <- rbind(output, y[germline, ..temp.names], temp2)
                     }
                 }
             }
 
+            ## DEBUG, output has NOT cluster_id inside
+            # print(str(output))
+        
             alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))
 
             if (save_tables_individually) {
@@ -4116,6 +4136,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                 write.table(alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
+            ## DEBUG
+            # print(colnames(alignment_datasets[[name[j]]]))
             return(alignment_datasets[[name[j]]])
         }
 
@@ -4147,6 +4169,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             "alignment_datasets" = alignment_datasets,
             "confirm" = confirm
         )
+        ## DEBUG
+        # print(str(alignment_allData))
 
         # log time end and memory used
         cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
@@ -4406,6 +4430,12 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
     XColumns <- seq_len((ncol(alignment_allData) - 6))
     XColumns <- as.character(XColumns)
     XColumns <- c("V.GENE.and.allele", "cluster_id", "freq_cluster_id", XColumns)
+    
+    ## DEBUG
+    # print(str(XColumns))
+    # print(XColumns)
+    # print(str(input))
+    # print(head(input))
 
     distinct_changes <- input[, list(Freq = .N), by = XColumns]
     grouped_alignment_allData <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1))])
