@@ -26,11 +26,11 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: false
 biocViews: 
-   BatchEffect,
-   MultipleComparison,
-   GeneExpression,
-   ImmunoOncology,
-   TargetedResequencing
+    BatchEffect,
+    MultipleComparison,
+    GeneExpression,
+    ImmunoOncology,
+    TargetedResequencing
 Imports: 
     shinyjs,
     shinyFiles,
@@ -83,8 +83,8 @@ Collate:
     "app_ui.R"
     "run_app.R"
     "zzz.R"
-URL: https://github.com/BiodataAnalysisGroup/TRIP
-BugReports: https://github.com/BiodataAnalysisGroup/TRIP/issues
+URL: https://github.com/BiodataAnalysisGroup/tripr
+BugReports: https://github.com/BiodataAnalysisGroup/tripr/issues
 BiocType: Software
 RoxygenNote: 7.1.1
 VignetteBuilder: knitr
