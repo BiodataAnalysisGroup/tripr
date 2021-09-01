@@ -25,5 +25,5 @@
 }
 
 .onAttach <- function(libname, pkgname) {
-    packageStartupMessage("Welcome to TRIP tool!")
+    packageStartupMessage("Welcome to tripr!")
 }

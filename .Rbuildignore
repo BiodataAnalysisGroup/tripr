@@ -3,6 +3,7 @@
 ^LICENSE\.md$
 ^README\.Rmd$ 
 ^\.github$
+^\.git$
 ^\.travis\.yml$
 ^dev$
 ^CITATION\.cff$
