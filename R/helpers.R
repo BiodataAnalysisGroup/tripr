@@ -1895,7 +1895,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     } else {
         message("Clonotype Analysis Step 4.b")
 
-        a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = parallel::detectCores(all.tests = FALSE, logical = TRUE), mc.preschedule = TRUE)
+        a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         # a = lapply(seq_len(length(name)), one_run) ## for debugging use lapply
 
         for (i in seq_len(length(name))) {
