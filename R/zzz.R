@@ -1,7 +1,8 @@
 .onLoad <- function(libname, pkgname){
     # e <- new.env(parent = parent.env(environment()))
     utils::globalVariables(c("used_columns", "..XColumns", "..temp.names",
-        "output_folder", "pi_distribution", "logFile"))
+        "output_folder", "pi_distribution", "logFile",
+        "freqTables_datasets", "motif_datasets", "motif_all"))
     if (!file.exists(paste0(system.file("extdata", package="tripr"), 
             "/output"))) {
         fs::dir_create(paste0(system.file("extdata", package="tripr"), 
