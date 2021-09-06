@@ -14,9 +14,9 @@ seq2 <- NULL
 e$msg <- NULL
 SpecificConvergentEvolution <- NULL
 Freq <- NULL
-freqTables_datasets <- NULL
-motif_datasets <- NULL
-motif_all <- NULL
+e$freqTables_datasets <- NULL
+e$motif_datasets <- NULL
+e$motif_all <- NULL
 Summary.V.REGION.identity.. <- NULL
 Summary.Sequence <- NULL
 cluster_id <- NULL

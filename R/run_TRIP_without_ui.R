@@ -1830,16 +1830,17 @@ run_TRIP <- function(
     }
 
     ############ logo plots #######
+    ## TODO: Fix and Enable Logo plots via command line
     msgLogo <- ""
     if (msgLogo != "") {
         if (regionFreqTable == "CDR3") {
             for (j in seq_len((length(loaded_datasets) + 1))) {
                 if (j == (length(loaded_datasets) + 1)) {
                     png(paste0(in.path, "/", "logo_", "CDR3", "_", "All_Data", ".png"), width = 1000, height = 550)
-                    logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                    logo_plot <<- motifStack::plot(e$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                 } else {
                     png(paste0(in.path, "/", "logo_", "CDR3", "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
-                    logo_plot <<- plot(motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                    logo_plot <<- motifStack::plot(e$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                 }
                 table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
                 index1 <- 1
@@ -1876,10 +1877,10 @@ run_TRIP <- function(
             for (j in seq_len((length(loaded_datasets) + 1))) {
                 if (j == (length(loaded_datasets) + 1)) {
                     png(paste0(in.path, "/", "logo_", regionFreqTable, "_", "All_Data", ".png"), width = 1500, height = 550)
-                    logo_plot <<- plot(motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                    logo_plot <<- motifStack::plot(e$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                 } else {
                     png(paste0(in.path, "/", "logo_", regionFreqTable, "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
-                    logo_plot <<- plot(motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                    logo_plot <<- motifStack::plot(e$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                 }
                 table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
                 index1 <- 1
@@ -1902,11 +1903,11 @@ run_TRIP <- function(
                     i2 <- index_2[r]
                     if (j == (length(loaded_datasets) + 1)) {
                         png(paste0(in.path, "/", "logo_", regions, "_", "All_Data", ".png"), width = 1000, height = 550)
-                        logo_plot <<- plot(logo_per_region[[regions]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        logo_plot <<- motifStack::plot(logo_per_region[[regions]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                         table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
                     } else {
                         png(paste0(in.path, "/", "logo_", regions, "_", Dataset[j], ".png"), width = 1000, height = 550)
-                        logo_plot <<- plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        logo_plot <<- motifStack::plot(logo_per_region[[regions]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                         table_count <- frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][, 2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
                     }
 
@@ -1923,10 +1924,10 @@ run_TRIP <- function(
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         png(paste0(in.path, "/", "logo_cl", cl_ids_logos[cl], "_", regionFreqTable, "_", "All_Data", ".png"), width = 1000, height = 550)
-                        logo_plot <<- plot(logo_result_cl[[cl]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        logo_plot <<- motifStack::plot(logo_result_cl[[cl]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                     } else {
                         png(paste0(in.path, "/", "logo_cl", cl_ids_logos[cl], "_", regionFreqTable, "_", loaded_datasets[j], ".png"), width = 1000, height = 550)
-                        logo_plot <<- plot(logo_result_cl[[cl]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                        logo_plot <<- motifStack::plot(logo_result_cl[[cl]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                     }
 
                     table_count <- frequenciesTables_results_cl[[cl]]$table_count[, 2:ncol(frequenciesTables_results_cl[[cl]]$table_count)]
@@ -1954,11 +1955,11 @@ run_TRIP <- function(
                             i2 <- index_2[r]
                             if (j == (length(loaded_datasets) + 1)) {
                                 png(paste0(in.path, "/", "logo_cl", cl_ids_logos[cl], "_", regions, "_", "All_Data", ".png"), width = 1000, height = 550)
-                                logo_plot <<- plot(logo_per_region_cl[[cl]][[regions]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                                logo_plot <<- motifStack::plot(logo_per_region_cl[[cl]][[regions]]$motif_all, ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                                 table_count <- frequenciesTables_results$table_count[, 2:ncol(frequenciesTables_results$table_count)]
                             } else {
                                 png(paste0(in.path, "/", "logo_cl", cl_ids_logos[cl], "_", regions, "_", Dataset[j], ".png"), width = 1000, height = 550)
-                                logo_plot <<- plot(logo_per_region_cl[[cl]][[regions]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
+                                logo_plot <<- motifStack::plot(logo_per_region_cl[[cl]][[regions]]$motif_datasets[[loaded_datasets[j]]], ic.scale = FALSE, ylab = "probability", xaxis = FALSE, yaxis = FALSE)
                                 table_count <- frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]][, 2:ncol(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]])]
                             }
 
