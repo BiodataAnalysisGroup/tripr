@@ -43,3 +43,4 @@ run_TRIP(
     multiple_values_params="2:7,2:3,2:5,2:11", 
     alignment_params="1,both,1,2:20", 
     mutations_params="both,0.5,0.5,2:20")
+    

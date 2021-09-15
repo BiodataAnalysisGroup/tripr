@@ -16,7 +16,7 @@
 
 <!-- badges: end -->
 
-# tripr <img src="inst/app/www/tripr.png" align="right" width="100" />
+# tripr <img src="inst/app/www/tripr.png" align="right" width="200" />
 
 T-cell Receptor/Immunoglobulin Profiler (TRIP)
 
