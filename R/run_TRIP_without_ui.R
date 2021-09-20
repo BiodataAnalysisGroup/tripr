@@ -211,6 +211,65 @@ run_TRIP <- function(
     multiple_values_params="2:7,2:3,2:5,2:11", 
     alignment_params="1,both,1,2:20", 
     mutations_params="both,0.5,0.5,2:20") {
+
+    ## Argument Checking ------------------------------------------------------
+    
+    ## Datapath
+    stopifnot(is(datapath, "character"), dir.exists(datapath),
+        length(list.files(datapath)) > 0)
+    ## Output path
+    stopifnot(is(output_path, "character"))
+    ## Filelist
+    stopifnot(is(filelist, "character"), length(filelist) > 0,
+        grepl("\\.txt$", filelist))
+    ## Cell
+    stopifnot(cell == "Bcell" || cell == "Tcell")
+    ## Throughput
+    stopifnot(throughput == "High Throughput" || throughput == "Low Throughput")
+    ## Preselection
+    stopifnot(is(preselection, "character"))
+    ## Selection
+    stopifnot(is(selection, "character"))
+    ## Identity range
+    stopifnot(is(identity_range, "character"))
+    ## V,D,J Genes
+    stopifnot(is(vgenes, "character"), is(dgenes, "character"), 
+        is(jgenes, "character"))
+    ## CDR3 Length Range
+    stopifnot(is(cdr3_length_range, "character"))
+    ## Aminoacid
+    stopifnot(is(aminoacid, "character"))
+    ## Pipeline
+    stopifnot(is(pipeline, "character"),
+        as.numeric(unlist(stringr::str_split(pipeline, ","))) > 0,
+        as.numeric(unlist(stringr::str_split(pipeline, ","))) < 20)
+    ## Select Clonotype
+    stopifnot(select_clonotype == "V Gene + CDR3 Amino Acids" ||
+            select_clonotype == "V Gene and Allele + CDR3 Amino Acids" ||
+            select_clonotype == "V Gene + CDR3 Nucleotide" ||
+            select_clonotype == "V Gene and Allele + CDR3 Nucleotide" ||
+            select_clonotype == "J Gene + CDR3 Amino Acids" ||
+            select_clonotype == "J Gene and Allele + CDR3 Amino Acids" ||
+            select_clonotype == "J Gene + CDR3 Nucleotide" ||
+            select_clonotype == "J Gene and Allele + CDR3 Nucleotide" ||
+            select_clonotype == "CDR3 Amino Acids" ||
+            select_clonotype == "CDR3 Nucleotide" ||
+            select_clonotype == "Sequence")
+    ## Highly Similar, Shared and Highly Shared
+    stopifnot(is(highly_sim_params, "character"), 
+        is(shared_clonotypes_params, "character"),
+        is(highly_shared_clonotypes_params, "character"))
+    ## Repertoires Parameters
+    stopifnot(is(repertoires_params, "character"))
+    ## Identity Groups
+    stopifnot(is(identity_groups, "character"))
+    ## Multiple Values Parameters
+    stopifnot(is(multiple_values_params, "character"))
+    ## Alignment, Mutation
+    stopifnot(is(alignment_params, "character"),
+        is(mutations_params, "character"))
+    
+    ## ------------------------------------------------------------------------
     
     message("Datapath you provided: ", datapath)
     

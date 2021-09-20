@@ -21,7 +21,7 @@
 #' @importFrom plot3D hist3D persp3D image2D
 #' @importFrom grDevices dev.off pdf png rainbow
 #' @importFrom graphics axis barplot boxplot legend lines pie text
-#' @importFrom methods new
+#' @importFrom methods new is
 #' @importFrom stats aggregate median spline
 #' @importFrom utils read.csv tar write.table
 #' @importFrom stringr str_length str_detect
