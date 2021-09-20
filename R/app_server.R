@@ -304,10 +304,6 @@ app_server <- function(input, output, session) {
             # used columns
             message("Currently Unavailable")
             message("Please use only 'Compute Clonotypes'")
-            # load("rData files/used_columns.rData")
-            # used_columns <- e$used_columns
-            # load("rData files/cdr3_lengths.rData")
-            # cdr3_lengths <<- cdr3_lengths
         }
     })
 
@@ -320,14 +316,9 @@ app_server <- function(input, output, session) {
         modalDialog(
             lapply(seq_len(length(data$worng_columns_id)), function(i) {
                 fluidPage(
-                    # width = 9,
                     h4(paste0(" Wrong column names for Dataset ", data$wrong_dataset[i], " : ", toString(data$worng_columns_names[[i]]), ". Complete the new column names.")),
-                    # sidebarPanel(
-                    # width = 19,
                     textInput(paste0("column_name", i), "Column names:"),
                     helpText("Separate the different column names with comma e.g. V-GENE and allele,AA JUNCTION")
-                    # actionButton("Execute2", "Execute")
-                    # )
                 )
             }),
             if (failed) {
@@ -1437,7 +1428,7 @@ app_server <- function(input, output, session) {
                 )
                 showModal(modalDialog(
                     title = "Error Message Mutations",
-                    "Please ckeck Alignment nt first!",
+                    "Please check Alignment nt first!",
                     easyClose = TRUE,
                     footer = NULL
                 ))
@@ -2413,8 +2404,6 @@ app_server <- function(input, output, session) {
                         paste0("Repertoires_pies", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], "_", input$RepertoiresDataset, ".png")
                     },
                     content = function(file) {
-                        # plotly_IMAGE(pie_repertory[[i]][[input$RepertoiresDataset]], format = "png", out_file = file)
-                        # png(file)
                     }
                 )
             })
@@ -2574,8 +2563,6 @@ app_server <- function(input, output, session) {
                         paste0("HighlySim_Repertoires_pies", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], "_", input$RepertoiresDataset, ".png")
                     },
                     content = function(file) {
-                        # plotly_IMAGE(pie_repertory[[i]][[input$RepertoiresDataset]], format = "png", out_file = file)
-                        # png(file)
                     }
                 )
             })
@@ -2933,7 +2920,6 @@ app_server <- function(input, output, session) {
                     }
                     val1 <- input[[paste0("select_MultipleValues_column1_", strsplit(insertedMultiple_value_comparison[i], "_")[[1]][2])]]
                     val2 <- input[[paste0("select_MultipleValues_column2_", strsplit(insertedMultiple_value_comparison[i], "_")[[1]][2])]]
-                    # Multiple_value_comparison_output_allData=as.data.frame(Multiple_value_comparison_output_allData)
                     colnames(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData) <- c(val1, val2, "N", "Freq")
                     if ((val1 %in% c("CDR3-IMGT length", "V-REGION identity %", "Molecular mass", "pI")) && (val2 %in% c("CDR3-IMGT length", "V-REGION identity %", "Molecular mass", "pI"))) {
                         if (input$VisualisationDataset == "All Data") {
@@ -5187,7 +5173,6 @@ app_server <- function(input, output, session) {
                 allData <- list()
                 input_datasets <- ""
                 for (i in seq_len(length(fileNames))) {
-                    # clono$convergent_evolution_list_allData[seq_len(input$nucleotides_per_clonotype_topN),]
                     nucleotides[, i] <- clono$convergent_evolution_list_datasets_only_num[[loaded_datasets[i]]][seq_len(input$nucleotides_per_clonotype_topN)]
                     input_datasets <- paste(input_datasets, fileNames[i])
                 }

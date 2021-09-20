@@ -229,10 +229,6 @@ run_TRIP <- function(
         }
     }
 
-    ## Log file
-    # logFile <- paste0(fs::path_package("extdata", "log_files", package="tripr"),
-    #      "/log_file_", format(Sys.time(), "%H_%M"), ".txt")
-
     ##### Input data parameters ####
     name <- list.files(datapath) # dataset names eg c("B1","B2")
     allDatasets <- name

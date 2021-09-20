@@ -1677,9 +1677,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
     # clonotypes datasets
 
-    ## Unnecessary
-    # run_diagnosis <<- run_diagnosis
-
     clono_datasets <- list()
     filterin_clono_datasets <- list()
     view_specific_clonotype_datasets <- list()
@@ -1722,12 +1719,12 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                     Genes = data[[gene]],
                     CDR3 = data[[junction]]
                 ) %>%
-                dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
+                dplyr::count(sort = TRUE) 
 
             distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
                 distinctVGenes_CDR3$CDR3,
                 sep = " - "
-            ) # do.call(paste, c(distinctVGenes_CDR3[c("Genes", "CDR3")], sep = " - "))
+            ) 
 
             group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>%
                 dplyr::group_by(
@@ -1738,7 +1735,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             group.freq.seq[[name[j]]]$clonotype <- paste(group.freq.seq[[name[j]]]$Genes,
                 group.freq.seq[[name[j]]]$CDR3,
                 sep = " - "
-            ) # do.call(paste, c(group.freq.seq[[name[j]]][c("Genes", "CDR3")], sep = " - "))
+            ) 
 
             group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
 
@@ -1768,7 +1765,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         } else {
             distinctVGenes_CDR3 <- data %>%
                 dplyr::group_by(clonotype = data[[junction]]) %>%
-                dplyr::count(sort = TRUE) # dplyr::summarise(n=n())
+                dplyr::count(sort = TRUE) 
 
             group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>% dplyr::group_by(clonotype = group.freq.seq[[name[j]]][[junction]])
             group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
@@ -1824,7 +1821,6 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 clono_write <- clono_datasets[[name[j]]]
             } else {
 
-                ## CHANGED cbind() to merge()
                 clono_write <- as.data.frame(cbind(
                     distinctVGenes_CDR3[, c("Genes", "CDR3")],
                     clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")]
@@ -1896,7 +1892,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         message("Clonotype Analysis Step 4.b")
 
         a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
-        # a = lapply(seq_len(length(name)), one_run) ## for debugging use lapply
+        ## for debugging use lapply
 
         for (i in seq_len(length(name))) {
             view_specific_clonotype_datasets[[name[i]]] <- a[[i]]$view_specific_clonotype_datasets
@@ -2289,8 +2285,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
             highly_sim_view_specific_clonotypes_datasets[[name[i]]] <- a[[i]]$highly_sim_view_specific_clonotypes_datasets
         }
     } else {
-        a <- lapply(seq_len(length(name)), one_run)
-        # a=parallel::mclapply(seq_len(length(name)),one_run,mc.cores = num_of_cores, mc.preschedule = TRUE)
+        a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         for (i in seq_len(length(name))) {
             highly_sim_clonotypes_allGroups_datasets[[name[i]]] <- a[[i]]$highly_sim_clonotypes_allGroups_datasets
             clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
@@ -2408,7 +2403,6 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
 ######################################################################################################################################
 
 createLink <- function(val, on_click_js) {
-    #<a class="btn btn-primary">Info</a>'
     as.character(tags$a(href = "#", onclick = sprintf(on_click_js, val), val))
 }
 
@@ -3660,7 +3654,6 @@ createLogo <- function(table_count, table_count_datasets, name) {
         }
 
         names(color_set) <- row.names(p)
-        # plotMotifLogo(p,p=rep(1/length(rownames(p)),length(rownames(p))),ic.scale=FALSE, colset = color_set, ylab="probability")
 
         motif_all <- new("pcm", mat = as.matrix(p), name = "")
         motif_all$color <- color_set
@@ -3678,7 +3671,6 @@ createLogo <- function(table_count, table_count_datasets, name) {
                     color_set <- c(color_set, mat[color, 2])
                 }
                 names(color_set) <- row.names(p)
-                # plotMotifLogo(p,p=rep(1/length(rownames(p)),length(rownames(p))),ic.scale=FALSE, colset = color_set, ylab="probability")
 
 
                 motif <- new("pcm", mat = as.matrix(p), name = "")
@@ -3704,9 +3696,6 @@ createLogo <- function(table_count, table_count_datasets, name) {
     cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
-
-    # write to png file
-    # dev.print(png, file=paste0("K",j,"_H",j," AA.png"),width=1000, height=550)
 }
 
 ######################################################################################################################################
@@ -3887,7 +3876,6 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
             # add the germline (first row)
             germline_new <- germline
-            # germline_new[,(length(germline)+1):length(region_alignment)]="."
             colnames(germline_new) <- colnames(temp2)
             output <- rbind(germline_new[1, ], temp2)
         } else {
