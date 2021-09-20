@@ -60,7 +60,7 @@ save_tables_individually_filter_in <- FALSE # libraries.R TRUE
 save_tables_individually <- TRUE # libraries.R TRUE
 
 logfile <- function() {
-    logFile <- paste0(system.file("extdata/log_files", package="tripr"), 
+    logFile <- paste0(file.path(tempdir(), "/log_files"), 
         "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
     cat(paste0("Function", "\t", "Parameters", "\t", "Num of input rows", "\t", 
         "Num of input columns", "\t", "Start time", "\t", "End time", "\t", 

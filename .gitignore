@@ -12,3 +12,4 @@ log_files/
 output/
 *.Rproj
 README.html
+README.Rmd

@@ -154,7 +154,6 @@ app_server <- function(input, output, session) {
     msgPublicClono <- ""
     msgRepertoires <- c()
     msgHighlySim_Repertoires <- c()
-    # msgRepertoires[1] <- ""
     msgRepertoiresComp <- ""
     msgMultiple_value_comparison <- c()
     msgAlignment <- ""
@@ -4720,10 +4719,10 @@ app_server <- function(input, output, session) {
         }, # name the .tar file
         content <- function(file) {
             folder_name <- paste("/Analysis", trunc(as.numeric(Sys.time())))
-            if (!file.exists(paste0(system.file("extdata/output", package="tripr"), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
-                dir.create(paste0(system.file("extdata/output", package="tripr"), folder_name))
+            if (!file.exists(paste0(file.path(tempdir(), "/output"), folder_name))) { # check if the directory has been made yet, I use the time/date at which the action button was pressed to make it relatively unique
+                dir.create(paste0(file.path(tempdir(), "/output"), folder_name))
             } # make the dir if not
-            in.path <- paste0(system.file("extdata/output", package="tripr"), folder_name) # go into the dir, alternatively you could just set the path of the file each time
+            in.path <- paste0(file.path(tempdir(), "/output"), folder_name) # go into the dir, alternatively you could just set the path of the file each time
             # check if the following have run
 
             ####### clonotype plots  #######
@@ -5902,10 +5901,10 @@ app_server <- function(input, output, session) {
         }, # name the .tar file
         content <- function(file) {
             folder_name <- paste0("/AnalysisTables_", format(Sys.time(), "%H%M%S"))
-            if (!file.exists(paste0(system.file("extdata/output", package="tripr"), "/", folder_name))) {
-                dir.create(paste0(system.file("extdata/output", package="tripr"), "/", folder_name))
+            if (!file.exists(paste0(file.path(tempdir(), "/output"), "/", folder_name))) {
+                dir.create(paste0(file.path(tempdir(), "/output"), "/", folder_name))
             }
-            in.path <- paste0(system.file("extdata/output", package="tripr"), folder_name) # go into the dir, alternatively you could just set the path of the file each time
+            in.path <- paste0(file.path(tempdir(), "/output"), folder_name) # go into the dir, alternatively you could just set the path of the file each time
             ########################################### Clonotypes ###############################################
             if (msgClonotypes != "") {
                 for (j in seq_len((length(loaded_datasets) + 1))) {
