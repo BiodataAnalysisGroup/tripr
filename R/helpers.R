@@ -14,21 +14,21 @@ testColumnNames <- function(name, files, datapath) {
 
     # used columns
     if (use_only_useful_columns) {
-        input <- read.csv(system.file("extdata/param",
+        input <- as.data.frame(fread(system.file("extdata/param",
             "used_columns_only_useful.csv",
             package = "tripr",
             mustWork = TRUE
         ),
         sep = ";", stringsAsFactors = FALSE, header = FALSE
-        )
+        ))
     } else {
-        input <- read.csv(system.file("extdata/param",
+        input <- as.data.frame(fread(system.file("extdata/param",
             "used_columns.csv",
             package = "tripr",
             mustWork = TRUE
         ),
         sep = ";", stringsAsFactors = FALSE, header = FALSE
-        )
+        ))
     }
 
     used_columns <- list()
@@ -93,8 +93,10 @@ testColumnNames <- function(name, files, datapath) {
             b2 <- gsub(".txt", "", b[[1]][2])
             b2 <- gsub("-", ".", b2)
             var.name <- b2
-
-            temp <- data.frame(assign(var.name, read.csv(paste0(datapath, "/", name[i], "/", files[j]), sep = "\t", stringsAsFactors = FALSE, fill = TRUE)))
+            
+            read_input <- fread(paste0(datapath, "/", name[i], "/", files[j]), sep = "\t", stringsAsFactors = FALSE, fill = TRUE)
+            read_input <- as.data.frame(read_input)
+            temp <- data.frame(assign(var.name, read_input))
 
             num_initial_col <- num_initial_col + ncol(temp)
 
@@ -205,11 +207,11 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     filter_column <- c(used_columns[["Summary"]][3], used_columns[["Summary"]][18], used_columns[["Summary"]][2], used_columns[["Summary"]][18], used_columns[["Summary"]][4], used_columns[["Summary"]][3], used_columns[["Summary"]][8], used_columns[["Summary"]][11], used_columns[["Summary"]][15], used_columns[["Summary"]][18])
 
     # used columns
-    input <- read.csv(system.file("extdata/param", "used_columns.csv",
+    input <- as.data.frame(fread(system.file("extdata/param", "used_columns.csv",
         package = "tripr", mustWork = TRUE
     ),
     sep = ";", stringsAsFactors = FALSE, header = FALSE
-    )
+    ))
 
     used_columns <- list()
     all_used_columns <- c()
@@ -3726,12 +3728,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
         if ((type == "IGK") | (type == "IGL")) {
             germline_file <- paste0("Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
-            Tgermlines <- read.csv(system.file("extdata/param", germline_file,
+            Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
                 package = "tripr", mustWork = TRUE
             ),
             sep = ";", stringsAsFactors = FALSE,
             colClasses = c("character")
-            )
+            ))
 
             if (AAorNtAlignment == "aa") {
                 Tgermlines[, 113:117] <- "."
@@ -3740,12 +3742,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
 
             germline_file <- paste0("Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
-            te <- read.csv(system.file("extdata/param", germline_file,
+            te <- as.data.frame(fread(system.file("extdata/param", germline_file,
                 package = "tripr", mustWork = TRUE
             ),
             sep = ";", stringsAsFactors = FALSE,
             colClasses = c("character")
-            )
+            ))
 
 
 
@@ -3753,12 +3755,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             Tgermlines <- rbind(Tgermlines, te)
         } else {
             germline_file <- paste0("Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
-            Tgermlines <- read.csv(system.file("extdata/param", germline_file,
+            Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
                 package = "tripr", mustWork = TRUE
             ),
             sep = ";", stringsAsFactors = FALSE,
             colClasses = c("character")
-            )
+            ))
         }
 
         Tgermlines <- unique(Tgermlines)

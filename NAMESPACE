@@ -2,6 +2,7 @@
 
 export(run_TRIP)
 export(run_app)
+import(data.table)
 import(dplyr)
 import(shiny)
 importFrom(RColorBrewer,brewer.pal)
