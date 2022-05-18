@@ -165,7 +165,7 @@
 #'## Do not run
 #'
 #'run_TRIP(
-#'    output_path=fs::path_home("Documents/my_output"),
+#'    output_path=tools::R_user_dir("tripr", which="cache"),
 #'    filelist=c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", 
 #'        "4_IMGT-gapped-AA-sequences.txt", "6_Junction.txt"),
 #'    cell="Bcell", 
@@ -279,7 +279,7 @@ run_TRIP <- function(
     if (save_tables_individually | save_lists_for_bookmark) {
         ## output folder name as system time
         output_path <- paste0(output_path, 
-            "/output_", format(Sys.time(), "%H%M%S"))
+            "/output_", format(Sys.time(), "%m.%d.%Y_%H.%M.%S"))
         message("Output will be saved in: ", fs::path(output_path))
         # output path
         e$output_folder <- paste0(fs::path(output_path), "/output_tables")

@@ -219,7 +219,7 @@ libraries are saved (typically \emph{R/library}).
 ## Do not run
 
 run_TRIP(
-   output_path=fs::path_home("Documents/my_output"),
+   output_path=tools::R_user_dir("tripr", which="cache"),
    filelist=c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", 
        "4_IMGT-gapped-AA-sequences.txt", "6_Junction.txt"),
    cell="Bcell", 

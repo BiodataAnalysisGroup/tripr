@@ -5886,7 +5886,7 @@ app_server <- function(input, output, session) {
             paste("Analysis_Tables_", Sys.time(), ".tar", sep = "")
         }, # name the .tar file
         content <- function(file) {
-            folder_name <- paste0("/AnalysisTables_", format(Sys.time(), "%H%M%S"))
+            folder_name <- paste0("/AnalysisTables_", format(Sys.time(), "%m.%d.%Y_%H.%M.%S"))
             if (!file.exists(paste0(file.path(tempdir(), "/output"), "/", folder_name))) {
                 dir.create(paste0(file.path(tempdir(), "/output"), "/", folder_name))
             }
