@@ -757,7 +757,7 @@ that is provided, is presented below.
 
 ```{r eval=TRUE}
     datapath <- fs::path_package("extdata/dataset", package="tripr")
-    output_path <- file.path(tempdir(), "myoutput")
+    output_path <- tools::R_user_dir("tripr", which="cache")
     cell <- "Bcell"
     preselection <- "1,2,3,4C:W"
     selection <- "5"

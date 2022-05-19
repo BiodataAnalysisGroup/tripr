@@ -131,7 +131,11 @@ testColumnNames <- function(name, files, datapath) {
             worng_columns_names[[count_wrong]] <- worng_columns_names_temp
         } else {
             # Drop all the columns that will not be used
-            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% dplyr::select(all_used_columns)
+            
+            rawDataSet[[name[i]]] <- setDT(rawDataSet[[name[i]]])
+            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]][, all_used_columns,with=FALSE]
+            rawDataSet[[name[i]]] <- setDF(rawDataSet[[name[i]]])
+          
         }
     }
     for (i in seq_len(length(name))) {
@@ -251,7 +255,9 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     if (correct == w) {
         correct <- "yes"
         for (i in seq_len(length(name))) {
-            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% select(all_used_columns)
+            rawDataSet[[name[i]]] <- setDT(rawDataSet[[name[i]]])
+            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]][, all_used_columns,with=FALSE]
+            rawDataSet[[name[i]]] <- setDF(rawDataSet[[name[i]]])
         }
     } else {
         correct <- "no"

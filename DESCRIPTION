@@ -86,6 +86,6 @@ Collate:
 URL: https://github.com/BiodataAnalysisGroup/tripr
 BugReports: https://github.com/BiodataAnalysisGroup/tripr/issues
 BiocType: Software
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 VignetteBuilder: knitr
 Config/testthat/edition: 3
