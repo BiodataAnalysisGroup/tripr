@@ -3,7 +3,7 @@
 #' @param input,output,session Internal parameters for {shiny}.
 #'     DO NOT REMOVE.
 #' @import shiny
-#' @import data.table
+#' 
 #' @noRd
 app_server <- function(input, output, session) {
     appCSS <- "
@@ -1511,7 +1511,7 @@ app_server <- function(input, output, session) {
             gene_clonotypes <<- gene
             junction_clonotypes <<- junction
             allele_clonotypes <<- allele
-
+            
             if ((just_restored_session_clonotypes == FALSE) & (input$select_load_or_compute_clonotypes != "load_clonotypes")) {
                 clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis) # input$shm_normal,
             }

@@ -13,11 +13,12 @@
     }
     logfile()
     ## output folder name as system time
-    output_path <- paste0(file.path(tempdir(), "/output_"), format(Sys.time(), "%m.%d.%Y_%H.%M.%S"))
+    
+    #output_path <- paste0(file.path(tempdir(), "/output_"), format(Sys.time(), "%m.%d.%Y_%H.%M.%S"))
     # output path
-    e$output_folder <- paste0(fs::path(output_path), "/output_tables")
+    #e$output_folder <- paste0(fs::path(output_path), "/output_tables")
     # Create output_folder directory .onLoad
-    fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
+    #fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
 }
 
 .onAttach <- function(libname, pkgname) {

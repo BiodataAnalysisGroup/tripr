@@ -47,12 +47,13 @@ testColumnNames <- function(name, files, datapath) {
             all_used_columns <- c(all_used_columns, a[which(!stringr::str_detect(a, ".NA."))])
         }
     }
-
+   
     all_used_columns <- c("dataName", all_used_columns)
     ## Stored in 'e' environment ("global.R", L:4)
     e$all_used_columns <- all_used_columns
     e$used_columns <- used_columns
-
+    
+    
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c()
     if ("1_Summary.txt" %in% files) {
@@ -69,7 +70,7 @@ testColumnNames <- function(name, files, datapath) {
             used_columns[["Summary"]][18]
         )
     }
-
+    
     # Log start time and memory currently used
     start.time <- Sys.time()
 
@@ -1232,6 +1233,8 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
 
 imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
     used_columns <- e$used_columns
+    
+    
     # logfile
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
@@ -1534,7 +1537,7 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     # log time end and memory used
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
     cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
+    
     result <- list("message" = "", "dim" = dim(allData), "workflow" = workflow, "workflow_datasets" = workflow_datasets, "allDataInitial" = allDataInitial, "allData" = allData, "filterOutSum" = filterOutSum, "initial_datasets" = initial_datasets, "filtered_datasets" = filtered_datasets, "filtered_out_datasets" = filtered_out_datasets, "confirm" = confirm)
     return(result)
 }
@@ -1545,7 +1548,7 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
 clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { # run_shm
     used_columns <- e$used_columns
     # logfile
-
+  
     message("Clonotype Analysis Step 1")
 
     if (allele == FALSE) {
@@ -1561,6 +1564,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     # clonotypes all Data
+    allData <- setDT(allData)
     allData_initial <- allData
     view_specific_clonotype_allData <- list()
     convergent_evolution <- c()
@@ -1577,30 +1581,32 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
             if (allele == FALSE) {
                 allData[[gene]] <- stringr::str_split(allData[[gene]], "\\*", simplify = TRUE)[, 1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
             }
-
-            distinctVGenes_CDR3 <- allData %>%
-                dplyr::group_by(Genes = allData[[gene]], CDR3 = allData[[junction]]) %>%
-                dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
-
+            
+            allData <- setDT(allData)
+            distinctVGenes_CDR3 <- allData[, by = c(gene, junction), .N]
+            distinctVGenes_CDR3 <- distinctVGenes_CDR3[order(-distinctVGenes_CDR3$N)]
+            colnames(distinctVGenes_CDR3) <- c("Genes","CDR3","n")
+            
             distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
                 distinctVGenes_CDR3$CDR3,
                 sep = " - "
             ) # do.call(paste, c(distinctVGenes_CDR3[c("Genes", "CDR3")], sep = " - "))
-
+           
+            
             for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
+                
                 # Get specific clonotype data
                 inputVGenes_CDR3 <- which((allData[[gene]] == distinctVGenes_CDR3$Genes[i]) & (allData[[junction]] == distinctVGenes_CDR3$CDR3[i]))
                 view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] <- allData_initial[inputVGenes_CDR3, ]
 
                 # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
+                
+                ce = view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][, by = c(used_columns[["IMGT.gapped.nt.sequences"]][9]), .N]
+                
+                #########################
+                
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-
+                
                 # Create convergent evolution list
                 convergent_evolution_list_allData[[as.character(i)]] <- ce
                 convergent_evolution <- c(convergent_evolution, paste0("cluster ", i, " : ", nrow(ce)))
@@ -1612,21 +1618,19 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         } else {
             message("Clonotype Analysis Step 2.b")
 
-            distinctVGenes_CDR3 <- allData %>%
-                dplyr::group_by(clonotype = allData[[junction]]) %>%
-                dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
+            distinctVGenes_CDR3 <- allData[, by = c(junction), .N]
+            distinctVGenes_CDR3 <- distinctVGenes_CDR3[order(-distinctVGenes_CDR3$N)]
+            colnames(distinctVGenes_CDR3) <- c("clonotype","n")
 
             for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
+                
                 # Get specific clonotype data
                 inputVGenes_CDR3 <- which(allData[[junction]] == distinctVGenes_CDR3$clonotype[i])
                 view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] <- allData[inputVGenes_CDR3, ]
 
                 # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
+                
+                ce = view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][, by = c(used_columns[["IMGT.gapped.nt.sequences"]][9]), .N]
 
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
 
@@ -1657,28 +1661,32 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
         if (save_tables_individually) {
             if (junction == "Summary.Sequence") {
+               
                 clono_write <- clono_allData
             } else {
                 ## Changed cbind to merge
+                
                 clono_write <- as.data.frame(cbind(distinctVGenes_CDR3[, c("Genes", "CDR3")], clono_allData[, c("N", "Freq", "Convergent Evolution")]))
                 colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution")
             }
 
-            write.table(clono_write,
-                paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
-                sep = "\t",
+            
+            fwrite(clono_write,
+                file = paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
                 row.names = FALSE,
                 col.names = TRUE,
                 quote = FALSE
-            )
-
-            write.table(cbind(allData_initial, "cluster_id" = cluster_id, "freq_cluster_id" = freq_cluster_id),
+                )
+            
+            fwrite(cbind(allData_initial, "cluster_id" = cluster_id, "freq_cluster_id" = freq_cluster_id),
                 paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
                 quote = FALSE
             )
+
+            
 
         }
     }
@@ -1697,14 +1705,15 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
     clono_datasets_freq <- list()
 
     group.freq.seq <- list()
-
+    
     message("Clonotype Analysis Step 3")
 
     one_run <- function(j) {
         message("Clonotype Analysis Step 5")
 
-        data <- allData %>% dplyr::filter(allData$dataName == name[j])
-        data_initial <- allData_initial %>% dplyr::filter(allData$dataName == name[j])
+        
+        data <- allData[allData$dataName == name[j]]
+        data_initial <- allData_initial[allData$dataName == name[j]]
 
         view_specific_clonotype_datasets[[name[j]]] <- list()
         convergent_evolution <- c()
@@ -1714,51 +1723,46 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
         cluster_id[[name[j]]] <- c()
         v.gene.and.allele <- c()
         aa.junction <- c()
-
+        
         group.freq.seq[[name[j]]] <- data
-
+        ###del 
+        
         if (length(gene) > 0) {
+            
             if (allele == FALSE) {
                 data[[gene]] <- stringr::str_split(data[[gene]], "\\*", simplify = TRUE)[, 1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
             }
 
-            distinctVGenes_CDR3 <- data %>%
-                dplyr::group_by(
-                    Genes = data[[gene]],
-                    CDR3 = data[[junction]]
-                ) %>%
-                dplyr::count(sort = TRUE) 
-
+            
+            distinctVGenes_CDR3 <- data[, by = c(gene, junction), .N]
+            distinctVGenes_CDR3 <-distinctVGenes_CDR3[order(-distinctVGenes_CDR3$N),] 
+            colnames(distinctVGenes_CDR3) <- c("Genes","CDR3","n")
+    
+            
             distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
                 distinctVGenes_CDR3$CDR3,
                 sep = " - "
             ) 
-
-            group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>%
-                dplyr::group_by(
-                    Genes = group.freq.seq[[name[j]]][[gene]],
-                    CDR3 = group.freq.seq[[name[j]]][[junction]]
-                )
-
-            group.freq.seq[[name[j]]]$clonotype <- paste(group.freq.seq[[name[j]]]$Genes,
-                group.freq.seq[[name[j]]]$CDR3,
+            
+            
+            group.freq.seq[[name[j]]]$clonotype <- paste(group.freq.seq[[name[j]]][[gene]],
+                group.freq.seq[[name[j]]][[junction]],
                 sep = " - "
             ) 
 
             group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
-
+            
             for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
+                
                 # Get specific clonotype data
                 inputVGenes_CDR3 <- which((data[[gene]] == distinctVGenes_CDR3$Genes[i]) & (data[[junction]] == distinctVGenes_CDR3$CDR3[i]))
                 view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] <- data_initial[inputVGenes_CDR3, ]
 
                 # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
+                
+                
+                ce <- view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][, by = c(used_columns[["IMGT.gapped.nt.sequences"]][9]), .N]
+                
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
 
                 # Create convergent evolution
@@ -1768,14 +1772,15 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
                 # Calculate clonotype frequency
                 freq_cluster_id[[name[j]]][inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(data_initial)
-                cluster_id[[name[j]]][[name[j]]][inputVGenes_CDR3] <- i
+                cluster_id[[name[j]]][inputVGenes_CDR3] <- i
             }
         } else {
-            distinctVGenes_CDR3 <- data %>%
-                dplyr::group_by(clonotype = data[[junction]]) %>%
-                dplyr::count(sort = TRUE) 
-
-            group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>% dplyr::group_by(clonotype = group.freq.seq[[name[j]]][[junction]])
+            
+            
+            distinctVGenes_CDR3 <- data[, by = c(junction), .N]
+            distinctVGenes_CDR3 <-distinctVGenes_CDR3[order(-distinctVGenes_CDR3$N),] 
+            colnames(distinctVGenes_CDR3) <- c("clonotype","n")
+            
             group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
 
             for (i in seq_len(nrow(distinctVGenes_CDR3))) {
@@ -1783,13 +1788,8 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 # Get specific clonotype data
                 inputVGenes_CDR3 <- which(data[[junction]] == distinctVGenes_CDR3$clonotype[i])
                 view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] <- data_initial[inputVGenes_CDR3, ]
-
-                # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
+                
+                ce <- view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][, by = c(used_columns[["IMGT.gapped.nt.sequences"]][9]), .N]
                 colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
 
                 # Create convergent evolution list
@@ -1802,7 +1802,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 aa.junction <- c(aa.junction, unique(data_initial[inputVGenes_CDR3, ]$Summary.AA.JUNCTION))
 
                 # Calculate clonotype frequency
-                freq_cluster_id[[name[j]]][[name[j]]][[name[j]]][inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(data_initial)
+                freq_cluster_id[[name[j]]][inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(data_initial)
                 cluster_id[[name[j]]][inputVGenes_CDR3] <- i
             }
         }
@@ -1819,7 +1819,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
 
         clono_datasets_freq[[name[j]]] <- cbind(data_initial, "cluster_id" = cluster_id[[name[j]]], "freq_cluster_id" = freq_cluster_id[[name[j]]])
-
+        
         if (run_diagnosis) {
             group.freq.seq[[name[j]]] <- get_frequent_sequence(group.freq.seq[[name[j]]])
         }
@@ -1839,36 +1839,37 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
             # Printing clonotypes file
 
-            write.table(clono_write,
+            fwrite(clono_write,
                 paste0(e$output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
-                quote = FALSE
-            )
+                quote = FALSE)
 
             # Printing whole integrated clonotypes file
 
-            write.table(clono_datasets_freq[[name[j]]],
+            fwrite(clono_datasets_freq[[name[j]]],
                 paste0(e$output_folder, "/", "filterin_clono_", name[j], ".txt"),
                 sep = "\t",
                 row.names = FALSE,
                 col.names = TRUE,
                 quote = FALSE
             )
+            
 
             # Printing SHM file
 
             # Printing diagnosis file
-
+            
             if (run_diagnosis) {
-                write.table(group.freq.seq[[name[j]]],
+      
+                fwrite(group.freq.seq[[name[j]]],
                     paste0(e$output_folder, "/", "diagnosis_", name[j], ".txt"),
                     sep = "\t",
                     row.names = FALSE,
                     col.names = TRUE,
                     quote = FALSE
-                )
+              )
             }
         }
 
@@ -1889,7 +1890,7 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 
         a <- lapply(seq_len(length(name)), one_run)
 
-        for (i in seq_len(length(name))) {
+         for (i in seq_len(length(name))) {
             view_specific_clonotype_datasets[[name[i]]] <- a[[i]]$view_specific_clonotype_datasets
             clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
             convergent_evolution_list_datasets[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets
@@ -1927,11 +1928,11 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
                 colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution")
             }
 
-            write.table(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
+            fwrite(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
                 sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
             )
-
-            write.table(clono_allData_freq, paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
+            
+            fwrite(clono_allData_freq, paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
                 sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
             )
         }
@@ -1962,11 +1963,12 @@ clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { #
 ######################################################################################################################################
 
 get_frequent_sequence <- function(data) {
-
+    
     clonos <- as.list(unique(data$clonotype))
 
     one.run <- function(index, temp) {
         clono_in <- temp[which(temp$clonotype == index), ]
+        
         freq <- 100 * nrow(clono_in) / nrow(temp)
 
         x1 <- table(clono_in$Summary.Sequence)
