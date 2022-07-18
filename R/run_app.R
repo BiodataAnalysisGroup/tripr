@@ -18,6 +18,19 @@ run_app <- function(onStart = NULL,
     enableBookmarking = NULL,
     uiPattern = "/",
     ...) {
+    ## output folder name as system time
+    
+    if (save_tables_individually | save_lists_for_bookmark) {
+      ## output folder name as system time
+      output_path <- paste0(file.path(getwd(),
+                                      "/output_"), format(Sys.time(), "%H.%M.%S"))
+      message("Output will be saved in: ", fs::path(output_path))
+      # output path
+      e$output_folder <- paste0(fs::path(output_path), "/output_tables")
+      if (!file.exists(paste0(e$output_folder))) {
+        fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
+      }
+    }
     with_golem_options(
         app = shinyApp(
             ui = app_ui,

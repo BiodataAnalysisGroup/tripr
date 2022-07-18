@@ -59,6 +59,7 @@ save_lists_for_bookmark <- FALSE # libraries.R FA LSE
 save_tables_individually_filter_in <- FALSE # libraries.R TRUE
 save_tables_individually <- TRUE # libraries.R TRUE
 
+
 logfile <- function() {
     logFile <- paste0(file.path(tempdir(), "/log_files"), 
         "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
@@ -67,6 +68,8 @@ logfile <- function() {
             "Memory used"), file = logFile, append = FALSE, sep = "\n")
     assign('logFile', logFile, envir = topenv())
 }
+
+
 
 
 

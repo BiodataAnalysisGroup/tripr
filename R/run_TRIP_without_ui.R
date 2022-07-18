@@ -181,8 +181,6 @@
 #' @export
 #'
 
-
-
 run_TRIP <- function(
     datapath=fs::path_package("extdata", "dataset", package="tripr"),
     output_path=fs::path_home("Documents/tripr_output"), 
@@ -275,17 +273,16 @@ run_TRIP <- function(
     
     ## Only for command-line tool
     save_tables_individually <- TRUE
-    ##### Create output folder ######
     if (save_tables_individually | save_lists_for_bookmark) {
-        ## output folder name as system time
-        output_path <- paste0(output_path, 
-            "/output_", format(Sys.time(), "%H.%M.%S"))
-        message("Output will be saved in: ", fs::path(output_path))
-        # output path
-        e$output_folder <- paste0(fs::path(output_path), "/output_tables")
-        if (!file.exists(paste0(e$output_folder))) {
-            fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
-        }
+      ## output folder name as system time
+      output_path <- paste0(output_path, 
+                            "/output_", format(Sys.time(), "%H.%M.%S"))
+      message("Output will be saved in: ", fs::path(output_path))
+      # output path
+      e$output_folder <- paste0(fs::path(output_path), "/output_tables")
+      if (!file.exists(paste0(e$output_folder))) {
+        fs::dir_create(paste0(e$output_folder), mode = "u=rwx,go=rwx")
+      }
     }
 
     ##### Input data parameters ####
