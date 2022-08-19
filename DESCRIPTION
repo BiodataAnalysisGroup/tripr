@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
-Version: 1.3.3
+Version: 1.3.4
 Authors@R: c(
         person("Maria Th.", "Kotouza", email = "-", role = "aut"),
         person("Katerina", "Gemenetzi", email = "-", role = "aut"),
@@ -14,7 +14,7 @@ Authors@R: c(
         person("Kostas", "Stamatopoulos", email = "-", role = "aut"),
         person("Anastasia", "Chatzidimitriou", email = "-", role = "aut"),
         person("Fotis E.", "Psomopoulos", email = "-", role = "aut"),
-        person("Iason", "Ofeidis", email = "-", role = "aut")
+        person("Iason", "Ofeidis", email = "-", role = "aut"),
         person("Aspasia", "Orfanou", email = "-", role = "aut")
         )
 Description: TRIP is a software framework that provides analytics services on 
