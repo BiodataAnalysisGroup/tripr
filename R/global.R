@@ -7,6 +7,7 @@ e <- new.env(parent = parent.env(environment()))
 e$all_used_columns <- NULL
 e$used_columns <- NULL
 e$output_folder <- NULL
+e$out_log_file_path <- NULL
 Functionality <- NULL
 dataInputColumnsTemp <- NULL
 seq1 <- NULL
@@ -42,7 +43,7 @@ Dataset <- NULL
 logo_result_cl <- NULL
 logo_per_region_cl <- NULL
 logFile <- NULL
-
+e$logFile <- NULL
 ## Check number of cores AVAILABLE for use (not all of them are available)
 chk <- Sys.getenv("_R_CHECK_LIMIT_CORES_", "")
 
@@ -61,12 +62,16 @@ save_tables_individually <- TRUE # libraries.R TRUE
 
 
 logfile <- function() {
-    logFile <- paste0(file.path(tempdir(), "/log_files"), 
+  
+  
+    logFileIn <- paste0(e$out_log_file_path,
         "/log_file_", trunc(as.numeric(Sys.time())), ".txt")
+    
     cat(paste0("Function", "\t", "Parameters", "\t", "Num of input rows", "\t", 
         "Num of input columns", "\t", "Start time", "\t", "End time", "\t", 
-            "Memory used"), file = logFile, append = FALSE, sep = "\n")
-    assign('logFile', logFile, envir = topenv())
+            "Memory used"), file = logFileIn, append = FALSE, sep = "\n")
+    #assign('logFile', logFile, envir = topenv())
+    e$logFile<-logFileIn
 }
 
 

@@ -5,7 +5,7 @@ testColumnNames <- function(name, files, datapath) {
 
     d <- paste(d, name, collapse = " ")
 
-
+    logFile<-e$logFile
     cat(paste0("testColumnNames", "\t"), file = logFile, append = TRUE)
     cat(paste0(d, "\t"), file = logFile, append = TRUE)
     cat(paste0("read data", "\t"), file = logFile, append = TRUE)
@@ -202,6 +202,7 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     }
 
     # logfile
+    logFile<-e$logFile
     cat(paste0("correctColumnNames", "\t"), file = logFile, append = TRUE)
     cat(paste0("wrong datasets", paste(wrong_dataset, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nr, "\t"), file = logFile, append = TRUE)
@@ -284,6 +285,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
         nr <- nrow(rawDataSet[[i]]) + nr
     }
     # logfile
+    logFile<-e$logFile
     cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
     cat(paste0(a, "\t"), file = logFile, append = TRUE)
     cat(paste0(nr, "\t"), file = logFile, append = TRUE)
@@ -599,6 +601,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
 imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
     # logfile
+  logFile<-e$logFile
     used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
@@ -940,6 +943,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
         nr <- nrow(rawDataSet[[i]]) + nr
     }
     # logfile
+    logFile<-e$logFile
     cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
     cat(paste0(a, "\t"), file = logFile, append = TRUE)
     cat(paste0(nr, "\t"), file = logFile, append = TRUE)
@@ -1236,6 +1240,7 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     
     
     # logfile
+    logFile<-e$logFile
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
@@ -1556,7 +1561,7 @@ clonotypes <- function(
   
   used_columns <- e$used_columns
   # logfile
-  
+  logFile<-e$logFile
   message("Clonotype execution started: ")
   
   
@@ -1660,7 +1665,7 @@ clonotypes <- function(
       } else {
         ## Changed cbind to merge
         if (length(gene) > 0){
-          gene_cdr3 <- unique(allData[,c('gene',"Summary.AA.JUNCTION")])
+          gene_cdr3 <- unique(allData[,c('clonotype',"Summary.AA.JUNCTION")])   #gene
           clono_write <- cbind(gene_cdr3,clono_allData[, c("N", "Freq", "Convergent Evolution")])
           colnames(clono_write)[2] <- "CDR3"
         } else{
@@ -1814,7 +1819,7 @@ clonotypes <- function(
         clono_write <- clono_datasets[[name[j]]]
       } else {
         if (length(gene) > 0){
-          gene_cdr3 <- unique(data[,c('gene',"Summary.AA.JUNCTION")])
+          gene_cdr3 <- unique(data[,c('clonotype',"Summary.AA.JUNCTION")]) #gene
           clono_write <- cbind(gene_cdr3,clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")])
           colnames(clono_write)[2] <- "CDR3"
         } else{
@@ -1885,7 +1890,7 @@ clonotypes <- function(
   } else {
     message("Clonotype Analysis Step 4.b")
     
-    a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+    a <- lapply(seq_len(length(name)), one_run)
     ## for debugging use lapply
     
     for (i in seq_len(length(name))) {
@@ -1911,7 +1916,7 @@ clonotypes <- function(
         clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
         clono_write <- data.table::as.data.table(clono_write)
         clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution")])
-        colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution")
+        colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution") #Genes
       }
       
       fwrite(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
@@ -1987,6 +1992,7 @@ get_frequent_sequence <- function(data) {
 
 highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mismatches, take_gene, cdr3_lengths, gene_clonotypes, clonotype_freq_thr_for_highly_sim, name) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("highly_similar_clonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("take_gene ", take_gene, "threshold", clonotype_freq_thr_for_highly_sim, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2314,6 +2320,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
 
 public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_reads, public_clonotype_thr, name, highly) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("public_clonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("take_gene ", take_gene, "threshold", public_clonotype_thr, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2407,6 +2414,7 @@ createLink <- function(val, on_click_js) {
 
 viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("viewClonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
     cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
@@ -2447,6 +2455,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     }
 
     # logfile
+    logFile<-e$logFile
     cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
     cat(paste0(g, "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2606,6 +2615,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
     }
 
     # logfile
+    logFile<-e$logFile
     cat(paste0("repertoires_highly_similar", "\t"), file = logFile, append = TRUE)
     cat(paste0(g, "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2779,6 +2789,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
 
 repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, name, highly_sim, id) { # set name equal to the selected dataset
     # logfile
+    logFile<-e$logFile
     if (!highly_sim) {
         n <- "repertoires_comparison"
     } else {
@@ -2834,6 +2845,7 @@ repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, na
 
 Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("Multiple_value_comparison", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -3091,6 +3103,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
 
 Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("Multiple_value_comparison_highly_similar", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -3379,6 +3392,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
 
 createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, FtopN, topClonotypesAlldata, topClonotypesDatasets, gene, junction, allele) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("createFrequencyTableCDR3", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(region_name, paste0("Top N: ", FtopN), sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
@@ -3601,6 +3615,7 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
 
 createLogo <- function(table_count, table_count_datasets, name) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("createLogo", "\t"), file = logFile, append = TRUE)
     cat(paste0("logo plot", "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(table_count), "\t"), file = logFile, append = TRUE)
@@ -3701,6 +3716,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     used_columns <- e$used_columns
     
     # logfile
+    logFile<-e$logFile
     cat(paste0("alignment", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(region, AAorNtAlignment, "top", topNClono, "clonotypes", sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
@@ -4148,6 +4164,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
 mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClono, FtopN, FclonoSeperately, cl, Fthr, thrClono, FthrSep = TRUE, thrSep) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("mutations", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("region", AAorNtMutations, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(align), "\t"), file = logFile, append = TRUE)
@@ -4381,6 +4398,7 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
 # input: the alignment file
 groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNtAlignment) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("groupedAlignment", "\t"), file = logFile, append = TRUE)
     cat(paste0("grouping", "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(alignment_allData), "\t"), file = logFile, append = TRUE)
@@ -4440,6 +4458,7 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
 
 find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("find_cdr3_diff1P", "\t"), file = logFile, append = TRUE)
     cat(paste0("max length ", max_length_cdr3, ",", "Position ", position, "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)

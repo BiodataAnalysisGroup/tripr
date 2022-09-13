@@ -276,7 +276,7 @@ run_TRIP <- function(
     if (save_tables_individually | save_lists_for_bookmark) {
       ## output folder name as system time
       output_path <- paste0(output_path, 
-                            "/output_", format(Sys.time(), "%H.%M.%S"))
+                            "/output_", format(Sys.time(), "%Y.%m.%d_%H.%M.%S"))
       message("Output will be saved in: ", fs::path(output_path))
       # output path
       e$output_folder <- paste0(fs::path(output_path), "/output_tables")
