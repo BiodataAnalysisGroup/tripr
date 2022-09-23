@@ -2289,7 +2289,8 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
             highly_sim_view_specific_clonotypes_datasets[[name[i]]] <- a[[i]]$highly_sim_view_specific_clonotypes_datasets
         }
     } else {
-        a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        a <- lapply(seq_len(length(name)), one_run)
+        #a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         for (i in seq_len(length(name))) {
             highly_sim_clonotypes_allGroups_datasets[[name[i]]] <- a[[i]]$highly_sim_clonotypes_allGroups_datasets
             clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
@@ -2502,7 +2503,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         if (Sys.info()[1] == "Windows") {
             Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
+            #Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(Repertoires_datasets) <- name
@@ -2578,7 +2580,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         if (Sys.info()[1] == "Windows") {
             freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
+            #freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(freq_gene_name_datasets) <- name
@@ -2671,7 +2674,8 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
         if (Sys.info()[1] == "Windows") {
             Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
+            #Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(Repertoires_datasets) <- name
@@ -2754,7 +2758,8 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
         if (Sys.info()[1] == "Windows") {
             freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
+            #freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(freq_gene_name_datasets) <- name
@@ -2924,7 +2929,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -2985,7 +2991,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -3040,7 +3047,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
             if (Sys.info()[1] == "Windows") {
                 multi_datasets <- lapply(seq_len(length(name)), one_run)
             } else {
-                multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                multi_datasets <- lapply(seq_len(length(name)), one_run)
+                #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
             }
 
             names(multi_datasets) <- name
@@ -3079,7 +3087,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     if (Sys.info()[1] == "Windows") {
         Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
+        #Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(Multiple_value_comparison_datasets) <- name
@@ -3182,7 +3191,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -3255,7 +3265,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -3329,7 +3340,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
             if (Sys.info()[1] == "Windows") {
                 multi_datasets <- lapply(seq_len(length(name)), one_run)
             } else {
-                multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                multi_datasets <- lapply(seq_len(length(name)), one_run)
+                #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
             }
 
             names(multi_datasets) <- name
@@ -3368,7 +3380,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
     if (Sys.info()[1] == "Windows") {
         Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
+        #Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(Multiple_value_comparison_datasets) <- name
@@ -4132,7 +4145,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             if (length(name) == 1) {
                 alignment_datasets[[name]] <- alignment_allData
             } else {
-                alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                alignment_datasets <- lapply(seq_len(length(name)), one_run)
+                #alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
             }
         }
 
@@ -4373,7 +4387,8 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
     if (Sys.info()[1] == "Windows") {
         mutation_change_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        mutation_change_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        mutation_change_datasets <- lapply(seq_len(length(name)), one_run)
+        #mutation_change_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(mutation_change_datasets) <- name
@@ -4434,7 +4449,8 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
     if (Sys.info()[1] == "Windows") {
         grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        grouped_alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
+        #grouped_alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(grouped_alignment_datasets) <- name
