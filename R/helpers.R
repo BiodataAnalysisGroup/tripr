@@ -1992,6 +1992,7 @@ get_frequent_sequence <- function(data) {
 
 highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mismatches, take_gene, cdr3_lengths, gene_clonotypes, clonotype_freq_thr_for_highly_sim, name) {
     # logfile
+    clono_allData <- as.data.frame(clono_allData)
     logFile<-e$logFile
     cat(paste0("highly_similar_clonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("take_gene ", take_gene, "threshold", clonotype_freq_thr_for_highly_sim, sep = ","), "\t"), file = logFile, append = TRUE)
