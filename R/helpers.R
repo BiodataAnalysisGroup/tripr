@@ -3731,6 +3731,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     
     # logfile
     logFile<-e$logFile
+    
     cat(paste0("alignment", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(region, AAorNtAlignment, "top", topNClono, "clonotypes", sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
@@ -4008,7 +4009,9 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                             }
                         }
 
-                        index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+                        # index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+                        
+                        index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view[[used_columns[["Summary"]][1]]])
                         if (index[1] > 0) {
                             cluster_id[index] <- i
                             freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
@@ -4033,7 +4036,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_split <- t(region_split)
             row.names(region_split) <- NULL
 
-            region_alignment <- cbind(as.data.frame(cluster_id),
+            region_alignment <- cbind(
+                as.data.frame(cluster_id),
                 as.data.frame(freq_cluster_id),
                 Functionality = "productive"
             )
@@ -4231,12 +4235,16 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
     mutation_change_allData <- list()
     level_counts <- c()
     output <- c()
+     
     b <- by(
         align, align$V.GENE.and.allele,
         function(y) {
-            germline <<- which(y$cluster_id == "-")
-            germline <<- germline[1]
-            productive <<- which(y$cluster_id != "-")
+            # germline <<- which(y$cluster_id == "-")
+            germline <- which(y$cluster_id == "-")
+            # germline <<- germline[1]
+            germline <- germline[1]
+            # productive <<- which(y$cluster_id != "-")
+            productive <- which(y$cluster_id != "-")
             if (length(productive) > 0 & length(germline)) {
                 mc <- c()
                 germ_length <- ncol(y) - length(which(y[germline, start_g:ncol(align)] == "."))
@@ -4314,12 +4322,16 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
         count <- 0
         output <- c()
         mutation_change_temp <- list()
+        
         b <- by(
             align_datasets[[name[j]]], align_datasets[[name[j]]]$V.GENE.and.allele,
             function(y) {
-                germline <<- which(y[, "cluster_id"] == "-")
-                germline <<- germline[1]
-                productive <<- which(y[, "cluster_id"] != "-")
+                # germline <<- which(y[, "cluster_id"] == "-")
+                germline <- which(y[, "cluster_id"] == "-")
+                # germline <<- germline[1]
+                germline <- germline[1]
+                # productive <<- which(y[, "cluster_id"] != "-")
+                productive <- which(y[, "cluster_id"] != "-")
                 if (length(productive) > 0 & length(germline)) {
                     mc <- c()
                     germ_length <- ncol(y) - length(which(y[germline, start_g:ncol(align_datasets[[name[j]]])] == "."))
