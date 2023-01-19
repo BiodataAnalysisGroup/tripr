@@ -2449,7 +2449,8 @@ viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
 
 ######################################################################################################################################
 
-repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, highly_sim) {
+repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets ) {
+    
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
     } else {
@@ -2476,26 +2477,28 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
 
     if (gene == gene_clonotypes && allele == allele_clonotypes && !(is.null(gene_clonotypes))) {
         ####################################### All Data
-        Repertoires_allData <- clono_allData %>%
-            dplyr::group_by(clono_allData[["clonotype"]]) %>%
-            dplyr::summarise(n = n())
-        Repertoires_allData <- Repertoires_allData[order(-Repertoires_allData$n), ]
-        Repertoires_allData <- cbind(Repertoires_allData, Freq = 100 * Repertoires_allData$n / nrow(clono_allData))
+        Repertoires_allData <- clono_allData[ , by = clonotype , .N ]
+        # Repertoires_allData <- clono_allData %>%
+        #     dplyr::group_by(clono_allData[["clonotype"]]) %>%
+        #     dplyr::summarise(n = n())
+        Repertoires_allData <- Repertoires_allData[order(-Repertoires_allData$N), ]
+        Repertoires_allData <- cbind(Repertoires_allData, Freq = 100 * Repertoires_allData$N / nrow(clono_allData))
 
         ####################################### Separate Datasets
         Repertoires_datasets <- list()
 
         one_run <- function(j) {
-            Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>%
-                dplyr::group_by(clono_datasets[[name[j]]][["clonotype"]]) %>%
-                dplyr::summarise(n = n())
-            Repertoires_datasets[[name[j]]] <- Repertoires_datasets[[name[j]]][order(-Repertoires_datasets[[name[j]]]$n), ]
-            Repertoires_datasets[[name[j]]] <- cbind(Repertoires_datasets[[name[j]]], Freq = 100 * Repertoires_datasets[[name[j]]]$n / nrow(clono_datasets[[name[j]]]))
+            Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]][ , by = clonotype, .N]
+            # Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>%
+            #     dplyr::group_by(clono_datasets[[name[j]]][["clonotype"]]) %>%
+            #     dplyr::summarise(n = n())
+            Repertoires_datasets[[name[j]]] <- Repertoires_datasets[[name[j]]][order(-Repertoires_datasets[[name[j]]]$N), ]
+            Repertoires_datasets[[name[j]]] <- cbind(Repertoires_datasets[[name[j]]], Freq = 100 * Repertoires_datasets[[name[j]]]$N / nrow(clono_datasets[[name[j]]]))
             colnames(Repertoires_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
                 filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
-                write.table(Repertoires_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(Repertoires_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(Repertoires_datasets[[name[j]]])
         }
@@ -2523,19 +2526,25 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                     })[, 1])
                 }
             }
-            freq_gene <- a %>%
-                dplyr::group_by(a[[gene]]) %>%
-                dplyr::summarise(n = n())
-            freq_gene <- freq_gene[order(-freq_gene$n), ]
+            freq_gene <- a[, by = gene, .N]
+            
+            # freq_gene <- a %>%
+            #     dplyr::group_by(a[[gene]]) %>%
+            #     dplyr::summarise(n = n())
+            # freq_gene <- freq_gene[order(-freq_gene$n), ]
+            freq_gene <- freq_gene[order(-freq_gene$N), ]
             freq_gene_name[i, 1] <- freq_gene[1, 1]
         }
 
         colnames(freq_gene_name) <- c("Gene")
-        freq_gene_name <- freq_gene_name %>%
-            dplyr::group_by(freq_gene_name[["Gene"]]) %>%
-            dplyr::summarise(n = n())
-        freq_gene_name <- freq_gene_name[order(-freq_gene_name$n), ]
-        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$n / nrow(clono_allData))
+        freq_gene_name <- setDT(freq_gene_name)
+        freq_gene_name <- freq_gene_name[, .N, by = Gene]
+        
+        # freq_gene_name <- freq_gene_name %>%
+        #     dplyr::group_by(freq_gene_name[["Gene"]]) %>%
+        #     dplyr::summarise(n = n())
+        freq_gene_name <- freq_gene_name[order(-freq_gene_name$N), ]
+        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / nrow(clono_allData))
         colnames(freq_gene_name) <- c("Gene", "N", "Freq")
 
 
@@ -2554,25 +2563,27 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                         })[, 1])
                     }
                 }
-                freq_gene <- a %>%
-                    dplyr::group_by(a[[gene]]) %>%
-                    dplyr::summarise(n = n())
-                freq_gene <- freq_gene[order(-freq_gene$n), ]
+                freq_gene <- a[, by = gene, .N]
+                # freq_gene <- a %>%
+                #     dplyr::group_by(a[[gene]]) %>%
+                #     dplyr::summarise(n = n())
+                freq_gene <- freq_gene[order(-freq_gene$N), ]
                 freq_gene_name_datasets[[name[[j]]]][i, 1] <- freq_gene[1, 1]
             }
             colnames(freq_gene_name_datasets[[name[[j]]]]) <- c("Gene")
-
-            freq_gene_name_datasets[[name[[j]]]] <- freq_gene_name_datasets[[name[[j]]]] %>%
-                dplyr::group_by(freq_gene_name_datasets[[name[[j]]]][["Gene"]]) %>%
-                dplyr::summarise(n = n())
-            freq_gene_name_datasets[[name[j]]] <- freq_gene_name_datasets[[name[j]]][order(-freq_gene_name_datasets[[name[j]]]$n), ]
-            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$n / nrow(clono_datasets[[name[j]]]))
+            setDT(freq_gene_name_datasets[[name[[j]]]])
+            freq_gene_name_datasets[[name[[j]]]] <- freq_gene_name_datasets[[name[[j]]]][, by = Gene, .N]
+            # freq_gene_name_datasets[[name[[j]]]] <- freq_gene_name_datasets[[name[[j]]]] %>%
+            #     dplyr::group_by(freq_gene_name_datasets[[name[[j]]]][["Gene"]]) %>%
+            #     dplyr::summarise(n = n())
+            freq_gene_name_datasets[[name[j]]] <- freq_gene_name_datasets[[name[j]]][order(-freq_gene_name_datasets[[name[j]]]$N), ]
+            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$N / nrow(clono_datasets[[name[j]]]))
 
             colnames(freq_gene_name_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
                 filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
-                write.table(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(freq_gene_name_datasets[[name[j]]])
         }
@@ -2594,7 +2605,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
 
     if (save_tables_individually) {
         filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", "All_Data", ".txt")
-        write.table(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        fwrite(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
     confirm <- paste0("Repertoires run!")
