@@ -1559,7 +1559,12 @@ clonotypes <- function(
   run_diagnosis
 ) {
   
-  
+  # save(allData, 
+  #      allele, 
+  #      gene, 
+  #      junction, 
+  #      name, 
+  #      run_diagnosis, file = "D:/clonoINPUT.RData")
   used_columns <- e$used_columns
   # logfile
   logFile<-e$logFile
@@ -1588,6 +1593,8 @@ clonotypes <- function(
       } else {
         allData$gene <- allData[[gene]]
       }
+      
+      #allData[, by = c(Genes = allData$gene), N:= .N] ##ASPA28/3  CDR3 = allData[[junction]])
       
       allData$clonotype <- paste0(allData$gene, " - ", allData[[junction]])
       allData[, by = clonotype, N := .N]
@@ -1661,14 +1668,14 @@ clonotypes <- function(
     
     if (save_tables_individually) {
       if (junction == "Summary.Sequence") {
-        
+        colnames(clono_allData) 
         clono_write <- clono_allData
       } else {
         ## Changed cbind to merge
         if (length(gene) > 0){
-          gene_cdr3 <- unique(allData[,c('clonotype',"Summary.AA.JUNCTION")])   #gene
+          gene_cdr3 <- unique(allData[,c('gene',"Summary.AA.JUNCTION")])   #gene ##CHANGE
           clono_write <- cbind(gene_cdr3,clono_allData[, c("N", "Freq", "Convergent Evolution")])
-          colnames(clono_write)[2] <- "CDR3"
+          colnames(clono_write)[1:2] <- c('Genes',"CDR3")
         } else{
           clono_write <- clono_allData
         }
@@ -1820,9 +1827,9 @@ clonotypes <- function(
         clono_write <- clono_datasets[[name[j]]]
       } else {
         if (length(gene) > 0){
-          gene_cdr3 <- unique(data[,c('clonotype',"Summary.AA.JUNCTION")]) #gene
+          gene_cdr3 <- unique(data[,c('gene',"Summary.AA.JUNCTION")]) #gene
           clono_write <- cbind(gene_cdr3,clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")])
-          colnames(clono_write)[2] <- "CDR3"
+          colnames(clono_write)[1:2] <- c("Genes","CDR3")
         } else{
           clono_write <- clono_datasets[[name[j]]]
         }
