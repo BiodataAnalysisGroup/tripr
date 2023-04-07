@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
-Version: 1.3.2
+Version: 1.3.11
 Authors@R: c(
         person("Maria Th.", "Kotouza", email = "-", role = "aut"),
         person("Katerina", "Gemenetzi", email = "-", role = "aut"),
@@ -14,7 +14,8 @@ Authors@R: c(
         person("Kostas", "Stamatopoulos", email = "-", role = "aut"),
         person("Anastasia", "Chatzidimitriou", email = "-", role = "aut"),
         person("Fotis E.", "Psomopoulos", email = "-", role = "aut"),
-        person("Iason", "Ofeidis", email = "-", role = "aut")
+        person("Iason", "Ofeidis", email = "-", role = "aut"),
+        person("Aspasia", "Orfanou", email = "-", role = "aut")
         )
 Description: TRIP is a software framework that provides analytics services on 
     antigen receptor (B cell receptor immunoglobulin, BcR IG | T cell receptor, 
@@ -86,6 +87,6 @@ Collate:
 URL: https://github.com/BiodataAnalysisGroup/tripr
 BugReports: https://github.com/BiodataAnalysisGroup/tripr/issues
 BiocType: Software
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 VignetteBuilder: knitr
 Config/testthat/edition: 3

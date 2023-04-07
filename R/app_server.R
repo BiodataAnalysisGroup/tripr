@@ -3,6 +3,7 @@
 #' @param input,output,session Internal parameters for {shiny}.
 #'     DO NOT REMOVE.
 #' @import shiny
+#' 
 #' @noRd
 app_server <- function(input, output, session) {
     appCSS <- "
@@ -1038,9 +1039,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$cleaningDataset == "All Data") {
-                        write.table(imgtcleaning_results$allDataInitial, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$allDataInitial, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(imgtcleaning_results$initial_datasets[[input$cleaningDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$initial_datasets[[input$cleaningDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1071,9 +1072,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$cleaningDataset == "All Data") {
-                        write.table(imgtcleaning_results$allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(imgtcleaning_results$cleaned_datasets[[input$cleaningDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$cleaned_datasets[[input$cleaningDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1108,9 +1109,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$cleaningDataset == "All Data") {
-                        write.table(imgtcleaning_results$filterOutSum, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$filterOutSum, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(imgtcleaning_results$cleaned_out_datasets[[input$cleaningDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$cleaned_out_datasets[[input$cleaningDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1237,9 +1238,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$filteringDataset == "All Data") {
-                        write.table(imgtfilter_results$allDataInitial, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtfilter_results$allDataInitial, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(imgtcleaning_results$initial_datasets[[input$filteringDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtcleaning_results$initial_datasets[[input$filteringDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1270,9 +1271,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$filteringDataset == "All Data") {
-                        write.table(imgtfilter_results$allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtfilter_results$allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(imgtfilter_results$filtered_datasets[[input$filteringDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtfilter_results$filtered_datasets[[input$filteringDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1303,9 +1304,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$filteringDataset == "All Data") {
-                        write.table(imgtfilter_results$filterOutSum, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtfilter_results$filterOutSum, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(imgtfilter_results$filtered_out_datasets[[input$filteringDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(imgtfilter_results$filtered_out_datasets[[input$filteringDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1510,7 +1511,7 @@ app_server <- function(input, output, session) {
             gene_clonotypes <<- gene
             junction_clonotypes <<- junction
             allele_clonotypes <<- allele
-
+            
             if ((just_restored_session_clonotypes == FALSE) & (input$select_load_or_compute_clonotypes != "load_clonotypes")) {
                 clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis) # input$shm_normal,
             }
@@ -1579,9 +1580,9 @@ app_server <- function(input, output, session) {
                     }
 
                     if (input$clonotypesDataset == "All Data") {
-                        write.table(clono$clono_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(clono$clono_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(clono$clono_datasets[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(clono$clono_datasets[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1627,7 +1628,7 @@ app_server <- function(input, output, session) {
                     paste0("ElementsOfClonotype ", input$mydata, ".txt")
                 },
                 content = function(file) {
-                    write.table(specificClonotypes, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(specificClonotypes, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             )
 
@@ -1636,7 +1637,7 @@ app_server <- function(input, output, session) {
                     paste0("ConvergentEvolution ", input$conv_evo, ".txt")
                 },
                 content = function(file) {
-                    write.table(SpecificConvergentEvolution, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(SpecificConvergentEvolution, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             )
 
@@ -1731,9 +1732,9 @@ app_server <- function(input, output, session) {
                     },
                     content = function(file) {
                         if (input$clonotypesDataset == "All Data") {
-                            write.table(clono$diagnosis[["All Data"]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(clono$diagnosis[["All Data"]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
-                            write.table(clono$diagnosis[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(clono$diagnosis[[input$clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 )
@@ -1869,7 +1870,7 @@ app_server <- function(input, output, session) {
                 temp <- temp[, c("Gene", "CDR3", "N", "Freq", "prev_cluster")]
 
                 if (save_tables_individually) {
-                    write.table(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
                     # save filter in + highly clono id
                     all_filter <- read.csv(paste0(e$output_folder, "/", "filterin_clono_", d, ".txt"), sep = "\t", stringsAsFactors = FALSE)
@@ -1882,7 +1883,7 @@ app_server <- function(input, output, session) {
                         all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                     }
 
-                    write.table(all_filter, paste0(e$output_folder, "/", "filterin_highly_clono_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(all_filter, paste0(e$output_folder, "/", "filterin_highly_clono_", d, ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             }
 
@@ -1906,7 +1907,7 @@ app_server <- function(input, output, session) {
             temp <- temp[, c("Gene", "CDR3", "N", "Freq", "prev_cluster")]
 
             if (save_tables_individually) {
-                write.table(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", "All Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(temp, paste0(e$output_folder, "/", "highly_sim_all_clonotypes_", "All Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
 
                 # save filter in + highly clono id
                 all_filter <- read.csv(paste0(e$output_folder, "/", "filterin_clono_", "All_Data", ".txt"), sep = "\t", stringsAsFactors = FALSE)
@@ -1919,7 +1920,7 @@ app_server <- function(input, output, session) {
                     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                 }
 
-                write.table(all_filter, paste0(e$output_folder, "/", "filterin_highly_clono_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(all_filter, paste0(e$output_folder, "/", "filterin_highly_clono_", "All_Data", ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
             output$highlySimAllClonoTable <- renderDataTable(
@@ -1948,9 +1949,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$highlySimClonotypesDataset == "All Data") {
-                        write.table(highly_sim, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_sim, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(highly_sim_datasets[[input$highlySimClonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_sim_datasets[[input$highlySimClonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -1982,9 +1983,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$highlySimClonotypesDataset == "All Data") {
-                        write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[input$highlySimClonotypesDataset]][[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[input$highlySimClonotypesDataset]][[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -2015,9 +2016,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$highlySimClonotypesDataset == "All Data") {
-                        write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[input$highlySimClonotypesDataset]][[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[input$highlySimClonotypesDataset]][[paste0("length ", input$select_length_to_show_highlySimClono)]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -2148,7 +2149,7 @@ app_server <- function(input, output, session) {
                     paste0("public_clonotypes", ".txt")
                 },
                 content = function(file) {
-                    write.table(public_clonotypes_results$public_clono, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(public_clonotypes_results$public_clono, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             )
 
@@ -2204,7 +2205,7 @@ app_server <- function(input, output, session) {
                     paste0("public_clonotypes", ".txt")
                 },
                 content = function(file) {
-                    write.table(highly_sim_public_clonotypes_results$public_clono, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(highly_sim_public_clonotypes_results$public_clono, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             )
 
@@ -2347,9 +2348,9 @@ app_server <- function(input, output, session) {
                     },
                     content = function(file) {
                         if (input$RepertoiresDataset == "All Data") {
-                            write.table(repertories_results[[i]]$Repertoires_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(repertories_results[[i]]$Repertoires_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
-                            write.table(repertories_results[[i]]$Repertoires_datasets[[input$RepertoiresDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(repertories_results[[i]]$Repertoires_datasets[[input$RepertoiresDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 )
@@ -2506,9 +2507,9 @@ app_server <- function(input, output, session) {
                     },
                     content = function(file) {
                         if (input$RepertoiresDataset == "All Data") {
-                            write.table(HighlySim_repertories_results[[i]]$Repertoires_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(HighlySim_repertories_results[[i]]$Repertoires_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
-                            write.table(HighlySim_repertories_results[[i]]$Repertoires_datasets[[input$RepertoiresDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(HighlySim_repertories_results[[i]]$Repertoires_datasets[[input$RepertoiresDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 )
@@ -2634,7 +2635,7 @@ app_server <- function(input, output, session) {
                         paste0("repertoires_comparison_table", ".txt")
                     },
                     content = function(file) {
-                        write.table(repertoires_comparison_results[[i]]$unique_repertoires, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(repertoires_comparison_results[[i]]$unique_repertoires, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 )
             })
@@ -2666,7 +2667,7 @@ app_server <- function(input, output, session) {
                         paste0("Highly_sim_repertoires_comparison_table", ".txt")
                     },
                     content = function(file) {
-                        write.table(highly_sim_repertoires_comparison_results[[i]]$unique_repertoires, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_sim_repertoires_comparison_results[[i]]$unique_repertoires, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 )
             })
@@ -2907,9 +2908,9 @@ app_server <- function(input, output, session) {
                     },
                     content = function(file) {
                         if (input$Multiple_value_comparisonDataset == "All Data") {
-                            write.table(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
-                            write.table(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_datasets[[input$Multiple_value_comparisonDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_datasets[[input$Multiple_value_comparisonDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 )
@@ -3117,9 +3118,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$clonotypesDataset == "All Data") {
-                        write.table(frequenciesTables_results$table_count, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_count, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(frequenciesTables_results$table_count_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_count_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -3172,9 +3173,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$clonotypesDataset == "All Data") {
-                        write.table(frequenciesTables_results$table_freq, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_freq, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(frequenciesTables_results$table_freq_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_freq_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -3264,9 +3265,9 @@ app_server <- function(input, output, session) {
                         },
                         content = function(file) {
                             if (input$freqTableDataset == "All Data") {
-                                write.table(frequenciesTables_results_cl[[i]]$table_count, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(frequenciesTables_results_cl[[i]]$table_count, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             } else {
-                                write.table(frequenciesTables_results_cl[[i]]$table_count_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(frequenciesTables_results_cl[[i]]$table_count_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             }
                         }
                     )
@@ -3293,9 +3294,9 @@ app_server <- function(input, output, session) {
                         },
                         content = function(file) {
                             if (input$freqTableDataset == "All Data") {
-                                write.table(frequenciesTables_results_cl[[i]]$table_freq, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(frequenciesTables_results_cl[[i]]$table_freq, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             } else {
-                                write.table(frequenciesTables_results_cl[[i]]$table_freq_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(frequenciesTables_results_cl[[i]]$table_freq_datasets[[input$freqTableDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             }
                         }
                     )
@@ -3807,9 +3808,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$alignmentDataset == "All Data") {
-                        write.table(alignmentRegion_results$alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(alignmentRegion_results$alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(alignmentRegion_results$alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(alignmentRegion_results$alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -3839,9 +3840,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$alignmentDataset == "All Data") {
-                        write.table(alignmentRegion_results_nt$alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(alignmentRegion_results_nt$alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(alignmentRegion_results_nt$alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(alignmentRegion_results_nt$alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -3891,9 +3892,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$alignmentDataset == "All Data") {
-                        write.table(grouped_alignment_results$grouped_alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(grouped_alignment_results$grouped_alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(grouped_alignment_results$grouped_alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(grouped_alignment_results$grouped_alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -3922,9 +3923,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$alignmentDataset == "All Data") {
-                        write.table(grouped_alignment_results_nt$grouped_alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(grouped_alignment_results_nt$grouped_alignment_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(grouped_alignment_results_nt$grouped_alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(grouped_alignment_results_nt$grouped_alignment_datasets[[input$alignmentDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -4123,9 +4124,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$mutationDataset == "All Data") {
-                        write.table(mutation_results$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(mutation_results$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(mutation_results$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(mutation_results$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -4155,9 +4156,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$mutationDataset == "All Data") {
-                        write.table(mutation_results_nt$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(mutation_results_nt$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(mutation_results_nt$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(mutation_results_nt$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -4202,9 +4203,9 @@ app_server <- function(input, output, session) {
                         },
                         content = function(file) {
                             if (input$mutationDataset == "All Data") {
-                                write.table(mutation_results_cl[[i]]$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(mutation_results_cl[[i]]$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             } else {
-                                write.table(mutation_results_cl[[i]]$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(mutation_results_cl[[i]]$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             }
                         }
                     )
@@ -4234,9 +4235,9 @@ app_server <- function(input, output, session) {
                         },
                         content = function(file) {
                             if (input$mutationDataset == "All Data") {
-                                write.table(mutation_results_nt_cl[[i]]$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(mutation_results_nt_cl[[i]]$mutation_change_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             } else {
-                                write.table(mutation_results_nt_cl[[i]]$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(mutation_results_nt_cl[[i]]$mutation_change_datasets[[input$mutationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                             }
                         }
                     )
@@ -4295,9 +4296,9 @@ app_server <- function(input, output, session) {
                 },
                 content = function(file) {
                     if (input$clonotypesDataset == "All Data") {
-                        write.table(CDR3Diff1_results$cdr3_diff1P_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(CDR3Diff1_results$cdr3_diff1P_allData, file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
-                        write.table(CDR3Diff1_results$cdr3_diff1P_datasets[[input$CDR3Diff1Dataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(CDR3Diff1_results$cdr3_diff1P_datasets[[input$CDR3Diff1Dataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             )
@@ -4966,7 +4967,7 @@ app_server <- function(input, output, session) {
                             fill = rainbow(length(mutational_status_table_allData$N))
                         )
                         dev.off()
-                        write.table(mutational_status_table_allData, paste0(in.path, "/", "Mutational_Status_", "All_Data", ".txt"), sep = "\t")
+                        fwrite(mutational_status_table_allData, paste0(in.path, "/", "Mutational_Status_", "All_Data", ".txt"), sep = "\t")
                     } else {
                         png(paste0(in.path, "/", "Mutational_status ", loaded_datasets[j], ".png"), width = 900, height = 600)
                         pie(as.numeric(mutational_status_table_datasets[[loaded_datasets[j]]]$N), labels = round(100 * mutational_status_table_datasets[[loaded_datasets[j]]]$freq, 2), main = paste0("Mutational Status ", loaded_datasets[j]), col = rainbow(length(mutational_status_table_datasets[[loaded_datasets[j]]]$N)))
@@ -4975,7 +4976,7 @@ app_server <- function(input, output, session) {
                             fill = rainbow(length(mutational_status_table_datasets[[loaded_datasets[j]]]$N))
                         )
                         dev.off()
-                        write.table(mutational_status_table_datasets[[loaded_datasets[j]]], paste0(in.path, "/", "Mutational_Status_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
+                        fwrite(mutational_status_table_datasets[[loaded_datasets[j]]], paste0(in.path, "/", "Mutational_Status_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
                     }
                 }
             }
@@ -4990,14 +4991,14 @@ app_server <- function(input, output, session) {
                         plot(d$CDR3Length, d$n, main = paste0("CDR3 IMGT length ", "All Data"), xlab = "length", ylab = "") # plots the results
                         lines(spline(d$CDR3Length, d$n))
                         dev.off()
-                        write.table(cdr3_length_distribution, paste0(in.path, "/", "CDR3_Length_Distribution_", "All_Data", ".txt"), sep = "\t")
+                        fwrite(cdr3_length_distribution, paste0(in.path, "/", "CDR3_Length_Distribution_", "All_Data", ".txt"), sep = "\t")
                     } else {
                         png(paste0(in.path, "/", "CDR3_Length_Distribution ", loaded_datasets[j], ".png"), width = 900, height = 600)
                         d <- cdr3_length_distribution_dataset[[loaded_datasets[j]]]
                         plot(d$CDR3Length, d$n, main = paste0("CDR3 IMGT length ", "All Data"), xlab = "length", ylab = "") # plots the results
                         lines(spline(d$CDR3Length, d$n))
                         dev.off()
-                        write.table(cdr3_length_distribution_dataset[[loaded_datasets[j]]], paste0(in.path, "/", "CDR3_Length_Distribution_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
+                        fwrite(cdr3_length_distribution_dataset[[loaded_datasets[j]]], paste0(in.path, "/", "CDR3_Length_Distribution_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
                     }
                 }
             }
@@ -5009,9 +5010,9 @@ app_server <- function(input, output, session) {
                 dev.off()
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
-                        write.table(pi_distribution, paste0(in.path, "/", "Pi_Distribution_", "All_Data", ".txt"), sep = "\t")
+                        fwrite(pi_distribution, paste0(in.path, "/", "Pi_Distribution_", "All_Data", ".txt"), sep = "\t")
                     } else {
-                        write.table(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path, "/", "Pi_Distribution_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
+                        fwrite(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path, "/", "Pi_Distribution_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
                     }
                 }
             }
@@ -5885,7 +5886,7 @@ app_server <- function(input, output, session) {
             paste("Analysis_Tables_", Sys.time(), ".tar", sep = "")
         }, # name the .tar file
         content <- function(file) {
-            folder_name <- paste0("/AnalysisTables_", format(Sys.time(), "%H%M%S"))
+            folder_name <- paste0("/AnalysisTables_", format(Sys.time(), "%Y.%m.%d_%H.%M.%S"))
             if (!file.exists(paste0(file.path(tempdir(), "/output"), "/", folder_name))) {
                 dir.create(paste0(file.path(tempdir(), "/output"), "/", folder_name))
             }
@@ -5901,7 +5902,7 @@ app_server <- function(input, output, session) {
                             clono$clono_allData[i, 1] <- strsplit(as.character(clono$clono_allData[i, 1]), " - ")[[1]][1]
                         }
                         filename <- paste0(in.path, "/", "Clonotypes_", input$select_clonotype, "_", "All_Data", ".txt")
-                        write.table(clono$clono_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(clono$clono_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
                         name <- loaded_datasets[j]
                         clono$clono_datasets[[name]]$CDR3 <- clono$clono_datasets[[name]][, 1]
@@ -5911,7 +5912,7 @@ app_server <- function(input, output, session) {
                             clono$clono_datasets[[name]][i, 1] <- strsplit(as.character(clono$clono_datasets[[name]][i, 1]), " - ")[[1]][1]
                         }
                         filename <- paste0(in.path, "/", "Clonotypes_", input$select_clonotype, "_", loaded_datasets[j], ".txt")
-                        write.table(clono$clono_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(clono$clono_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             }
@@ -5922,14 +5923,14 @@ app_server <- function(input, output, session) {
                     for (l in seq_len(length(cdr3_lengths))) {
                         if (j == (length(loaded_datasets) + 1)) {
                             filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_", "All_Data_length_", cdr3_lengths[l], ".txt")
-                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_groups_", "All_Data_length_", cdr3_lengths[l], ".txt")
-                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups[[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
                             filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_", loaded_datasets[j], "_length_", cdr3_lengths[l], ".txt")
-                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Highly_sim_Clonotypes_groups_", loaded_datasets[j], "_length_", cdr3_lengths[l], ".txt")
-                            write.table(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(highly_similar_clonotypes_results$highly_sim_clonotypes_allGroups_datasets[[loaded_datasets[j]]][[paste0("length ", cdr3_lengths[l])]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 }
@@ -5939,10 +5940,10 @@ app_server <- function(input, output, session) {
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         filename <- paste0(in.path, "/", "highly_sim_all_clonotypes_", input$select_clonotype, "_", "All_Data", ".txt")
-                        write.table(highly_sim, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_sim, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
                         filename <- paste0(in.path, "/", "highly_sim_all_clonotypes_", input$select_clonotype, "_", loaded_datasets[j], ".txt")
-                        write.table(highly_sim_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(highly_sim_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             }
@@ -5950,13 +5951,13 @@ app_server <- function(input, output, session) {
             ################################### Public Clonotypes  ##############################################
             if (msgPublicClono != "") {
                 filename <- paste0(in.path, "/", "public_clonotypes", ".txt")
-                write.table(public_clonotypes_results$public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(public_clonotypes_results$public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
             ########################### Highly Similar Public Clonotypes  ########################################
             if (msgPublicClono != "") {
                 filename <- paste0(in.path, "/", "highly_sim_public_clonotypes", ".txt")
-                write.table(highly_sim_public_clonotypes_results$public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(highly_sim_public_clonotypes_results$public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
 
             ########################################### Repertoires  ############################################
@@ -5966,10 +5967,10 @@ app_server <- function(input, output, session) {
                         for (j in seq_len((length(loaded_datasets) + 1))) {
                             if (j == (length(loaded_datasets) + 1)) {
                                 filename <- paste0(in.path, "/", "Repertoires_", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], "_", "All_Data", ".txt")
-                                write.table(repertories_results[[i]]$Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(repertories_results[[i]]$Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             } else {
                                 filename <- paste0(in.path, "/", "Repertoires_", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], "_", loaded_datasets[j], ".txt")
-                                write.table(repertories_results[[i]]$Repertoires_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(repertories_results[[i]]$Repertoires_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             }
                         }
                     }
@@ -5983,10 +5984,10 @@ app_server <- function(input, output, session) {
                         for (j in seq_len((length(loaded_datasets) + 1))) {
                             if (j == (length(loaded_datasets) + 1)) {
                                 filename <- paste0(in.path, "/", "HighlySim_Repertoires_", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], "_", "All_Data", ".txt")
-                                write.table(HighlySim_repertories_results[[i]]$Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(HighlySim_repertories_results[[i]]$Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             } else {
                                 filename <- paste0(in.path, "/", "HighlySim_Repertoires_", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], "_", loaded_datasets[j], ".txt")
-                                write.table(HighlySim_repertories_results[[i]]$Repertoires_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                fwrite(HighlySim_repertories_results[[i]]$Repertoires_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             }
                         }
                     }
@@ -5997,7 +5998,7 @@ app_server <- function(input, output, session) {
             if (msgRepertoiresComp != "") {
                 for (i in seq_len(length(insertedRepertoires))) {
                     filename <- paste0(in.path, "/", "repertoires_comparison_table_", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], ".txt")
-                    write.table(repertoires_comparison_results[[i]]$unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(repertoires_comparison_results[[i]]$unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             }
 
@@ -6005,7 +6006,7 @@ app_server <- function(input, output, session) {
             if (msgRepertoiresComp != "" && msgHighlySim != "") {
                 for (i in seq_len(length(insertedRepertoires))) {
                     filename <- paste0(in.path, "/", "highlySim_repertoires_comparison_table_", input[[paste0("selectRepertoires_", insertedRepertoires[i])]], ".txt")
-                    write.table(highly_sim_repertoires_comparison_results[[i]]$unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(highly_sim_repertoires_comparison_results[[i]]$unique_repertoires, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             }
 
@@ -6018,11 +6019,11 @@ app_server <- function(input, output, session) {
                         colnames(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData) <- c(val1, val2, "N")
                         if (j == (length(loaded_datasets) + 1)) {
                             filename <- paste0(in.path, "/", "Multiple_value_comparison_", stringr::str_replace(val1, "%", ""), "_", stringr::str_replace(val2, "%", ""), "_", "All_Data", ".txt")
-                            write.table(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
                             colnames(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_datasets[[loaded_datasets[j]]]) <- c(val1, val2, "N")
                             filename <- paste0(in.path, "/", "Multiple_value_comparison_", stringr::str_replace(val1, "%", ""), "_", stringr::str_replace(val2, "%", ""), "_", unique(t(data.frame(strsplit(input$Dataset, "_"))[, 1]))[j], ".txt")
-                            write.table(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(Multiple_value_comparison_result[[i]]$Multiple_value_comparison_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 }
@@ -6032,14 +6033,14 @@ app_server <- function(input, output, session) {
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         filename <- paste0(in.path, "/", "Count_table_for_logo_", "All_Data", ".txt")
-                        write.table(frequenciesTables_results$table_count, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_count, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         filename <- paste0(in.path, "/", "Freq_table_for_logo_", "All_Data", ".txt")
-                        write.table(frequenciesTables_results$table_freq, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_freq, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
                         filename <- paste0(in.path, "/", "Count_table_for_logo_", loaded_datasets[j], ".txt")
-                        write.table(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_count_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         filename <- paste0(in.path, "/", "Freq_table_for_logo_", loaded_datasets[j], ".txt")
-                        write.table(frequenciesTables_results$table_freq_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(frequenciesTables_results$table_freq_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             }
@@ -6050,38 +6051,38 @@ app_server <- function(input, output, session) {
                     if (j == (length(loaded_datasets) + 1)) {
                         if (input$AAorNtAlignment == "both") {
                             filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "aa", "_", "All_Data", ".txt")
-                            write.table(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "nt", "_", "All_Data", ".txt")
-                            write.table(alignmentRegion_results_nt$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(alignmentRegion_results_nt$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             # grouped
                             filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", "aa", "_", "All_Data", ".txt")
-                            write.table(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", "nt", "_", "All_Data", ".txt")
-                            write.table(grouped_alignment_results_nt$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(grouped_alignment_results_nt$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
                             filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", "All_Data", ".txt")
-                            write.table(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(alignmentRegion_results$alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             # grouped
                             filename <- paste0(in.path, "/", "Grouped Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", "All_Data", ".txt")
-                            write.table(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(grouped_alignment_results$grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     } else {
                         if (input$AAorNtAlignment == "both") {
                             filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "aa", "_", loaded_datasets[j], ".txt")
-                            write.table(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", "nt", "_", loaded_datasets[j], ".txt")
-                            write.table(alignmentRegion_results_nt$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(alignmentRegion_results_nt$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             # grouped
                             filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", "aa", "_", loaded_datasets[j], ".txt")
-                            write.table(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", "nt", "_", loaded_datasets[j], ".txt")
-                            write.table(grouped_alignment_results_nt$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(grouped_alignment_results_nt$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
                             filename <- paste0(in.path, "/", "Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", loaded_datasets[j], ".txt")
-                            write.table(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(alignmentRegion_results$alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             # grouped
                             filename <- paste0(in.path, "/", "Grouped_Alignment_", input$select_alignment, "_", input$AAorNtAlignment, "_", loaded_datasets[j], ".txt")
-                            write.table(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(grouped_alignment_results$grouped_alignment_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 }
@@ -6093,24 +6094,24 @@ app_server <- function(input, output, session) {
                     if (j == (length(loaded_datasets) + 1)) {
                         if (input$AAorNtMutations == "both") {
                             filename <- paste0(in.path, "/", "Mutations_thr", input$ThrAAMutations, "_", "aa", "_", "All Data", ".txt")
-                            write.table(mutation_results$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(mutation_results$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Mutations_thr", input$ThrNtMutations, "_", "nt", "_", "All Data", ".txt")
-                            write.table(mutation_results_nt$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(mutation_results_nt$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
                             if (input$AAorNtMutations == "aa") thr <- input$ThrAAMutations else thr <- input$ThrNtMutations
                             filename <- paste0(in.path, "/", "Mutations_thr", thr, "_", "All Data", ".txt")
-                            write.table(mutation_results$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(mutation_results$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     } else {
                         if (input$AAorNtMutations == "both") {
                             filename <- paste0(in.path, "/", "Mutations_thr", input$ThrAAMutations, "_", "aa", "_", loaded_datasets[j], ".txt")
-                            write.table(mutation_results$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(mutation_results$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                             filename <- paste0(in.path, "/", "Mutations_thr", input$ThrNtMutations, "_", "nt", "_", loaded_datasets[j], ".txt")
-                            write.table(mutation_results_nt$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(mutation_results_nt$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         } else {
                             if (input$AAorNtMutations == "aa") thr <- input$ThrAAMutations else thr <- input$ThrNtMutations
                             filename <- paste0(in.path, "/", "Mutations_thr", thr, "_", loaded_datasets[j], ".txt")
-                            write.table(mutation_results$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                            fwrite(mutation_results$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                         }
                     }
                 }
@@ -6121,24 +6122,24 @@ app_server <- function(input, output, session) {
                             if (j == (length(loaded_datasets) + 1)) {
                                 if (input$AAorNtMutations == "both") {
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", input$ThrAAMutations, "_", "aa", "_", "All_Data", ".txt")
-                                    write.table(mutation_results_cl$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                    fwrite(mutation_results_cl$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", input$ThrNtMutations, "_", "nt", "_", "All_Data", ".txt")
-                                    write.table(mutation_results_nt_cl$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                    fwrite(mutation_results_nt_cl$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                 } else {
                                     if (input$AAorNtMutations == "aa") thr <- input$ThrAAMutations else thr <- input$ThrNtMutations
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", thr, "_", "All_Data", ".txt")
-                                    write.table(mutation_results_cl$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                    fwrite(mutation_results_cl$mutation_change_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                 }
                             } else {
                                 if (input$AAorNtMutations == "both") {
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", input$ThrAAMutations, "_", "aa", "_", loaded_datasets[j], ".txt")
-                                    write.table(mutation_results_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                    fwrite(mutation_results_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", input$ThrNtMutations, "_", "nt", "_", loaded_datasets[j], ".txt")
-                                    write.table(mutation_results_nt_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                    fwrite(mutation_results_nt_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                 } else {
                                     if (input$AAorNtMutations == "aa") thr <- input$ThrAAMutations else thr <- input$ThrNtMutations
                                     filename <- paste0(in.path, "/", "Mutations_cl", cl, "_thr", thr, "_", loaded_datasets[j], ".txt")
-                                    write.table(mutation_results_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                                    fwrite(mutation_results_cl$mutation_change_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                                 }
                             }
                         }
@@ -6151,10 +6152,10 @@ app_server <- function(input, output, session) {
                 for (j in seq_len((length(loaded_datasets) + 1))) {
                     if (j == (length(loaded_datasets) + 1)) {
                         filename <- paste0(in.path, "/", "CDR3Diff1_", "All_Data", ".txt")
-                        write.table(CDR3Diff1_results$cdr3_diff1P_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(CDR3Diff1_results$cdr3_diff1P_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     } else {
                         filename <- paste0(in.path, "/", "CDR3Diff1_", loaded_datasets[j], ".txt")
-                        write.table(CDR3Diff1_results$cdr3_diff1P_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                        fwrite(CDR3Diff1_results$cdr3_diff1P_datasets[[loaded_datasets[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                     }
                 }
             }

@@ -26,6 +26,6 @@
 #' @importFrom utils read.csv tar write.table
 #' @importFrom stringr str_length str_detect
 #' @importFrom gridExtra grid.table
-#' @importFrom data.table data.table .N rbindlist .SD
+#' @importFrom data.table data.table .N rbindlist .SD fread fwrite setDT setDF
 #'
 NULL

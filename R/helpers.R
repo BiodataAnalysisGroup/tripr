@@ -1,11 +1,11 @@
 testColumnNames <- function(name, files, datapath) {
     # Set Working Directory on level back
-
+    
     d <- "Datasets loaded:"
 
     d <- paste(d, name, collapse = " ")
 
-
+    logFile<-e$logFile
     cat(paste0("testColumnNames", "\t"), file = logFile, append = TRUE)
     cat(paste0(d, "\t"), file = logFile, append = TRUE)
     cat(paste0("read data", "\t"), file = logFile, append = TRUE)
@@ -14,21 +14,21 @@ testColumnNames <- function(name, files, datapath) {
 
     # used columns
     if (use_only_useful_columns) {
-        input <- read.csv(system.file("extdata/param",
+        input <- as.data.frame(fread(system.file("extdata/param",
             "used_columns_only_useful.csv",
             package = "tripr",
             mustWork = TRUE
         ),
         sep = ";", stringsAsFactors = FALSE, header = FALSE
-        )
+        ))
     } else {
-        input <- read.csv(system.file("extdata/param",
+        input <- as.data.frame(fread(system.file("extdata/param",
             "used_columns.csv",
             package = "tripr",
             mustWork = TRUE
         ),
         sep = ";", stringsAsFactors = FALSE, header = FALSE
-        )
+        ))
     }
 
     used_columns <- list()
@@ -47,12 +47,13 @@ testColumnNames <- function(name, files, datapath) {
             all_used_columns <- c(all_used_columns, a[which(!stringr::str_detect(a, ".NA."))])
         }
     }
-
+   
     all_used_columns <- c("dataName", all_used_columns)
     ## Stored in 'e' environment ("global.R", L:4)
     e$all_used_columns <- all_used_columns
     e$used_columns <- used_columns
-
+    
+    
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c()
     if ("1_Summary.txt" %in% files) {
@@ -69,7 +70,7 @@ testColumnNames <- function(name, files, datapath) {
             used_columns[["Summary"]][18]
         )
     }
-
+    
     # Log start time and memory currently used
     start.time <- Sys.time()
 
@@ -93,8 +94,11 @@ testColumnNames <- function(name, files, datapath) {
             b2 <- gsub(".txt", "", b[[1]][2])
             b2 <- gsub("-", ".", b2)
             var.name <- b2
-
-            temp <- data.frame(assign(var.name, read.csv(paste0(datapath, "/", name[i], "/", files[j]), sep = "\t", stringsAsFactors = FALSE, fill = TRUE)))
+            
+            read_input <- fread(paste0(datapath, "/", name[i], "/", files[j]), sep = "\t", stringsAsFactors = FALSE, fill = TRUE)
+            #read_input <- as.data.frame(read_input) #aspa
+            # temp <- data.frame(assign(var.name, read_input)) #aspa
+            temp <- assign(var.name, read_input)
 
             num_initial_col <- num_initial_col + ncol(temp)
 
@@ -129,7 +133,11 @@ testColumnNames <- function(name, files, datapath) {
             worng_columns_names[[count_wrong]] <- worng_columns_names_temp
         } else {
             # Drop all the columns that will not be used
-            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% dplyr::select(all_used_columns)
+            
+            rawDataSet[[name[i]]] <- setDT(rawDataSet[[name[i]]])
+            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]][, all_used_columns,with=FALSE]
+            rawDataSet[[name[i]]] <- setDF(rawDataSet[[name[i]]])
+          
         }
     }
     for (i in seq_len(length(name))) {
@@ -193,8 +201,9 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     for (i in names(rawDataSet)) {
         nr <- nrow(rawDataSet[[i]]) + nr
     }
-
+    
     # logfile
+    logFile<-e$logFile
     cat(paste0("correctColumnNames", "\t"), file = logFile, append = TRUE)
     cat(paste0("wrong datasets", paste(wrong_dataset, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nr, "\t"), file = logFile, append = TRUE)
@@ -205,7 +214,7 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     filter_column <- c(used_columns[["Summary"]][3], used_columns[["Summary"]][18], used_columns[["Summary"]][2], used_columns[["Summary"]][18], used_columns[["Summary"]][4], used_columns[["Summary"]][3], used_columns[["Summary"]][8], used_columns[["Summary"]][11], used_columns[["Summary"]][15], used_columns[["Summary"]][18])
 
     # used columns
-    input <- read.csv(system.file("extdata/param", "used_columns.csv",
+    input <- fread(system.file("extdata/param", "used_columns.csv",  #as.data.frame
         package = "tripr", mustWork = TRUE
     ),
     sep = ";", stringsAsFactors = FALSE, header = FALSE
@@ -249,7 +258,9 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     if (correct == w) {
         correct <- "yes"
         for (i in seq_len(length(name))) {
-            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]] %>% select(all_used_columns)
+            rawDataSet[[name[i]]] <- setDT(rawDataSet[[name[i]]])
+            rawDataSet[[name[i]]] <- rawDataSet[[name[i]]][, all_used_columns,with=FALSE]
+            rawDataSet[[name[i]]] <- setDF(rawDataSet[[name[i]]])
         }
     } else {
         correct <- "no"
@@ -268,321 +279,322 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
     used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
-        a <- paste0(a, ",", filter_id[i])
+      a <- paste0(a, ",", filter_id[i])
     }
     nr <- 0
     for (i in names(rawDataSet)) {
-        nr <- nrow(rawDataSet[[i]]) + nr
+      nr <- nrow(rawDataSet[[i]]) + nr
     }
     # logfile
+    logFile<-e$logFile
     cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
     cat(paste0(a, "\t"), file = logFile, append = TRUE)
     cat(paste0(nr, "\t"), file = logFile, append = TRUE)
     cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    
     cleaning_criteria <- c(
-        "Functional V-Gene",
-        "CDR3 with no Special Characters",
-        "Productive Sequence",
-        "Productive Sequences"
+      "Functional V-Gene",
+      "CDR3 with no Special Characters",
+      "Productive Sequence",
+      "Productive Sequences"
     )
-
+    
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c(
-        used_columns[["Summary"]][3],
-        used_columns[["Summary"]][18],
-        used_columns[["Summary"]][2],
-        used_columns[["Summary"]][18],
-        used_columns[["Summary"]][4],
-        used_columns[["Summary"]][3],
-        used_columns[["Summary"]][8],
-        used_columns[["Summary"]][11],
-        used_columns[["Summary"]][15],
-        used_columns[["Summary"]][18],
-        "Summary.V.REGION.identity....with.ins.del.events."
+      used_columns[["Summary"]][3],
+      used_columns[["Summary"]][18],
+      used_columns[["Summary"]][2],
+      used_columns[["Summary"]][18],
+      used_columns[["Summary"]][4],
+      used_columns[["Summary"]][3],
+      used_columns[["Summary"]][8],
+      used_columns[["Summary"]][11],
+      used_columns[["Summary"]][15],
+      used_columns[["Summary"]][18],
+      "Summary.V.REGION.identity....with.ins.del.events."
     )
-
+    
     filterOut <- list()
     workflow <- matrix(0, length(filter_id), 3)
-
+    
     # Log start time and memory currently used
     start.time <- Sys.time()
-
+    
     # Combine raw name
     for (i in seq_len(length(name))) {
         if (i == 1) {
-            allData <- rawDataSet[[name[i]]]
+          allData <- rawDataSet[[name[i]]]
         } else {
-            allData <- rbind(allData, rawDataSet[[name[i]]])
+          allData <- rbind(allData, rawDataSet[[name[i]]])
         }
     }
-
+    
     test_column <- c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1])
-
+    
     # Drop all the columns that will not be used
-
+    
     # IMPORTANT: Datasets should start with T
     # dataSetIDs <- as.list(levels(unique(allData$dataName)))
-
+    
     allDataInitial <- allData
     workflow_datasets <- list()
-
+    
     a <- matrix(0, length(filter_id), 3)
     for (j in seq_len(length(name))) {
         workflow_datasets[[name[j]]] <- a
     }
-
+    
     # Take only the first gene (V, J D) (Separated with "or")
     a <- which(stringr::str_detect(allData[[filter_column[1]]], " or|,"))
     if (length(a) > 0) {
         a2 <- strsplit(allData[[filter_column[1]]][a], " or|,")
         allData[[filter_column[1]]][a] <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
+          t(data.frame(unlist(s)))
         })[, 1])
     }
-
+    
     a <- which(stringr::str_detect(allData[[filter_column[7]]], " or|,"))
     if (length(a) > 0) {
         a2 <- strsplit(allData[[filter_column[7]]][a], " or|,")
         allData[[filter_column[7]]][a] <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
+          t(data.frame(unlist(s)))
         })[, 1])
     }
-
+    
     if (!all(is.na(allData[[filter_column[8]]]))) {
-        a <- which(stringr::str_detect(allData[[filter_column[8]]], " or|,"))
-        if (length(a) > 0) {
-            a2 <- strsplit(allData[[filter_column[8]]][a], " or|,")
-            allData[[filter_column[8]]][a] <- as.character(plyr::ldply(a2, function(s) {
-                t(data.frame(unlist(s)))
-            })[, 1])
-        }
+      a <- which(stringr::str_detect(allData[[filter_column[8]]], " or|,"))
+      if (length(a) > 0) {
+          a2 <- strsplit(allData[[filter_column[8]]][a], " or|,")
+          allData[[filter_column[8]]][a] <- as.character(plyr::ldply(a2, function(s) {
+            t(data.frame(unlist(s)))
+          })[, 1])
+      }
     }
-
+    
     # Remove (see comment) from AA.JUNCTION
     a <- which(stringr::str_detect(allData[[filter_column[2]]], " [(]see"))
     if (length(a) > 0) {
         a2 <- strsplit(allData[[filter_column[2]]][a], " [(]see")
         allData[[filter_column[2]]][a] <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
+          t(data.frame(unlist(s)))
         })[, 1])
     }
-
+    
     # Apply the requested filters
     if (any(filter_id == 1)) {
         i <- which(filter_id == 1)
         filterOut[[1]] <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[1]]], filter_out_char1))
         if (nrow(filterOut[[1]]) > 0) filterOut[[1]] <- cbind(filterOut[[1]], FilterId = cleaning_criteria[1])
-
+        
         allData <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[1]]], filter_out_char1))
-
+        
         workflow[i, 1] <- filter_id[i]
         workflow[i, 2] <- nrow(filterOut[[1]])
         workflow[i, 3] <- nrow(allData)
-
+        
         for (j in seq_len(length(name))) {
             if (nrow(filterOut[[1]]) > 0) {
-                filterOut_datasets <- filterOut[[1]] %>% dplyr::filter(filterOut[[1]]$dataName == name[j])
+              filterOut_datasets <- filterOut[[1]] %>% dplyr::filter(filterOut[[1]]$dataName == name[j])
             } else {
-                filterOut_datasets <- filterOut[[1]]
+              filterOut_datasets <- filterOut[[1]]
             }
-
+            
             if (i == 1) {
-                prev <- nrow(rawDataSet[[name[j]]])
+              prev <- nrow(rawDataSet[[name[j]]])
             } else {
-                prev <- (workflow_datasets[[name[j]]][i - 1, 3])
+              prev <- (workflow_datasets[[name[j]]][i - 1, 3])
             }
-
+            
             workflow_datasets[[name[j]]][i, 3] <- prev - nrow(filterOut_datasets)
             workflow_datasets[[name[j]]][i, 2] <- nrow(filterOut_datasets)
             workflow_datasets[[name[j]]][i, 1] <- filter_id[i]
         }
     }
-
+    
     if (any(filter_id == 2)) {
         i <- which(filter_id == 2)
         filterOut[[2]] <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[2]]], filter_out_char2))
         if (nrow(filterOut[[2]]) > 0) filterOut[[2]] <- cbind(filterOut[[2]], FilterId = cleaning_criteria[2])
-
+        
         allDataInitial_tmp <- allData
         allData <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[2]]], filter_out_char2))
-
+        
         workflow[i, 1] <- filter_id[i]
         workflow[i, 2] <- nrow(filterOut[[filter_id[i]]])
         workflow[i, 3] <- nrow(allData)
-
+        
         for (j in seq_len(length(name))) {
             if (nrow(filterOut[[2]]) > 0) {
-                filterOut_datasets <- filterOut[[2]] %>% dplyr::filter(filterOut[[2]]$dataName == name[j])
+              filterOut_datasets <- filterOut[[2]] %>% dplyr::filter(filterOut[[2]]$dataName == name[j])
             } else {
-                filterOut_datasets <- filterOut[[2]]
+              filterOut_datasets <- filterOut[[2]]
             }
             if (i == 1) {
-                prev <- nrow(rawDataSet[[name[j]]])
+              prev <- nrow(rawDataSet[[name[j]]])
             } else {
-                prev <- workflow_datasets[[name[j]]][i - 1, 3]
+              prev <- workflow_datasets[[name[j]]][i - 1, 3]
             }
             workflow_datasets[[name[j]]][i, 3] <- prev - nrow(filterOut_datasets)
             workflow_datasets[[name[j]]][i, 2] <- nrow(filterOut_datasets)
             workflow_datasets[[name[j]]][i, 1] <- filter_id[i]
-        }
+        }                           
     }
-
+    
     if (any(filter_id == 3)) {
         i <- which(filter_id == 3)
-
+        
         if (Tcell) {
-            filterOut[[3]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[3]]], "^productive$"))
-            allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[3]]], "^productive$"))
+          filterOut[[3]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[3]]], "^productive$"))
+          allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[3]]], "^productive$"))
         } else {
-            filterOut[[3]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[3]]], "^productive"))
-
-            allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[3]]], "^productive"))
-
-            ins_del <- which(!is.na(allData[[filter_column[11]]]))
-
-            if (length(ins_del) > 0) {
-                # check if V-REGION deletions or V-REGION insertions contain (cause frameshift)
-                delete <- allData[ins_del, ] %>% dplyr::filter(stringr::str_detect(allData[[used_columns[["Summary"]][21]]][ins_del], "[(]cause frameshift[)]"))
-                delete2 <- allData[ins_del, ] %>% dplyr::filter(stringr::str_detect(allData[[used_columns[["Summary"]][22]]][ins_del], "[(]cause frameshift[)]"))
-                delete_all <- unique(rbind(delete, delete2))
-
-                filterOut[[3]] <- unique(rbind(filterOut[[3]], delete_all))
-                allData <- allData %>% dplyr::filter(!(allData[[used_columns[["Summary"]][1]]] %in% filterOut[[3]][[used_columns[["Summary"]][1]]]))
-            }
-        }
-
-        if (nrow(filterOut[[3]]) > 0) filterOut[[3]] <- cbind(filterOut[[3]], FilterId = cleaning_criteria[3])
-
-        workflow[i, 3] <- nrow(allData)
-        workflow[i, 1] <- filter_id[i]
-        workflow[i, 2] <- nrow(filterOut[[3]])
-
-        for (j in seq_len(length(name))) {
-            if (nrow(filterOut[[3]]) > 0) {
-                filterOut_datasets <- filterOut[[3]] %>% dplyr::filter(filterOut[[3]]$dataName == name[j])
-            } else {
-                filterOut_datasets <- filterOut[[3]]
-            }
-            if (i == 1) {
-                prev <- nrow(rawDataSet[[name[j]]])
-            } else {
-                prev <- (workflow_datasets[[name[j]]][i - 1, 3])
-            }
-            workflow_datasets[[name[j]]][i, 3] <- (prev) - nrow(filterOut_datasets)
-            workflow_datasets[[name[j]]][i, 2] <- nrow(filterOut_datasets)
-            workflow_datasets[[name[j]]][i, 1] <- filter_id[i]
+          filterOut[[3]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[3]]], "^productive"))
+          
+          allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[3]]], "^productive"))
+          
+          ins_del <- which(!is.na(allData[[filter_column[11]]]))
+          
+          if (length(ins_del) > 0) {
+            # check if V-REGION deletions or V-REGION insertions contain (cause frameshift)
+            delete <- allData[ins_del, ] %>% dplyr::filter(stringr::str_detect(allData[[used_columns[["Summary"]][21]]][ins_del], "[(]cause frameshift[)]"))
+            delete2 <- allData[ins_del, ] %>% dplyr::filter(stringr::str_detect(allData[[used_columns[["Summary"]][22]]][ins_del], "[(]cause frameshift[)]"))
+            delete_all <- unique(rbind(delete, delete2))
+            
+            filterOut[[3]] <- unique(rbind(filterOut[[3]], delete_all))
+            allData <- allData %>% dplyr::filter(!(allData[[used_columns[["Summary"]][1]]] %in% filterOut[[3]][[used_columns[["Summary"]][1]]]))
+          }
+      }
+      
+      if (nrow(filterOut[[3]]) > 0) filterOut[[3]] <- cbind(filterOut[[3]], FilterId = cleaning_criteria[3])
+      
+      workflow[i, 3] <- nrow(allData)
+      workflow[i, 1] <- filter_id[i]
+      workflow[i, 2] <- nrow(filterOut[[3]])
+      
+      for (j in seq_len(length(name))) {
+          if (nrow(filterOut[[3]]) > 0) {
+            filterOut_datasets <- filterOut[[3]] %>% dplyr::filter(filterOut[[3]]$dataName == name[j])
+          } else {
+            filterOut_datasets <- filterOut[[3]]
+          }
+          if (i == 1) {
+            prev <- nrow(rawDataSet[[name[j]]])
+          } else {
+            prev <- (workflow_datasets[[name[j]]][i - 1, 3])
+          }
+          workflow_datasets[[name[j]]][i, 3] <- (prev) - nrow(filterOut_datasets)
+          workflow_datasets[[name[j]]][i, 2] <- nrow(filterOut_datasets)
+          workflow_datasets[[name[j]]][i, 1] <- filter_id[i]
         }
     }
-
+    
     if (any(filter_id == 4)) {
         i <- which(filter_id == 4)
         if (filterStart == "" && filterEnd == "") {
-            filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
+          filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
         } else if (filterEnd == "") {
-            filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
-            allData <- allData %>% dplyr::filter((stringr::str_detect(allData[[filter_column[4]]], filterStart)))
+          filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
+          allData <- allData %>% dplyr::filter((stringr::str_detect(allData[[filter_column[4]]], filterStart)))
         } else if (filterStart == "") {
-            filterOut[[4]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[4]]], filterEnd))
-            allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[4]]], filterEnd))
+          filterOut[[4]] <- allData %>% dplyr::filter(!stringr::str_detect(allData[[filter_column[4]]], filterEnd))
+          allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[4]]], filterEnd))
         } else {
-            filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
-            filterOut[[4]] <- rbind(filterOut[[4]], (allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterEnd)))))
-            allData <- allData %>% dplyr::filter((stringr::str_detect(allData[[filter_column[4]]], filterStart)))
-            allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[4]]], filterEnd))
+          filterOut[[4]] <- allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterStart)))
+          filterOut[[4]] <- rbind(filterOut[[4]], (allData %>% dplyr::filter(!(stringr::str_detect(allData[[filter_column[4]]], filterEnd)))))
+          allData <- allData %>% dplyr::filter((stringr::str_detect(allData[[filter_column[4]]], filterStart)))
+          allData <- allData %>% dplyr::filter(stringr::str_detect(allData[[filter_column[4]]], filterEnd))
         }
         if (nrow(filterOut[[4]]) > 0) filterOut[[4]] <- cbind(filterOut[[4]], FilterId = cleaning_criteria[4])
-
-
+        
+        
         workflow[i, 1] <- filter_id[i]
         workflow[i, 2] <- nrow(filterOut[[4]])
         workflow[i, 3] <- nrow(allData)
-
+        
         for (j in seq_len(length(name))) {
             if (nrow(filterOut[[4]]) > 0) {
-                filterOut_datasets <- filterOut[[4]] %>% dplyr::filter(filterOut[[4]]$dataName == name[j])
+              filterOut_datasets <- filterOut[[4]] %>% dplyr::filter(filterOut[[4]]$dataName == name[j])
             } else {
-                filterOut_datasets <- filterOut[[4]]
+              filterOut_datasets <- filterOut[[4]]
             }
             if (i == 1) {
-                prev <- nrow(rawDataSet[[name[j]]])
+              prev <- nrow(rawDataSet[[name[j]]])
             } else {
-                prev <- workflow_datasets[[name[j]]][i - 1, 3]
+              prev <- workflow_datasets[[name[j]]][i - 1, 3]
             }
             workflow_datasets[[name[j]]][i, 3] <- nrow(allData %>% dplyr::filter(allData$dataName == name[j]))
             workflow_datasets[[name[j]]][i, 2] <- prev - nrow(allData %>% dplyr::filter(allData$dataName == name[j]))
             workflow_datasets[[name[j]]][i, 1] <- filter_id[i]
         }
     }
-
+    
     filterOutSum <- c()
     if (length(filter_id) > 0) {
-        for (i in seq_len(length(filter_id))) {
-            if (i == 1) {
-                filterOutSum <- filterOut[[filter_id[1]]]
-            } else {
-                filterOutSum <- rbind(filterOutSum, filterOut[[filter_id[i]]])
-            }
+      for (i in seq_len(length(filter_id))) {
+        if (i == 1) {
+          filterOutSum <- filterOut[[filter_id[1]]]
+        } else {
+          filterOutSum <- rbind(filterOutSum, filterOut[[filter_id[i]]])
         }
+      }
     }
-
+    
     a <- name[1]
     if (length(name) > 1) {
-        for (i in 2:length(name)) {
-            a <- paste0(a, ", ", name[i])
-        }
+      for (i in 2:length(name)) {
+        a <- paste0(a, ", ", name[i])
+      }
     }
-
+    
     b <- filter_id[1]
     if (length(filter_id) > 1) {
-        for (i in 2:length(filter_id)) {
-            b <- paste0(b, ", ", filter_id[i])
-        }
+      for (i in 2:length(filter_id)) {
+        b <- paste0(b, ", ", filter_id[i])
+      }
     }
-
+    
     # Separate allData to different tables
     initial_datasets <- list()
     for (i in seq_len(length(name))) {
-        initial_datasets[[name[i]]] <- allDataInitial %>% dplyr::filter(allDataInitial$dataName == name[i])
+      initial_datasets[[name[i]]] <- allDataInitial %>% dplyr::filter(allDataInitial$dataName == name[i])
     }
-
+    
     cleaned_datasets <- list()
     if (length(allData) > 0) {
-        for (i in seq_len(length(name))) {
-            cleaned_datasets[[name[i]]] <- allData %>% dplyr::filter(allData$dataName == name[i])
-        }
+      for (i in seq_len(length(name))) {
+        cleaned_datasets[[name[i]]] <- allData %>% dplyr::filter(allData$dataName == name[i])
+      }
     }
-
+    
     cleaned_out_datasets <- list()
     if (length(filterOutSum) > 0) {
-        for (i in seq_len(length(name))) {
-            cleaned_out_datasets[[name[i]]] <- filterOutSum %>% dplyr::filter(filterOutSum$dataName == name[i])
-        }
+      for (i in seq_len(length(name))) {
+        cleaned_out_datasets[[name[i]]] <- filterOutSum %>% dplyr::filter(filterOutSum$dataName == name[i])
+      }
     }
-
+    
     confirm <- paste0("Datasets cleaned: ", a, ". Cleaning Filters applied: ", b)
-
+    
     # log time end and memory used
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
     cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
-
+    
+    
     result <- list(
-        "message" = "",
-        "dim" = dim(allData),
-        "workflow" = workflow,
-        "workflow_datasets" = workflow_datasets,
-        "allDataInitial" = allDataInitial,
-        "allData" = allData,
-        "filterOutSum" = filterOutSum,
-        "initial_datasets" = initial_datasets,
-        "cleaned_datasets" = cleaned_datasets,
-        "cleaned_out_datasets" = cleaned_out_datasets,
-        "confirm" = confirm
+      "message" = "",
+      "dim" = dim(allData),
+      "workflow" = workflow,
+      "workflow_datasets" = workflow_datasets,
+      "allDataInitial" = allDataInitial,
+      "allData" = allData,
+      "filterOutSum" = filterOutSum,
+      "initial_datasets" = initial_datasets,
+      "cleaned_datasets" = cleaned_datasets,
+      "cleaned_out_datasets" = cleaned_out_datasets,
+      "confirm" = confirm
     )
-
-
+    
+    
     return(result)
 }
 
@@ -590,6 +602,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
 imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
     # logfile
+    logFile<-e$logFile
     used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
@@ -931,6 +944,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
         nr <- nrow(rawDataSet[[i]]) + nr
     }
     # logfile
+    logFile<-e$logFile
     cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
     cat(paste0(a, "\t"), file = logFile, append = TRUE)
     cat(paste0(nr, "\t"), file = logFile, append = TRUE)
@@ -1224,7 +1238,10 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
 
 imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
     used_columns <- e$used_columns
+    
+    
     # logfile
+    logFile<-e$logFile
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
@@ -1526,439 +1543,432 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     # log time end and memory used
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
     cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
+    
     result <- list("message" = "", "dim" = dim(allData), "workflow" = workflow, "workflow_datasets" = workflow_datasets, "allDataInitial" = allDataInitial, "allData" = allData, "filterOutSum" = filterOutSum, "initial_datasets" = initial_datasets, "filtered_datasets" = filtered_datasets, "filtered_out_datasets" = filtered_out_datasets, "confirm" = confirm)
     return(result)
 }
 
 ######################################################################################################################################
 
-
-clonotypes <- function(allData, allele, gene, junction, name, run_diagnosis) { # run_shm
-    used_columns <- e$used_columns
-    # logfile
-
-    message("Clonotype Analysis Step 1")
-
-    if (allele == FALSE) {
-        g <- stringr::str_replace(gene, ".and.allele", "")
+clonotypes <- function(
+  allData, 
+  allele, 
+  gene, 
+  junction, 
+  name, 
+  run_diagnosis
+) {
+  
+  # save(allData, 
+  #      allele, 
+  #      gene, 
+  #      junction, 
+  #      name, 
+  #      run_diagnosis, file = "D:/clonoINPUT.RData")
+  used_columns <- e$used_columns
+  # logfile
+  logFile<-e$logFile
+  message("Clonotype execution started: ")
+  
+  
+  g = ifelse(allele, gene, stringr::str_replace(gene, ".and.allele", ""))
+  
+  cat(paste0("clonotypes", "\t"), file = logFile, append = TRUE)
+  cat(paste0(paste(g, junction, sep = ","), "\t"), file = logFile, append = TRUE)
+  cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
+  cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
+  cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  
+  # clonotypes all Data
+  allData                           <- setDT(allData)
+  
+  if (length(name) > 1) {
+    
+    if (length(gene) > 0) {
+      
+      message("Clonotype Analysis Step 2.a")
+      
+      if (allele == FALSE) {
+        allData$gene <- stringr::str_split(allData[[gene]], "\\*", simplify = TRUE)[, 1]
+      } else {
+        allData$gene <- allData[[gene]]
+      }
+      
+      #allData[, by = c(Genes = allData$gene), N:= .N] ##ASPA28/3  CDR3 = allData[[junction]])
+      
+      allData$clonotype <- paste0(allData$gene, " - ", allData[[junction]])
+      allData[, by = clonotype, N := .N]
+      allData            <- allData[order(-N, clonotype),]
+      allData$Freq       <- 100 * allData$N / nrow(allData)
+      allData$cluster_id <- data.table::rleid(allData$clonotype) # prefix = "cluster "
+      
+      allData[, by = clonotype, 
+              N.uniq.seq := length(unique(.SD[[1]])), 
+              .SDcols = used_columns[["IMGT.gapped.nt.sequences"]][9]]
+      
+      
+      allData$cluster_info <- paste0(
+        "cluster ", allData$cluster_id, " : ", allData$N.uniq.seq
+      )
+      
+      
+      convergent_evolution_list_allData <- allData[, by = c(
+        "cluster_id", used_columns[["IMGT.gapped.nt.sequences"]][9]
+      ),.N]
+      
+      colnames(convergent_evolution_list_allData)[3] <- "convergent_evolution"
+      
+      # hold all info for each clonotype in a list
+      view_specific_clonotype_allData <- split(allData, allData$clonotype)
+      
+      
     } else {
-        g <- gene
+      
+      message("Clonotype Analysis Step 2.b")
+      
+      allData$clonotype <- allData[[junction]]
+      
+      allData[, by = clonotype, N := .N] 
+      
+      allData <- allData[order(-N, clonotype), ]
+      allData$Freq <- 100 *(allData$N / nrow(allData))
+      allData$cluster_id <- data.table::rleid(allData$clonotype) 
+      
+      allData[, by = clonotype, 
+              N.uniq.seq := length(unique(.SD[[1]])), 
+              .SDcols = used_columns[["IMGT.gapped.nt.sequences"]][9]]
+      
+      
+      allData$cluster_info <- paste0(
+        "cluster ", allData$cluster_id, " : ", allData$N.uniq.seq
+      )
+      
+      convergent_evolution_list_allData <- allData[, by = c(
+        "cluster_id", used_columns[["IMGT.gapped.nt.sequences"]][9]
+      ), .N]
+      
+      colnames(convergent_evolution_list_allData)[3] <- "convergent_evolution"
+      
+      # hold all info for each clonotype in a list
+      view_specific_clonotype_allData <- split(allData, allData$clonotype)
+      
     }
-
-    cat(paste0("clonotypes", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste(g, junction, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
-    # clonotypes all Data
-    allData_initial <- allData
-    view_specific_clonotype_allData <- list()
-    convergent_evolution <- c()
-    convergent_evolution_list_allData <- list()
-    cluster_id <- c()
-    freq_cluster_id <- c()
-    v.gene.and.allele <- c()
-    aa.junction <- c()
-
-    if (length(name) > 1) {
-        if (length(gene) > 0) {
-            message("Clonotype Analysis Step 2.a")
-
-            if (allele == FALSE) {
-                allData[[gene]] <- stringr::str_split(allData[[gene]], "\\*", simplify = TRUE)[, 1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
-            }
-
-            distinctVGenes_CDR3 <- allData %>%
-                dplyr::group_by(Genes = allData[[gene]], CDR3 = allData[[junction]]) %>%
-                dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
-
-            distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
-                distinctVGenes_CDR3$CDR3,
-                sep = " - "
-            ) # do.call(paste, c(distinctVGenes_CDR3[c("Genes", "CDR3")], sep = " - "))
-
-            for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
-                # Get specific clonotype data
-                inputVGenes_CDR3 <- which((allData[[gene]] == distinctVGenes_CDR3$Genes[i]) & (allData[[junction]] == distinctVGenes_CDR3$CDR3[i]))
-                view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] <- allData_initial[inputVGenes_CDR3, ]
-
-                # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
-                colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-
-                # Create convergent evolution list
-                convergent_evolution_list_allData[[as.character(i)]] <- ce
-                convergent_evolution <- c(convergent_evolution, paste0("cluster ", i, " : ", nrow(ce)))
-
-                # Calculate clonotype frequency
-                freq_cluster_id[inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(allData_initial)
-                cluster_id[inputVGenes_CDR3] <- i
-            }
-        } else {
-            message("Clonotype Analysis Step 2.b")
-
-            distinctVGenes_CDR3 <- allData %>%
-                dplyr::group_by(clonotype = allData[[junction]]) %>%
-                dplyr::count(sort = TRUE) # dplyr::summarise(n = n())
-
-            for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
-                # Get specific clonotype data
-                inputVGenes_CDR3 <- which(allData[[junction]] == distinctVGenes_CDR3$clonotype[i])
-                view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] <- allData[inputVGenes_CDR3, ]
-
-                # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_allData[[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
-                colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-
-                # Create coergenet evolution list
-                convergent_evolution_list_allData[[as.character(i)]] <- ce
-                convergent_evolution <- c(convergent_evolution, paste0("cluster ", i, " : ", nrow(ce)))
-
-                # Calculate clonotype frequency
-                freq_cluster_id[inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(allData_initial)
-                cluster_id[inputVGenes_CDR3] <- i
-
-                # Get V genes and AA junctions
-                v.gene.and.allele <- c(v.gene.and.allele, unique(allData[inputVGenes_CDR3, ]$Summary.V.GENE.and.allele))
-                aa.junction <- c(aa.junction, unique(allData[inputVGenes_CDR3, ]$Summary.AA.JUNCTION))
-            }
-        }
-
-        clono_allData <- distinctVGenes_CDR3[, c("clonotype", "n")]
-        clono_allData <- cbind(clono_allData, Freq = 100 * clono_allData$n / nrow(allData), convergent_evolution)
-        colnames(clono_allData) <- c("clonotype", "N", "Freq", "Convergent Evolution")
-
-        if (junction == "Summary.Sequence") {
-            clono_allData <- cbind(clono_allData, v.gene.and.allele, aa.junction)
-            colnames(clono_allData) <- c("clonotype", "N", "Freq", "Convergent Evolution", "V Gene and allele", "AA Junction")
-        }
-
-        clono_allData_freq <- cbind(allData_initial, "cluster_id" = cluster_id, "freq_cluster_id" = freq_cluster_id)
-
-        if (save_tables_individually) {
-            if (junction == "Summary.Sequence") {
-                clono_write <- clono_allData
-            } else {
-                ## Changed cbind to merge
-                clono_write <- as.data.frame(cbind(distinctVGenes_CDR3[, c("Genes", "CDR3")], clono_allData[, c("N", "Freq", "Convergent Evolution")]))
-                colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution")
-            }
-
-            write.table(clono_write,
-                paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
-                sep = "\t",
-                row.names = FALSE,
-                col.names = TRUE,
-                quote = FALSE
-            )
-
-            write.table(cbind(allData_initial, "cluster_id" = cluster_id, "freq_cluster_id" = freq_cluster_id),
-                paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
-                sep = "\t",
-                row.names = FALSE,
-                col.names = TRUE,
-                quote = FALSE
-            )
-
-        }
+    
+    clono_allData <- unique(allData[,c("clonotype", "N","Freq","cluster_info")])
+    colnames(clono_allData) <- c("clonotype", "N", "Freq", "Convergent Evolution")
+    
+    if (junction == "Summary.Sequence") {
+      
+      clono_allData <- unique(allData[,c(
+        "clonotype", "N", "Freq", "cluster_info", 
+        "Summary.V.GENE.and.allele", "Summary.AA.JUNCTION"
+      )])
+      colnames(clono_allData)[4:6] <- c( "Convergent Evolution", "V Gene and allele", "AA Junction")
     }
-
-    # clonotypes datasets
-
-    clono_datasets <- list()
-    filterin_clono_datasets <- list()
-    view_specific_clonotype_datasets <- list()
-    convergent_evolution_list_datasets <- list()
-    convergent_evolution_list_datasets_only_num <- list()
-    diagnosis <- list()
-
-    cluster_id <- list()
-    freq_cluster_id <- list()
-    clono_datasets_freq <- list()
-
-    group.freq.seq <- list()
-
-    message("Clonotype Analysis Step 3")
-
-    one_run <- function(j) {
-        message("Clonotype Analysis Step 5")
-
-        data <- allData %>% dplyr::filter(allData$dataName == name[j])
-        data_initial <- allData_initial %>% dplyr::filter(allData$dataName == name[j])
-
-        view_specific_clonotype_datasets[[name[j]]] <- list()
-        convergent_evolution <- c()
-        convergent_evolution_list_datasets[[name[j]]] <- list()
-        convergent_evolution_list_datasets_only_num[[name[j]]] <- c()
-        freq_cluster_id[[name[j]]] <- c()
-        cluster_id[[name[j]]] <- c()
-        v.gene.and.allele <- c()
-        aa.junction <- c()
-
-        group.freq.seq[[name[j]]] <- data
-
-        if (length(gene) > 0) {
-            if (allele == FALSE) {
-                data[[gene]] <- stringr::str_split(data[[gene]], "\\*", simplify = TRUE)[, 1] # as.character(plyr::ldply(a2, function(s){t(data.frame(unlist(s)))})[,1])
-            }
-
-            distinctVGenes_CDR3 <- data %>%
-                dplyr::group_by(
-                    Genes = data[[gene]],
-                    CDR3 = data[[junction]]
-                ) %>%
-                dplyr::count(sort = TRUE) 
-
-            distinctVGenes_CDR3$clonotype <- paste(distinctVGenes_CDR3$Genes,
-                distinctVGenes_CDR3$CDR3,
-                sep = " - "
-            ) 
-
-            group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>%
-                dplyr::group_by(
-                    Genes = group.freq.seq[[name[j]]][[gene]],
-                    CDR3 = group.freq.seq[[name[j]]][[junction]]
-                )
-
-            group.freq.seq[[name[j]]]$clonotype <- paste(group.freq.seq[[name[j]]]$Genes,
-                group.freq.seq[[name[j]]]$CDR3,
-                sep = " - "
-            ) 
-
-            group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
-
-            for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
-                # Get specific clonotype data
-                inputVGenes_CDR3 <- which((data[[gene]] == distinctVGenes_CDR3$Genes[i]) & (data[[junction]] == distinctVGenes_CDR3$CDR3[i]))
-                view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] <- data_initial[inputVGenes_CDR3, ]
-
-                # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
-                colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-
-                # Create convergent evolution
-                convergent_evolution_list_datasets[[name[j]]][[as.character(i)]] <- ce
-                convergent_evolution_list_datasets_only_num[[name[j]]] <- c(convergent_evolution_list_datasets_only_num[[name[j]]], nrow(ce))
-                convergent_evolution <- c(convergent_evolution, paste0("cluster ", i, " : ", nrow(ce)))
-
-                # Calculate clonotype frequency
-                freq_cluster_id[[name[j]]][inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(data_initial)
-                cluster_id[[name[j]]][[name[j]]][inputVGenes_CDR3] <- i
-            }
-        } else {
-            distinctVGenes_CDR3 <- data %>%
-                dplyr::group_by(clonotype = data[[junction]]) %>%
-                dplyr::count(sort = TRUE) 
-
-            group.freq.seq[[name[j]]] <- group.freq.seq[[name[j]]] %>% dplyr::group_by(clonotype = group.freq.seq[[name[j]]][[junction]])
-            group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
-
-            for (i in seq_len(nrow(distinctVGenes_CDR3))) {
-
-                # Get specific clonotype data
-                inputVGenes_CDR3 <- which(data[[junction]] == distinctVGenes_CDR3$clonotype[i])
-                view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] <- data_initial[inputVGenes_CDR3, ]
-
-                # Count unique 'IMGT.gapped.nt.sequences.CDR3.IMGT'
-                ce <- view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]] %>%
-                    dplyr::count(view_specific_clonotype_datasets[[name[j]]][[distinctVGenes_CDR3$clonotype[i]]][[used_columns[["IMGT.gapped.nt.sequences"]][9]]],
-                        sort = TRUE
-                    )
-
-                colnames(ce) <- c(used_columns[["IMGT.gapped.nt.sequences"]][9], "convergent_evolution")
-
-                # Create convergent evolution list
-                convergent_evolution_list_datasets[[name[j]]][[as.character(i)]] <- ce
-                convergent_evolution_list_datasets_only_num[[name[j]]] <- c(convergent_evolution_list_datasets_only_num[[name[j]]], nrow(ce))
-                convergent_evolution <- c(convergent_evolution, paste0("cluster ", i, " : ", nrow(ce)))
-
-                # Get V gene and AA junction
-                v.gene.and.allele <- c(v.gene.and.allele, unique(data_initial[inputVGenes_CDR3, ]$Summary.V.GENE.and.allele))
-                aa.junction <- c(aa.junction, unique(data_initial[inputVGenes_CDR3, ]$Summary.AA.JUNCTION))
-
-                # Calculate clonotype frequency
-                freq_cluster_id[[name[j]]][[name[j]]][[name[j]]][inputVGenes_CDR3] <- 100 * length(inputVGenes_CDR3) / nrow(data_initial)
-                cluster_id[[name[j]]][inputVGenes_CDR3] <- i
-            }
+    
+    if (save_tables_individually) {
+      if (junction == "Summary.Sequence") {
+        colnames(clono_allData) 
+        clono_write <- clono_allData
+      } else {
+        ## Changed cbind to merge
+        if (length(gene) > 0){
+          gene_cdr3 <- unique(allData[,c('gene',"Summary.AA.JUNCTION")])   #gene ##CHANGE
+          clono_write <- cbind(gene_cdr3,clono_allData[, c("N", "Freq", "Convergent Evolution")])
+          colnames(clono_write)[1:2] <- c('Genes',"CDR3")
+        } else{
+          clono_write <- clono_allData
         }
-
-        clono_datasets[[name[j]]] <- distinctVGenes_CDR3[, c("clonotype", "n")]
-        clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], Freq = 100 * clono_datasets[[name[j]]]$n / nrow(data))
-        clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], convergent_evolution)
-        colnames(clono_datasets[[name[j]]]) <- c("clonotype", "N", "Freq", "Convergent Evolution")
-
-        if (junction == "Summary.Sequence") {
-            clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], v.gene.and.allele, aa.junction)
-            colnames(clono_datasets[[name[j]]]) <- c("clonotype", "N", "Freq", "Convergent Evolution", "V Gene and allele", "AA Junction")
-        }
-
-
-        clono_datasets_freq[[name[j]]] <- cbind(data_initial, "cluster_id" = cluster_id[[name[j]]], "freq_cluster_id" = freq_cluster_id[[name[j]]])
-
-        if (run_diagnosis) {
-            group.freq.seq[[name[j]]] <- get_frequent_sequence(group.freq.seq[[name[j]]])
-        }
-
-        if (save_tables_individually) {
-            if (junction == "Summary.Sequence") {
-                clono_write <- clono_datasets[[name[j]]]
-            } else {
-
-                clono_write <- as.data.frame(cbind(
-                    distinctVGenes_CDR3[, c("Genes", "CDR3")],
-                    clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")]
-                ))
-
-                colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution")
-            }
-
-            # Printing clonotypes file
-
-            write.table(clono_write,
-                paste0(e$output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
-                sep = "\t",
-                row.names = FALSE,
-                col.names = TRUE,
-                quote = FALSE
-            )
-
-            # Printing whole integrated clonotypes file
-
-            write.table(clono_datasets_freq[[name[j]]],
-                paste0(e$output_folder, "/", "filterin_clono_", name[j], ".txt"),
-                sep = "\t",
-                row.names = FALSE,
-                col.names = TRUE,
-                quote = FALSE
-            )
-
-            # Printing SHM file
-
-            # Printing diagnosis file
-
-            if (run_diagnosis) {
-                write.table(group.freq.seq[[name[j]]],
-                    paste0(e$output_folder, "/", "diagnosis_", name[j], ".txt"),
-                    sep = "\t",
-                    row.names = FALSE,
-                    col.names = TRUE,
-                    quote = FALSE
-                )
-            }
-        }
-
-        result <- list()
-
-        result[["clono_datasets"]] <- clono_datasets[[name[j]]]
-        result[["filterin_highly_clono"]] <- clono_datasets_freq[[name[j]]]
-        result[["view_specific_clonotype_datasets"]] <- view_specific_clonotype_datasets[[name[j]]]
-        result[["convergent_evolution_list_datasets"]] <- convergent_evolution_list_datasets[[name[j]]]
-        result[["convergent_evolution_list_datasets_only_num"]] <- convergent_evolution_list_datasets_only_num[[name[j]]]
-        result[["Diagnosis"]] <- group.freq.seq[[name[j]]]
-
-        return(result)
+      }
+      
+      
+      fwrite(clono_write,
+             file = paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
+             row.names = FALSE,
+             col.names = TRUE,
+             quote = FALSE,
+             sep = "\t"
+      )
+      
+      fwrite(allData,
+             file = paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
+             sep = "\t",
+             row.names = FALSE,
+             col.names = TRUE,
+             quote = FALSE
+      )
+      
+      
+      
     }
-
-    if (Sys.info()[1] == "Windows") {
-        message("Clonotype Analysis Step 4.a")
-
-        a <- lapply(seq_len(length(name)), one_run)
-
-        for (i in seq_len(length(name))) {
-            view_specific_clonotype_datasets[[name[i]]] <- a[[i]]$view_specific_clonotype_datasets
-            clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
-            convergent_evolution_list_datasets[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets
-            convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
-            diagnosis[[name[i]]] <- a[[i]]$Diagnosis
-        }
+  }
+  
+  # clonotypes datasets
+  
+  clono_datasets                              <- list()
+  filterin_clono_datasets                     <- list()
+  view_specific_clonotype_datasets            <- list()
+  convergent_evolution_list_datasets          <- list()
+  convergent_evolution_list_datasets_only_num <- list()
+  diagnosis                                   <- list()
+  group.freq.seq      <- list()
+  
+  message("Clonotype Analysis Step 3")
+  
+  one_run <- function(j) {
+    message("Clonotype Analysis Step 5")
+    
+    
+    data <- allData[allData$dataName == name[j]]
+    
+    view_specific_clonotype_datasets[[name[j]]] <- list()
+    convergent_evolution_list_datasets[[name[j]]] <- list()
+    convergent_evolution_list_datasets_only_num[[name[j]]] <- c()
+    group.freq.seq[[name[j]]] <- data
+    
+    if (length(gene) > 0) {
+      
+      if (allele == FALSE) {
+        data$gene <- stringr::str_split(data[[gene]], "\\*", simplify = TRUE)[, 1]
+      } else {
+        data$gene <- data[[gene]]
+      }
+      
+      group.freq.seq[[name[j]]]$clonotype <- paste(group.freq.seq[[name[j]]][[gene]],
+                                                   group.freq.seq[[name[j]]][[junction]],
+                                                   sep = " - "
+      )
+      
+      group.freq.seq[[name[j]]] <- data.table::as.data.table(group.freq.seq[[name[j]]])
+      
+      data$clonotype <- paste0(data$gene," - ",data[[junction]])
+      data[, by = clonotype, N:=.N]
+      data <- data[order(-N, clonotype),]
+      data$Freq       <- 100 * data$N / nrow(data)
+      data$cluster_id <- data.table::rleid(data$clonotype) 
+      
+      data[, by = clonotype, 
+           N.uniq.seq := length(unique(.SD[[1]])), 
+           .SDcols = used_columns[["IMGT.gapped.nt.sequences"]][9]]
+      
+      
+      data$cluster_info <- paste0(
+        "cluster ", data$cluster_id, " : ", data$N.uniq.seq
+      )
+      
+      convergent_evolution_list_datasets[[name[j]]] <- data[, by = c(
+        "cluster_id", used_columns[["IMGT.gapped.nt.sequences"]][9]
+      ), .N]
+      
+      colnames(convergent_evolution_list_datasets[[name[j]]]) = c(
+        "cluster_id", 
+        used_columns[["IMGT.gapped.nt.sequences"]][9], 
+        "convergent_evolution"
+      )
+      convergent_evolution_list_datasets_only_num[[name[j]]] <- 
+        c(convergent_evolution_list_datasets_only_num[[name[j]]], 
+          convergent_evolution_list_datasets[[name[j]]]$convergent_evolution)
+      
+      view_specific_clonotype_datasets[[name[j]]] <- split(data, data$clonotype)
+      
     } else {
-        message("Clonotype Analysis Step 4.b")
-
-        a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
-        ## for debugging use lapply
-
-        for (i in seq_len(length(name))) {
-            view_specific_clonotype_datasets[[name[i]]] <- a[[i]]$view_specific_clonotype_datasets
-            clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
-            convergent_evolution_list_datasets[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets
-            convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
-            diagnosis[[name[i]]] <- a[[i]]$Diagnosis
-        }
+      
+      data$clonotype <- data[[junction]]
+      data[, by = clonotype, N := .N] 
+      data <- data[order(-N, clonotype), ]
+      data$Freq = 100 *(data$N / nrow(data))
+      data$cluster_id = data.table::rleid(data$clonotype) 
+      
+      data[, by = clonotype, 
+           N.uniq.seq := length(unique(.SD[[1]])), 
+           .SDcols = used_columns[["IMGT.gapped.nt.sequences"]][9]]
+      
+      
+      data$cluster_info = paste0(
+        "cluster ", data$cluster_id, " : ", data$N.uniq.seq
+      )
+      
+      convergent_evolution_list_datasets[[name[j]]] <- data[, by = c(
+        "cluster_id", used_columns[["IMGT.gapped.nt.sequences"]][9]
+      ), .N]
+      
+      colnames(convergent_evolution_list_datasets[[name[j]]]) = c(
+        "cluster_id", 
+        used_columns[["IMGT.gapped.nt.sequences"]][9], 
+        "convergent_evolution"
+      )
+      convergent_evolution_list_datasets_only_num[[name[j]]] <- 
+        c(convergent_evolution_list_datasets_only_num[[name[j]]], 
+          convergent_evolution_list_datasets[[name[j]]]$convergent_evolution)
+      
+      # hold all info for each clonotype in a list
+      view_specific_clonotype_allData = split(data, data$clonotype)
     }
-
-    if (length(name) == 1) {
-        clono_allData <- clono_datasets[[name[1]]]
-        convergent_evolution_list_allData <- convergent_evolution_list_datasets
-        view_specific_clonotype_allData <- view_specific_clonotype_datasets[[name[1]]]
-        clono_allData_freq <- a[[1]]$filterin_highly_clono
-
-        if (save_tables_individually) {
-            if (junction == "Summary.Sequence") {
-                clono_write <- clono_allData
-            } else {
-                clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
-                clono_write <- data.table::as.data.table(clono_write)
-                clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution")])
-                colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution")
-            }
-
-            write.table(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
-                sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
-            )
-
-            write.table(clono_allData_freq, paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
-                sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
-            )
-        }
+    
+    clono_datasets[[name[j]]] <- unique(data[, c("clonotype", "N", "Freq", "cluster_info")])
+    colnames(clono_datasets[[name[j]]])[4] <- "Convergent Evolution"
+    
+    if (junction == "Summary.Sequence") {
+      clono_datasets[[name[j]]] <- unique(data[,
+                                               c("clonotype", "N", "Freq", 
+                                                 "cluster_info", 
+                                                 "Summary.V.GENE.and.allele", 
+                                                 "Summary.AA.JUNCTION")])
+      
+      colnames(clono_datasets[[name[j]]])[4:6] <- c("Convergent Evolution", "V Gene and allele", "AA Junction")
     }
-
-    confirm <- paste0("Clonotypes run!")
-
-    result <- list(
-        "clono_allData" = clono_allData,
-        "clono_datasets" = clono_datasets,
-        "filterin_highly_clono" = clono_allData_freq,
-        "view_specific_clonotype_allData" = view_specific_clonotype_allData,
-        "convergent_evolution_list_allData" = convergent_evolution_list_allData,
-        "view_specific_clonotype_datasets" = view_specific_clonotype_datasets,
-        "convergent_evolution_list_datasets" = convergent_evolution_list_datasets,
-        "convergent_evolution_list_datasets_only_num" = convergent_evolution_list_datasets_only_num,
-        "diagnosis" = diagnosis,
-        "confirm" = confirm
-    )
-
-    # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
+    
+    if (run_diagnosis) {
+      group.freq.seq[[name[j]]] <- get_frequent_sequence(group.freq.seq[[name[j]]])
+    }
+    
+    if (save_tables_individually) {
+      if (junction == "Summary.Sequence") {
+        clono_write <- clono_datasets[[name[j]]]
+      } else {
+        if (length(gene) > 0){
+          gene_cdr3 <- unique(data[,c('gene',"Summary.AA.JUNCTION")]) #gene
+          clono_write <- cbind(gene_cdr3,clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")])
+          colnames(clono_write)[1:2] <- c("Genes","CDR3")
+        } else{
+          clono_write <- clono_datasets[[name[j]]]
+        }
+      }
+      
+      # Printing clonotypes file
+      
+      fwrite(clono_write,
+             paste0(e$output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
+             sep = "\t",
+             row.names = FALSE,
+             col.names = TRUE,
+             quote = FALSE)
+      
+      # Printing whole integrated clonotypes file
+      
+      fwrite(data,
+             paste0(e$output_folder, "/", "filterin_clono_", name[j], ".txt"),
+             sep = "\t",
+             row.names = FALSE,
+             col.names = TRUE,
+             quote = FALSE
+      )
+      
+      
+      # Printing SHM file
+      
+      # Printing diagnosis file
+      
+      if (run_diagnosis) {
+        
+        fwrite(group.freq.seq[[name[j]]],
+               paste0(e$output_folder, "/", "diagnosis_", name[j], ".txt"),
+               sep = "\t",
+               row.names = FALSE,
+               col.names = TRUE,
+               quote = FALSE
+        )
+      }
+    }
+    
+    result <- list()
+    
+    result[["clono_datasets"]] <- clono_datasets[[name[j]]]
+    result[["filterin_highly_clono"]] <- data
+    result[["view_specific_clonotype_datasets"]] <- view_specific_clonotype_datasets[[name[j]]]
+    result[["convergent_evolution_list_datasets"]] <- convergent_evolution_list_datasets[[name[j]]]
+    result[["convergent_evolution_list_datasets_only_num"]] <- convergent_evolution_list_datasets_only_num[[name[j]]]
+    result[["Diagnosis"]] <- group.freq.seq[[name[j]]]
+    
     return(result)
+  }
+  
+  if (Sys.info()[1] == "Windows") {
+    message("Clonotype Analysis Step 4.a")
+    
+    a <- lapply(seq_len(length(name)), one_run)
+    
+    for (i in seq_len(length(name))) {
+      view_specific_clonotype_datasets[[name[i]]]            <- a[[i]]$view_specific_clonotype_datasets
+      clono_datasets[[name[i]]]                              <- a[[i]]$clono_datasets
+      convergent_evolution_list_datasets[[name[i]]]          <- a[[i]]$convergent_evolution_list_datasets
+      convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
+      diagnosis[[name[i]]]                                   <- a[[i]]$Diagnosis
+    }
+  } else {
+    message("Clonotype Analysis Step 4.b")
+    
+    a <- lapply(seq_len(length(name)), one_run)
+    ## for debugging use lapply
+    
+    for (i in seq_len(length(name))) {
+      view_specific_clonotype_datasets[[name[i]]]            <- a[[i]]$view_specific_clonotype_datasets
+      clono_datasets[[name[i]]]                              <- a[[i]]$clono_datasets
+      convergent_evolution_list_datasets[[name[i]]]          <- a[[i]]$convergent_evolution_list_datasets
+      convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
+      diagnosis[[name[i]]]                                   <- a[[i]]$Diagnosis
+    }
+    
+  }
+  
+  if (length(name) == 1) {
+    clono_allData <- a[[1]]$clono_datasets
+    convergent_evolution_list_allData <- convergent_evolution_list_datasets
+    view_specific_clonotype_allData <- a[[1]]$view_specific_clonotype_datasets
+    clono_allData_freq <- a[[1]]$filterin_highly_clono
+    
+    if (save_tables_individually) {
+      if (junction == "Summary.Sequence") {
+        clono_write <- clono_allData
+      } else {
+        clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
+        clono_write <- data.table::as.data.table(clono_write)
+        clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution")])
+        colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution") #Genes
+      }
+      
+      fwrite(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
+             sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
+      )
+      
+      fwrite(clono_allData_freq, paste0(e$output_folder, "/", "filterin_clono_All_Data", ".txt"),
+             sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
+      )
+    }
+  }
+  
+  confirm <- paste0("Clonotypes run!")
+  
+  result <- list(
+    "clono_allData" = clono_allData,
+    "clono_datasets" = clono_datasets,
+    "filterin_highly_clono" = allData,
+    "view_specific_clonotype_allData" = view_specific_clonotype_allData,
+    "convergent_evolution_list_allData" = convergent_evolution_list_allData,
+    "view_specific_clonotype_datasets" = view_specific_clonotype_datasets,
+    "convergent_evolution_list_datasets" = convergent_evolution_list_datasets,
+    "convergent_evolution_list_datasets_only_num" = convergent_evolution_list_datasets_only_num,
+    "diagnosis" = diagnosis,
+    "confirm" = confirm
+  )
+  
+  # log time end and memory used
+  cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+  
+  return(result)
 }
+
 
 ######################################################################################################################################
 
 get_frequent_sequence <- function(data) {
-
+    
     clonos <- as.list(unique(data$clonotype))
 
     one.run <- function(index, temp) {
         clono_in <- temp[which(temp$clonotype == index), ]
+        
         freq <- 100 * nrow(clono_in) / nrow(temp)
 
         x1 <- table(clono_in$Summary.Sequence)
@@ -1990,6 +2000,8 @@ get_frequent_sequence <- function(data) {
 
 highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mismatches, take_gene, cdr3_lengths, gene_clonotypes, clonotype_freq_thr_for_highly_sim, name) {
     # logfile
+    clono_allData <- as.data.frame(clono_allData)
+    logFile<-e$logFile
     cat(paste0("highly_similar_clonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("take_gene ", take_gene, "threshold", clonotype_freq_thr_for_highly_sim, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2285,7 +2297,8 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
             highly_sim_view_specific_clonotypes_datasets[[name[i]]] <- a[[i]]$highly_sim_view_specific_clonotypes_datasets
         }
     } else {
-        a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        a <- lapply(seq_len(length(name)), one_run)
+        #a <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         for (i in seq_len(length(name))) {
             highly_sim_clonotypes_allGroups_datasets[[name[i]]] <- a[[i]]$highly_sim_clonotypes_allGroups_datasets
             clono_datasets[[name[i]]] <- a[[i]]$clono_datasets
@@ -2317,6 +2330,8 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
 
 public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_reads, public_clonotype_thr, name, highly) {
     # logfile
+    clono_allData <- as.data.frame(clono_allData)
+    logFile<-e$logFile
     cat(paste0("public_clonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("take_gene ", take_gene, "threshold", public_clonotype_thr, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2344,7 +2359,7 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
     }
 
     public_clono <- data.frame(clonotype = unique(clono_allData$clonotype), stringsAsFactors = FALSE)
-
+    
     # for each dataset
     for (n in name) {
         if (stringr::str_detect(clono_datasets[[n]]$clonotype[1], " - ") && take_gene == "No") {
@@ -2410,6 +2425,7 @@ createLink <- function(val, on_click_js) {
 
 viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("viewClonotypes", "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
     cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
@@ -2442,7 +2458,8 @@ viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
 
 ######################################################################################################################################
 
-repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, highly_sim) {
+repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets ) {
+    
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
     } else {
@@ -2450,6 +2467,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     }
 
     # logfile
+    logFile<-e$logFile
     cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
     cat(paste0(g, "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2468,26 +2486,28 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
 
     if (gene == gene_clonotypes && allele == allele_clonotypes && !(is.null(gene_clonotypes))) {
         ####################################### All Data
-        Repertoires_allData <- clono_allData %>%
-            dplyr::group_by(clono_allData[["clonotype"]]) %>%
-            dplyr::summarise(n = n())
-        Repertoires_allData <- Repertoires_allData[order(-Repertoires_allData$n), ]
-        Repertoires_allData <- cbind(Repertoires_allData, Freq = 100 * Repertoires_allData$n / nrow(clono_allData))
+        Repertoires_allData <- clono_allData[ , by = clonotype , .N ]
+        # Repertoires_allData <- clono_allData %>%
+        #     dplyr::group_by(clono_allData[["clonotype"]]) %>%
+        #     dplyr::summarise(n = n())
+        Repertoires_allData <- Repertoires_allData[order(-Repertoires_allData$N), ]
+        Repertoires_allData <- cbind(Repertoires_allData, Freq = 100 * Repertoires_allData$N / nrow(clono_allData))
 
         ####################################### Separate Datasets
         Repertoires_datasets <- list()
 
         one_run <- function(j) {
-            Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>%
-                dplyr::group_by(clono_datasets[[name[j]]][["clonotype"]]) %>%
-                dplyr::summarise(n = n())
-            Repertoires_datasets[[name[j]]] <- Repertoires_datasets[[name[j]]][order(-Repertoires_datasets[[name[j]]]$n), ]
-            Repertoires_datasets[[name[j]]] <- cbind(Repertoires_datasets[[name[j]]], Freq = 100 * Repertoires_datasets[[name[j]]]$n / nrow(clono_datasets[[name[j]]]))
+            Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]][ , by = clonotype, .N]
+            # Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>%
+            #     dplyr::group_by(clono_datasets[[name[j]]][["clonotype"]]) %>%
+            #     dplyr::summarise(n = n())
+            Repertoires_datasets[[name[j]]] <- Repertoires_datasets[[name[j]]][order(-Repertoires_datasets[[name[j]]]$N), ]
+            Repertoires_datasets[[name[j]]] <- cbind(Repertoires_datasets[[name[j]]], Freq = 100 * Repertoires_datasets[[name[j]]]$N / nrow(clono_datasets[[name[j]]]))
             colnames(Repertoires_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
                 filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
-                write.table(Repertoires_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(Repertoires_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(Repertoires_datasets[[name[j]]])
         }
@@ -2495,7 +2515,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         if (Sys.info()[1] == "Windows") {
             Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
+            #Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(Repertoires_datasets) <- name
@@ -2514,19 +2535,25 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                     })[, 1])
                 }
             }
-            freq_gene <- a %>%
-                dplyr::group_by(a[[gene]]) %>%
-                dplyr::summarise(n = n())
-            freq_gene <- freq_gene[order(-freq_gene$n), ]
+            freq_gene <- a[, by = gene, .N]
+            
+            # freq_gene <- a %>%
+            #     dplyr::group_by(a[[gene]]) %>%
+            #     dplyr::summarise(n = n())
+            # freq_gene <- freq_gene[order(-freq_gene$n), ]
+            freq_gene <- freq_gene[order(-freq_gene$N), ]
             freq_gene_name[i, 1] <- freq_gene[1, 1]
         }
 
         colnames(freq_gene_name) <- c("Gene")
-        freq_gene_name <- freq_gene_name %>%
-            dplyr::group_by(freq_gene_name[["Gene"]]) %>%
-            dplyr::summarise(n = n())
-        freq_gene_name <- freq_gene_name[order(-freq_gene_name$n), ]
-        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$n / nrow(clono_allData))
+        freq_gene_name <- setDT(freq_gene_name)
+        freq_gene_name <- freq_gene_name[, .N, by = Gene]
+        
+        # freq_gene_name <- freq_gene_name %>%
+        #     dplyr::group_by(freq_gene_name[["Gene"]]) %>%
+        #     dplyr::summarise(n = n())
+        freq_gene_name <- freq_gene_name[order(-freq_gene_name$N), ]
+        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / nrow(clono_allData))
         colnames(freq_gene_name) <- c("Gene", "N", "Freq")
 
 
@@ -2545,25 +2572,27 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                         })[, 1])
                     }
                 }
-                freq_gene <- a %>%
-                    dplyr::group_by(a[[gene]]) %>%
-                    dplyr::summarise(n = n())
-                freq_gene <- freq_gene[order(-freq_gene$n), ]
+                freq_gene <- a[, by = gene, .N]
+                # freq_gene <- a %>%
+                #     dplyr::group_by(a[[gene]]) %>%
+                #     dplyr::summarise(n = n())
+                freq_gene <- freq_gene[order(-freq_gene$N), ]
                 freq_gene_name_datasets[[name[[j]]]][i, 1] <- freq_gene[1, 1]
             }
             colnames(freq_gene_name_datasets[[name[[j]]]]) <- c("Gene")
-
-            freq_gene_name_datasets[[name[[j]]]] <- freq_gene_name_datasets[[name[[j]]]] %>%
-                dplyr::group_by(freq_gene_name_datasets[[name[[j]]]][["Gene"]]) %>%
-                dplyr::summarise(n = n())
-            freq_gene_name_datasets[[name[j]]] <- freq_gene_name_datasets[[name[j]]][order(-freq_gene_name_datasets[[name[j]]]$n), ]
-            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$n / nrow(clono_datasets[[name[j]]]))
+            setDT(freq_gene_name_datasets[[name[[j]]]])
+            freq_gene_name_datasets[[name[[j]]]] <- freq_gene_name_datasets[[name[[j]]]][, by = Gene, .N]
+            # freq_gene_name_datasets[[name[[j]]]] <- freq_gene_name_datasets[[name[[j]]]] %>%
+            #     dplyr::group_by(freq_gene_name_datasets[[name[[j]]]][["Gene"]]) %>%
+            #     dplyr::summarise(n = n())
+            freq_gene_name_datasets[[name[j]]] <- freq_gene_name_datasets[[name[j]]][order(-freq_gene_name_datasets[[name[j]]]$N), ]
+            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$N / nrow(clono_datasets[[name[j]]]))
 
             colnames(freq_gene_name_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
             if (save_tables_individually) {
                 filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", name[j], ".txt")
-                write.table(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                fwrite(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
             }
             return(freq_gene_name_datasets[[name[j]]])
         }
@@ -2571,7 +2600,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         if (Sys.info()[1] == "Windows") {
             freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
+            #freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(freq_gene_name_datasets) <- name
@@ -2584,7 +2614,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
 
     if (save_tables_individually) {
         filename <- paste0(e$output_folder, "/", "Repertoires_", g, "_", "All_Data", ".txt")
-        write.table(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        fwrite(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
     confirm <- paste0("Repertoires run!")
@@ -2609,6 +2639,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
     }
 
     # logfile
+    logFile<-e$logFile
     cat(paste0("repertoires_highly_similar", "\t"), file = logFile, append = TRUE)
     cat(paste0(g, "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2663,7 +2694,8 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
         if (Sys.info()[1] == "Windows") {
             Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            Repertoires_datasets <- lapply(seq_len(length(name)), one_run)
+            #Repertoires_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(Repertoires_datasets) <- name
@@ -2685,10 +2717,13 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
                             })[, 1])
                         }
                     }
-                    freq_gene <- a %>%
-                        dplyr::group_by(a[[gene]]) %>%
-                        dplyr::summarise(n = n())
-                    freq_gene <- freq_gene[order(-freq_gene$n), ]
+                    ##change
+                    freq_gene <- a[,by =a[[gene]], n =.N]
+                    
+                    # freq_gene <- a %>%
+                    #     dplyr::group_by(a[[gene]]) %>%
+                    #     dplyr::summarise(n = n())
+                    freq_gene <- freq_gene[order(-freq_gene$N), ]
                     freq_gene_name[i, 1] <- freq_gene[1, 1]
                 }
             }
@@ -2718,10 +2753,12 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
                                 })[, 1])
                             }
                         }
-                        freq_gene <- a %>%
-                            dplyr::group_by(a[[gene]]) %>%
-                            dplyr::summarise(n = n())
-                        freq_gene <- freq_gene[order(-freq_gene$n), ]
+                        
+                        freq_gene <- a[,by =a[[gene]], n =.N]
+                        # freq_gene <- a %>%
+                        #     dplyr::group_by(a[[gene]]) %>%
+                        #     dplyr::summarise(n = n())
+                        freq_gene <- freq_gene[order(-freq_gene$N), ]
                         freq_gene_name_datasets[[name[[j]]]][i, 1] <- freq_gene[1, 1]
                     }
                 }
@@ -2736,7 +2773,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
 
                 if (save_tables_individually) {
                     filename <- paste0(e$output_folder, "/", "Repertoires_HiglySim_", g, "_", name[j], ".txt")
-                    write.table(freq_gene_name_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+                    fwrite(freq_gene_name_datasets[[name[j]]], file = filename, sep = "\t", row.names = FALSE, col.names = TRUE)
                 }
             }
 
@@ -2746,7 +2783,8 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
         if (Sys.info()[1] == "Windows") {
             freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
         } else {
-            freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+            freq_gene_name_datasets <- lapply(seq_len(length(name)), one_run)
+            #freq_gene_name_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
         }
 
         names(freq_gene_name_datasets) <- name
@@ -2759,7 +2797,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
 
     if (save_tables_individually) {
         filename <- paste0(e$output_folder, "/", "Repertoires_HighlySim_", g, "_", "All_Data", ".txt")
-        write.table(Repertoires_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        fwrite(Repertoires_allData, file = filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
 
@@ -2782,6 +2820,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
 
 repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, name, highly_sim, id) { # set name equal to the selected dataset
     # logfile
+    logFile<-e$logFile
     if (!highly_sim) {
         n <- "repertoires_comparison"
     } else {
@@ -2837,6 +2876,7 @@ repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, na
 
 Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("Multiple_value_comparison", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -2914,7 +2954,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -2932,10 +2973,11 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                             })[, 1])
                         }
                     }
-                    freq_gene <- a %>%
-                        dplyr::group_by(a[[gene]]) %>%
-                        dplyr::summarise(n = n())
-                    freq_gene <- freq_gene[order(-freq_gene$n), ]
+                    freq_gene <- a[, by = gene , .N]
+                    # freq_gene <- a %>%
+                    #     dplyr::group_by(a[[gene]]) %>%
+                    #     dplyr::summarise(n = n())
+                    freq_gene <- freq_gene[order(-freq_gene$N), ]
                     freq_gene_name[i, 1] <- freq_gene[1, 1]
                 }
 
@@ -2943,7 +2985,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
 
                 multi_allData <- cbind(multi_allData, freq_gene_name[[gene]])
                 colnames(multi_allData)[ncol(multi_allData)] <- gene
-
+                
                 ####################################### Seperate Datasets
                 one_run <- function(j) {
                     freq_gene_name <- data.frame()
@@ -2957,9 +2999,10 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                                 })[, 1])
                             }
                         }
-                        freq_gene <- a %>%
-                            dplyr::group_by(a[[gene]]) %>%
-                            dplyr::summarise(n = n())
+                        freq_gene <- a[, by = gene,.N]
+                        # freq_gene <- a %>%
+                        #     dplyr::group_by(a[[gene]]) %>%
+                        #     dplyr::summarise(n = n())
                         freq_gene <- freq_gene[order(-freq_gene$n), ]
                         freq_gene_name[i, 1] <- freq_gene[1, 1]
                     }
@@ -2975,7 +3018,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -3030,37 +3074,41 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
             if (Sys.info()[1] == "Windows") {
                 multi_datasets <- lapply(seq_len(length(name)), one_run)
             } else {
-                multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                multi_datasets <- lapply(seq_len(length(name)), one_run)
+                #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
             }
 
             names(multi_datasets) <- name
         }
     }
-    multi_allData <- data.frame(multi_allData, stringsAsFactors = FALSE)
-
-    Multiple_value_comparison_allData <- multi_allData %>%
-        dplyr::group_by(multi_allData[[val1]], multi_allData[[val2]]) %>%
-        dplyr::summarise(n = n())
-    Multiple_value_comparison_allData <- Multiple_value_comparison_allData[order(-Multiple_value_comparison_allData$n), ]
-    Multiple_value_comparison_allData <- cbind(Multiple_value_comparison_allData, Freq = 100 * Multiple_value_comparison_allData$n / nrow(multi_allData))
+    #multi_allData <- data.frame(multi_allData, stringsAsFactors = FALSE)
+    multi_allData <- data.table(multi_allData)
+    Multiple_value_comparison_allData <- multi_allData[, by = .(multi_allData[[val1]], multi_allData[[val2]]),  .N]
+      
+    # Multiple_value_comparison_allData <- multi_allData %>%
+    #     dplyr::group_by(multi_allData[[val1]], multi_allData[[val2]]) %>%
+    #     dplyr::summarise(n = n())
+    Multiple_value_comparison_allData <- Multiple_value_comparison_allData[order(-Multiple_value_comparison_allData$N), ]
+    Multiple_value_comparison_allData <- cbind(Multiple_value_comparison_allData, Freq = 100 * Multiple_value_comparison_allData$N / nrow(multi_allData))
     colnames(Multiple_value_comparison_allData) <- c(val1_initial, val2_initial, "N", "Freq")
 
     ####################################### Seperate Datasets
     one_run <- function(j) {
-        multi_datasets[[name[j]]] <- data.frame(multi_datasets[[name[j]]], stringsAsFactors = FALSE)
+        multi_datasets[[name[j]]] <- data.table(multi_datasets[[name[j]]], stringsAsFactors = FALSE)
 
-        Multiple_value_comparison_datasets[[name[j]]] <- multi_datasets[[name[j]]] %>%
-            dplyr::group_by(multi_datasets[[name[j]]][[val1]], multi_datasets[[name[j]]][[val2]]) %>%
-            dplyr::summarise(n = n())
-        Multiple_value_comparison_datasets[[name[j]]] <- Multiple_value_comparison_datasets[[name[j]]][order(-Multiple_value_comparison_datasets[[name[j]]]$n), ]
-        Multiple_value_comparison_datasets[[name[j]]] <- cbind(Multiple_value_comparison_datasets[[name[j]]], Freq = 100 * Multiple_value_comparison_datasets[[name[j]]]$n / nrow(multi_datasets[[name[j]]]))
+        Multiple_value_comparison_datasets[[name[j]]] <- multi_datasets[[name[j]]][, by = .(multi_datasets[[name[j]]][[val1]], multi_datasets[[name[j]]][[val2]]), .N]
+        # Multiple_value_comparison_datasets[[name[j]]] <- multi_datasets[[name[j]]] %>%
+        #     dplyr::group_by(multi_datasets[[name[j]]][[val1]], multi_datasets[[name[j]]][[val2]]) %>%
+        #     dplyr::summarise(n = n())
+        Multiple_value_comparison_datasets[[name[j]]] <- Multiple_value_comparison_datasets[[name[j]]][order(-Multiple_value_comparison_datasets[[name[j]]]$N), ]
+        Multiple_value_comparison_datasets[[name[j]]] <- cbind(Multiple_value_comparison_datasets[[name[j]]], Freq = 100 * Multiple_value_comparison_datasets[[name[j]]]$N / nrow(multi_datasets[[name[j]]]))
         colnames(Multiple_value_comparison_datasets[[name[j]]]) <- c(val1_initial, val2_initial, "N", "Freq")
 
-        Multiple_value_comparison_datasets[[name[j]]] <- data.frame(Multiple_value_comparison_datasets[[name[j]]], stringsAsFactors = FALSE)
+        #Multiple_value_comparison_datasets[[name[j]]] <- data.frame(Multiple_value_comparison_datasets[[name[j]]], stringsAsFactors = FALSE)
 
         if (save_tables_individually) {
             filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", name[j], ".txt")
-            write.table(Multiple_value_comparison_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+            fwrite(Multiple_value_comparison_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
 
         return(Multiple_value_comparison_datasets[[name[j]]])
@@ -3069,14 +3117,15 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     if (Sys.info()[1] == "Windows") {
         Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
+        #Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(Multiple_value_comparison_datasets) <- name
 
     if (save_tables_individually) {
         filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", "All_Data", ".txt")
-        write.table(Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        fwrite(Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
     confirm <- paste0("Multiple_value_comparison ", val1_initial, " - ", val2_initial, " run!")
@@ -3094,6 +3143,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
 
 Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
     # logfile
+  
+    logFile<-e$logFile
     cat(paste0("Multiple_value_comparison_highly_similar", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
@@ -3159,7 +3210,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 ####################################### All Data
                 multi_allData <- cbind(multi_allData, clono_allData[["clonotype"]])
                 colnames(multi_allData)[ncol(multi_allData)] <- gene
-
+                multi_allData <- data.frame(multi_allData)
                 ####################################### Seperate Datasets
                 one_run <- function(j) {
                     multi_datasets[[name[j]]] <- cbind(multi_datasets[[name[j]]], clono_datasets[[name[j]]][["clonotype"]])
@@ -3171,7 +3222,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -3196,10 +3248,11 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                             })[, 1])
                         }
                     }
-                    freq_gene <- a %>%
-                        dplyr::group_by(a[[gene]]) %>%
-                        dplyr::summarise(n = n())
-                    freq_gene <- freq_gene[order(-freq_gene$n), ]
+                    freq_gene <- a[ ,by = gene, .N]
+                    # freq_gene <- a %>%
+                    #     dplyr::group_by(a[[gene]]) %>%
+                    #     dplyr::summarise(n = n())
+                    freq_gene <- freq_gene[order(-freq_gene$N), ]
                     freq_gene_name[i, 1] <- freq_gene[1, 1]
                 }
                 colnames(freq_gene_name) <- gene
@@ -3227,10 +3280,12 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                                 })[, 1])
                             }
                         }
-                        freq_gene <- a %>%
-                            dplyr::group_by(a[[gene]]) %>%
-                            dplyr::summarise(n = n())
-                        freq_gene <- freq_gene[order(-freq_gene$n), ]
+                        
+                        freq_gene <- a[ ,by = gene ,.N]
+                        # freq_gene <- a %>%
+                        #     dplyr::group_by(a[[gene]]) %>%
+                        #     dplyr::summarise(n = n())
+                        freq_gene <- freq_gene[order(-freq_gene$N), ]
                         freq_gene_name[i, 1] <- freq_gene[1, 1]
                     }
                     colnames(freq_gene_name) <- gene
@@ -3244,7 +3299,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
                 if (Sys.info()[1] == "Windows") {
                     multi_datasets <- lapply(seq_len(length(name)), one_run)
                 } else {
-                    multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                    multi_datasets <- lapply(seq_len(length(name)), one_run)
+                    #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
                 }
 
                 names(multi_datasets) <- name
@@ -3318,37 +3374,40 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
             if (Sys.info()[1] == "Windows") {
                 multi_datasets <- lapply(seq_len(length(name)), one_run)
             } else {
-                multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                multi_datasets <- lapply(seq_len(length(name)), one_run)
+                #multi_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
             }
 
             names(multi_datasets) <- name
         }
     }
-    multi_allData <- data.frame(multi_allData, stringsAsFactors = FALSE)
+    multi_allData <- setDT(data.frame(multi_allData, stringsAsFactors = FALSE))
 
-    Multiple_value_comparison_allData <- multi_allData %>%
-        dplyr::group_by(multi_allData[[val1]], multi_allData[[val2]]) %>%
-        dplyr::summarise(n = n())
-    Multiple_value_comparison_allData <- Multiple_value_comparison_allData[order(-Multiple_value_comparison_allData$n), ]
-    Multiple_value_comparison_allData <- cbind(Multiple_value_comparison_allData, Freq = 100 * Multiple_value_comparison_allData$n / nrow(multi_allData))
+    Multiple_value_comparison_allData <- multi_allData[ , by = .(multi_allData[[val1]], multi_allData[[val2]]) , .N]
+    # Multiple_value_comparison_allData <- multi_allData %>%
+    #     dplyr::group_by(multi_allData[[val1]], multi_allData[[val2]]) %>%
+    #     dplyr::summarise(n = n())
+    Multiple_value_comparison_allData <- Multiple_value_comparison_allData[order(-Multiple_value_comparison_allData$N), ]
+    Multiple_value_comparison_allData <- cbind(Multiple_value_comparison_allData, Freq = 100 * Multiple_value_comparison_allData$N / nrow(multi_allData))
     colnames(Multiple_value_comparison_allData) <- c(val1_initial, val2_initial, "N", "Freq")
 
     ####################################### Seperate Datasets
     one_run <- function(j) {
-        multi_datasets[[name[j]]] <- data.frame(multi_datasets[[name[j]]], stringsAsFactors = FALSE)
+        multi_datasets[[name[j]]] <- setDT(data.frame(multi_datasets[[name[j]]], stringsAsFactors = FALSE))
 
-        Multiple_value_comparison_datasets[[name[j]]] <- multi_datasets[[name[j]]] %>%
-            dplyr::group_by(multi_datasets[[name[j]]][[val1]], multi_datasets[[name[j]]][[val2]]) %>%
-            dplyr::summarise(n = n())
-        Multiple_value_comparison_datasets[[name[j]]] <- Multiple_value_comparison_datasets[[name[j]]][order(-Multiple_value_comparison_datasets[[name[j]]]$n), ]
-        Multiple_value_comparison_datasets[[name[j]]] <- cbind(Multiple_value_comparison_datasets[[name[j]]], Freq = 100 * Multiple_value_comparison_datasets[[name[j]]]$n / nrow(multi_datasets[[name[j]]]))
+        Multiple_value_comparison_datasets[[name[j]]] <- multi_datasets[[name[j]]][ , by = .(multi_datasets[[name[j]]][[val1]], multi_datasets[[name[j]]][[val2]]), .N]
+        # Multiple_value_comparison_datasets[[name[j]]] <- multi_datasets[[name[j]]] %>%
+        #     dplyr::group_by(multi_datasets[[name[j]]][[val1]], multi_datasets[[name[j]]][[val2]]) %>%
+        #     dplyr::summarise(n = n())
+        Multiple_value_comparison_datasets[[name[j]]] <- Multiple_value_comparison_datasets[[name[j]]][order(-Multiple_value_comparison_datasets[[name[j]]]$N), ]
+        Multiple_value_comparison_datasets[[name[j]]] <- cbind(Multiple_value_comparison_datasets[[name[j]]], Freq = 100 * Multiple_value_comparison_datasets[[name[j]]]$N / nrow(multi_datasets[[name[j]]]))
         colnames(Multiple_value_comparison_datasets[[name[j]]]) <- c(val1_initial, val2_initial, "N", "Freq")
 
         Multiple_value_comparison_datasets[[name[j]]] <- data.frame(Multiple_value_comparison_datasets[[name[j]]], stringsAsFactors = FALSE)
 
         if (save_tables_individually) {
             filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_highly_similar", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", name[j], ".txt")
-            write.table(Multiple_value_comparison_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+            fwrite(Multiple_value_comparison_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
         }
 
         return(Multiple_value_comparison_datasets[[name[j]]])
@@ -3357,14 +3416,15 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
     if (Sys.info()[1] == "Windows") {
         Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        Multiple_value_comparison_datasets <- lapply(seq_len(length(name)), one_run)
+        #Multiple_value_comparison_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(Multiple_value_comparison_datasets) <- name
 
     if (save_tables_individually) {
         filename <- paste0(e$output_folder, "/", "Multiple_value_comparison_highly_similar", stringr::str_replace(val1_initial, "%", ""), "_", stringr::str_replace(val2_initial, "%", ""), "_", "All_Data", ".txt")
-        write.table(Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        fwrite(Multiple_value_comparison_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
 
     confirm <- paste0("Multiple_value_comparison ", val1_initial, " - ", val2_initial, " run!")
@@ -3382,6 +3442,7 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
 
 createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, FtopN, topClonotypesAlldata, topClonotypesDatasets, gene, junction, allele) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("createFrequencyTableCDR3", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(region_name, paste0("Top N: ", FtopN), sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
@@ -3604,6 +3665,7 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
 
 createLogo <- function(table_count, table_count_datasets, name) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("createLogo", "\t"), file = logFile, append = TRUE)
     cat(paste0("logo plot", "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(table_count), "\t"), file = logFile, append = TRUE)
@@ -3704,6 +3766,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     used_columns <- e$used_columns
     
     # logfile
+    logFile<-e$logFile
+    
     cat(paste0("alignment", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste(region, AAorNtAlignment, "top", topNClono, "clonotypes", sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
@@ -3726,12 +3790,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
         if ((type == "IGK") | (type == "IGL")) {
             germline_file <- paste0("Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
-            Tgermlines <- read.csv(system.file("extdata/param", germline_file,
+            Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
                 package = "tripr", mustWork = TRUE
             ),
             sep = ";", stringsAsFactors = FALSE,
             colClasses = c("character")
-            )
+            ))
 
             if (AAorNtAlignment == "aa") {
                 Tgermlines[, 113:117] <- "."
@@ -3740,12 +3804,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             }
 
             germline_file <- paste0("Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
-            te <- read.csv(system.file("extdata/param", germline_file,
+            te <- as.data.frame(fread(system.file("extdata/param", germline_file,
                 package = "tripr", mustWork = TRUE
             ),
             sep = ";", stringsAsFactors = FALSE,
             colClasses = c("character")
-            )
+            ))
 
 
 
@@ -3753,12 +3817,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             Tgermlines <- rbind(Tgermlines, te)
         } else {
             germline_file <- paste0("Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
-            Tgermlines <- read.csv(system.file("extdata/param", germline_file,
+            Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
                 package = "tripr", mustWork = TRUE
             ),
             sep = ";", stringsAsFactors = FALSE,
             colClasses = c("character")
-            )
+            ))
         }
 
         Tgermlines <- unique(Tgermlines)
@@ -3981,7 +4045,9 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
                             }
                         }
 
-                        index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+                        # index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+                        
+                        index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view[[used_columns[["Summary"]][1]]])
                         if (index[1] > 0) {
                             cluster_id[index] <- i
                             freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
@@ -4006,7 +4072,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             region_split <- t(region_split)
             row.names(region_split) <- NULL
 
-            region_alignment <- cbind(as.data.frame(cluster_id),
+            region_alignment <- cbind(
+                as.data.frame(cluster_id),
                 as.data.frame(freq_cluster_id),
                 Functionality = "productive"
             )
@@ -4118,7 +4185,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             if (length(name) == 1) {
                 alignment_datasets[[name]] <- alignment_allData
             } else {
-                alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+                alignment_datasets <- lapply(seq_len(length(name)), one_run)
+                #alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
             }
         }
 
@@ -4151,6 +4219,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
 mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClono, FtopN, FclonoSeperately, cl, Fthr, thrClono, FthrSep = TRUE, thrSep) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("mutations", "\t"), file = logFile, append = TRUE)
     cat(paste0(paste("region", AAorNtMutations, sep = ","), "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(align), "\t"), file = logFile, append = TRUE)
@@ -4202,12 +4271,16 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
     mutation_change_allData <- list()
     level_counts <- c()
     output <- c()
+     
     b <- by(
         align, align$V.GENE.and.allele,
         function(y) {
-            germline <<- which(y$cluster_id == "-")
-            germline <<- germline[1]
-            productive <<- which(y$cluster_id != "-")
+            # germline <<- which(y$cluster_id == "-")
+            germline <- which(y$cluster_id == "-")
+            # germline <<- germline[1]
+            germline <- germline[1]
+            # productive <<- which(y$cluster_id != "-")
+            productive <- which(y$cluster_id != "-")
             if (length(productive) > 0 & length(germline)) {
                 mc <- c()
                 germ_length <- ncol(y) - length(which(y[germline, start_g:ncol(align)] == "."))
@@ -4285,12 +4358,16 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
         count <- 0
         output <- c()
         mutation_change_temp <- list()
+        
         b <- by(
             align_datasets[[name[j]]], align_datasets[[name[j]]]$V.GENE.and.allele,
             function(y) {
-                germline <<- which(y[, "cluster_id"] == "-")
-                germline <<- germline[1]
-                productive <<- which(y[, "cluster_id"] != "-")
+                # germline <<- which(y[, "cluster_id"] == "-")
+                germline <- which(y[, "cluster_id"] == "-")
+                # germline <<- germline[1]
+                germline <- germline[1]
+                # productive <<- which(y[, "cluster_id"] != "-")
+                productive <- which(y[, "cluster_id"] != "-")
                 if (length(productive) > 0 & length(germline)) {
                     mc <- c()
                     germ_length <- ncol(y) - length(which(y[germline, start_g:ncol(align_datasets[[name[j]]])] == "."))
@@ -4358,7 +4435,8 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
     if (Sys.info()[1] == "Windows") {
         mutation_change_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        mutation_change_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        mutation_change_datasets <- lapply(seq_len(length(name)), one_run)
+        #mutation_change_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(mutation_change_datasets) <- name
@@ -4384,6 +4462,7 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
 # input: the alignment file
 groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNtAlignment) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("groupedAlignment", "\t"), file = logFile, append = TRUE)
     cat(paste0("grouping", "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(alignment_allData), "\t"), file = logFile, append = TRUE)
@@ -4418,7 +4497,8 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
     if (Sys.info()[1] == "Windows") {
         grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
     } else {
-        grouped_alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
+        #grouped_alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
     }
 
     names(grouped_alignment_datasets) <- name
@@ -4443,12 +4523,13 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
 
 find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
     # logfile
+    logFile<-e$logFile
     cat(paste0("find_cdr3_diff1P", "\t"), file = logFile, append = TRUE)
     cat(paste0("max length ", max_length_cdr3, ",", "Position ", position, "\t"), file = logFile, append = TRUE)
     cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
     cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
     cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    
     ################## Clonotypes ################
     used_columns <- e$used_columns
     gene <- used_columns[["Summary"]][3]
@@ -4460,19 +4541,22 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
 
     for (i in seq_len(length(unique_genes))) {
         gene_name <- unique_genes[i]
-        allData_temp <- allData %>% dplyr::filter(allData[[gene]] == gene_name)
-
-        distinctVGenes_CDR3 <- allData_temp %>%
-            dplyr::group_by(JUNCTION = allData_temp[[junction]]) %>%
-            dplyr::summarise(Freq = n())
+        #allData_temp <- allData %>% dplyr::filter(allData[[gene]] == gene_name)
+        allData_temp <- allData[allData[[gene]] == gene_name]
+        distinctVGenes_CDR3 <- allData_temp[, by = .(JUNCTION = allData_temp[[junction]]), .(Freq = .N)]
+        # OLDdistinctVGenes_CDR3 <- allData_temp %>%
+        #     dplyr::group_by(JUNCTION = allData_temp[[junction]]) %>%
+        #     dplyr::summarise(Freq = n())
         distinctVGenes_CDR3 <- cbind(distinctVGenes_CDR3, cluster_id = row.names(distinctVGenes_CDR3))
 
         clono_datasets <- list()
         for (j in seq_len(length(name))) {
-            data <- allData_temp %>% dplyr::filter(allData_temp$dataName == name[j])
-            clono_datasets[[name[j]]] <- data %>%
-                dplyr::group_by(JUNCTION = data[[junction]]) %>%
-                dplyr::summarise(Freq = n())
+            data <- allData_temp[allData_temp$dataName == name[j]]
+            #data <- allData_temp %>% dplyr::filter(allData_temp$dataName == name[j])
+            clono_datasets[[name[j]]] <- data[, by = .(JUNCTION = data[[junction]]), .(Freq = .N)]
+            # clono_datasets[[name[j]]] <- data %>%
+            #     dplyr::group_by(JUNCTION = data[[junction]]) %>%
+            #     dplyr::summarise(Freq = n())
             clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], cluster_id = row.names(clono_datasets[[name[j]]]))
         }
 
@@ -4493,24 +4577,25 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
             if (length(cdr3_split[[j]]) == (max_length_cdr3 - 1)) {
                 # shift right from the position 8 till the end
                 k <- k + 1
+                used_rows <- c(used_rows, j)
                 cdr3_split[[j]][(position + 1):max_length_cdr3] <- cdr3_split[[j]][position:(max_length_cdr3 - 1)]
                 cdr3_split_new[[k]] <- cdr3_split[[j]]
-                used_rows <- c(used_rows, j)
+                
             }
 
 
-            distinctVGenes_CDR3 <- distinctVGenes_CDR3[used_rows, ]
+            #distinctVGenes_CDR3 <- distinctVGenes_CDR3[c(used_rows), ] #aspa
         }
-
+        
+        distinctVGenes_CDR3 <- distinctVGenes_CDR3[c(used_rows), ]
         cdr3_split_new <- as.data.frame(cdr3_split_new)
-
         cdr3_split_new <- as.data.frame(t(cdr3_split_new), stringsAsFactors = FALSE)
         row.names(cdr3_split_new) <- NULL
 
         if (nrow(cdr3_split_new) > 0) {
             # Find distinct cdr3_split_new
-            if (nrow(distinct(cdr3_split_new)) < nrow(cdr3_split_new)) {
-                cdr3_split_new <- data.table(cdr3_split_new)
+            if (nrow(distinct(cdr3_split_new)) < nrow(cdr3_split_new)) { 
+                cdr3_split_new <- setDT(cdr3_split_new)
                 VColumns <- colnames(cdr3_split_new)
                 temp <- cdr3_split_new[, list(Freq_sub_cluster = .N), by = VColumns]
 
@@ -4541,25 +4626,29 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
     ################################### Separate Datasets ######################################
     cdr3_diff1P_datasets <- list()
     for (n in seq_len(length(name))) {
-        data_dataset <- allData %>% dplyr::filter(allData$dataName == name[n])
+        data_dataset <- allData[allData$dataName == name[n]]
+        #data_dataset <- allData %>% dplyr::filter(allData$dataName == name[n])
         unique_genes <- unique(data_dataset[[gene]])
         cdr3_diff1P_datasets[[name[n]]] <- c()
 
         for (i in seq_len(length(unique_genes))) {
             gene_name <- unique_genes[i]
-            allData_temp <- data_dataset %>% dplyr::filter(data_dataset[[gene]] == gene_name)
-
-            distinctVGenes_CDR3 <- allData_temp %>%
-                dplyr::group_by(JUNCTION = allData_temp[[junction]]) %>%
-                dplyr::summarise(Freq = n())
+            allData_temp <- data_dataset[data_dataset[[gene]] == gene_name]
+            #allData_temp <- data_dataset %>% dplyr::filter(data_dataset[[gene]] == gene_name)
+            distinctVGenes_CDR3 <- allData_temp[, by = .(JUNCTION = allData_temp[[junction]]),.(Freq = .N)]
+            # distinctVGenes_CDR3 <- allData_temp %>%
+            #     dplyr::group_by(JUNCTION = allData_temp[[junction]]) %>%
+            #     dplyr::summarise(Freq = n())
             distinctVGenes_CDR3 <- cbind(distinctVGenes_CDR3, cluster_id = row.names(distinctVGenes_CDR3))
 
             clono_datasets <- list()
             for (j in seq_len(length(name))) {
-                data <- allData_temp %>% dplyr::filter(allData_temp$dataName == name[j])
-                clono_datasets[[name[j]]] <- data %>%
-                    dplyr::group_by(JUNCTION = data[[junction]]) %>%
-                    dplyr::summarise(Freq = n())
+                data <- allData_temp[allData_temp$dataName == name[j]]
+                #data <- allData_temp %>% dplyr::filter(allData_temp$dataName == name[j])
+                clono_datasets[[name[j]]] <- data[, by = .(JUNCTION = data[[junction]]), .(Freq = .N)]
+                # clono_datasets[[name[j]]] <- data %>%
+                #     dplyr::group_by(JUNCTION = data[[junction]]) %>%
+                #     dplyr::summarise(Freq = n())
                 clono_datasets[[name[j]]] <- cbind(clono_datasets[[name[j]]], cluster_id = row.names(clono_datasets[[name[j]]]))
             }
 
@@ -4586,18 +4675,19 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
                 }
 
 
-                distinctVGenes_CDR3 <- distinctVGenes_CDR3[used_rows, ]
+                # distinctVGenes_CDR3 <- distinctVGenes_CDR3[used_rows, ]
             }
-
-            cdr3_split_new <- as.data.frame(cdr3_split_new)
+            
+            distinctVGenes_CDR3 <- distinctVGenes_CDR3[c(used_rows), ]
+            cdr3_split_new <- data.frame(cdr3_split_new)
 
             cdr3_split_new <- as.data.frame(t(cdr3_split_new), stringsAsFactors = FALSE)
             row.names(cdr3_split_new) <- NULL
 
             if (nrow(cdr3_split_new) > 0) {
                 # Find distinct cdr3_split_new
-                if (nrow(distinct(cdr3_split_new)) < nrow(cdr3_split_new)) {
-                    cdr3_split_new <- data.table(cdr3_split_new)
+                if (nrow(distinct(cdr3_split_new)) < nrow(cdr3_split_new)) { 
+                    cdr3_split_new <- setDT(cdr3_split_new)
                     VColumns <- colnames(cdr3_split_new)
                     temp <- cdr3_split_new[, list(Freq_sub_cluster = .N), by = VColumns]
 
