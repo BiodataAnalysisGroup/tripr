@@ -6,7 +6,7 @@ test_that("dataframe after filter is not empty", {
     datapath <- fs::path_package("extdata", "dataset", package="tripr")
     filelist <- c("1_Summary.txt", "2_IMGT-gapped-nt-sequences.txt", 
         "4_IMGT-gapped-AA-sequences.txt","6_Junction.txt")
-    cell = "Tcell"
+    cell = "Bcell"
     throughput = "High Throughput"
     preselection = "1,2,3,4C:W"
     selection="5"

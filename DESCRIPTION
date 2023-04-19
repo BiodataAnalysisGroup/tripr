@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
-Version: 1.5.3
+Version: 1.5.4
 Authors@R: c(
         person("Maria Th.", "Kotouza", email = "-", role = "aut"),
         person("Katerina", "Gemenetzi", email = "-", role = "aut"),
@@ -45,7 +45,6 @@ Imports:
     RColorBrewer,  
     plotly,
     dplyr,
-    pryr,
     config (>= 0.3.1),
     golem (>= 0.3.1),
     methods,
