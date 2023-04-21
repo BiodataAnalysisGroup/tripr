@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
-Version: 1.5.4
+Version: 1.5.5
 Authors@R: c(
         person("Maria Th.", "Kotouza", email = "-", role = "aut"),
         person("Katerina", "Gemenetzi", email = "-", role = "aut"),
@@ -69,7 +69,8 @@ Suggests:
     fs,
     BiocStyle,
     RefManageR,
-    biocthis
+    biocthis,
+    pryr
 Depends:
     shiny (>= 1.6.0),
     shinyBS
