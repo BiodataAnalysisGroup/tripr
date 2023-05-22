@@ -49,7 +49,7 @@ vignette: >
 ## For links
 library("BiocStyle")
 ## Track time spent on making the vignette
-startTime <- Sys.time()
+#startTime <- Sys.time()
 ## Bib setup
 library("RefManageR")
 ## Write bibliography information
@@ -755,8 +755,8 @@ to the system time that it was run.
 An example of `run_TRIP()` analysis, using the example dataset of 2 B-cells 
 that is provided, is presented below.
 
-```{r eval=TRUE}
-    datapath <- fs::path_package("extdata/dataset", package="tripr")
+```{r eval=FALSE}
+    datapath <- fs::path_package("extdata", "dataset", package="tripr") 
     output_path <- tools::R_user_dir("tripr", which="cache")
     cell <- "Bcell"
     preselection <- "1,2,3,4C:W"

@@ -5,13 +5,13 @@ testColumnNames <- function(name, files, datapath) {
 
     d <- paste(d, name, collapse = " ")
 
-    logFile<-e$logFile
-    cat(paste0("testColumnNames", "\t"), file = logFile, append = TRUE)
-    cat(paste0(d, "\t"), file = logFile, append = TRUE)
-    cat(paste0("read data", "\t"), file = logFile, append = TRUE)
-    cat(paste0("read data", "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    # logFile<-e$logFile
+    # cat(paste0("testColumnNames", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(d, "\t"), file = logFile, append = TRUE)
+    # cat(paste0("read data", "\t"), file = logFile, append = TRUE)
+    # cat(paste0("read data", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    
     # used columns
     if (use_only_useful_columns) {
         input <- as.data.frame(fread(system.file("extdata/param",
@@ -72,7 +72,7 @@ testColumnNames <- function(name, files, datapath) {
     }
     
     # Log start time and memory currently used
-    start.time <- Sys.time()
+    #start.time <- Sys.time()
 
     rawDataSet <- list()
     count_wrong <- 0
@@ -164,15 +164,14 @@ testColumnNames <- function(name, files, datapath) {
     # check if the column names are correct
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     confirm <- "Data Loaded!"
 
     if (length(worng_columns_id) > 0) {
         return(list(
-            "confirm" = confirm,
-            "logFile" = logFile,
+            "confirm" = confirm, #"logFile" = logFile,
             "message" = "wrong column names",
             "wrong_dataset" = wrong_dataset,
             "worng_columns_id" = worng_columns_id,
@@ -183,8 +182,7 @@ testColumnNames <- function(name, files, datapath) {
 
     # Correct the wrong column names
     return(list(
-        "confirm" = confirm,
-        "logFile" = logFile,
+        "confirm" = confirm, #"logFile" = logFile,
         "newDatasetNames" = newDatasetNames,
         "message" = "",
         "wrong_dataset" = c(),
@@ -203,12 +201,12 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     }
     
     # logfile
-    logFile<-e$logFile
-    cat(paste0("correctColumnNames", "\t"), file = logFile, append = TRUE)
-    cat(paste0("wrong datasets", paste(wrong_dataset, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nr, "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("correctColumnNames", "\t"), file = logFile, append = TRUE)
+    # cat(paste0("wrong datasets", paste(wrong_dataset, sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nr, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     # filter_column contains the columns that are used for each one of the 9 filters with ids=1:9
     filter_column <- c(used_columns[["Summary"]][3], used_columns[["Summary"]][18], used_columns[["Summary"]][2], used_columns[["Summary"]][18], used_columns[["Summary"]][4], used_columns[["Summary"]][3], used_columns[["Summary"]][8], used_columns[["Summary"]][11], used_columns[["Summary"]][15], used_columns[["Summary"]][18])
@@ -238,7 +236,7 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     all_used_columns <- c("dataName", all_used_columns)
 
     # Log start time and memory currently used
-    start.time <- Sys.time()
+    #start.time <- Sys.time()
     correct <- 0
 
     w <- 0
@@ -267,8 +265,8 @@ correctColumnNames <- function(files, rawDataSet, allDatasets, wrong_dataset, ne
     }
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(list("rawDataSet" = rawDataSet, "correct" = correct))
 }
@@ -286,12 +284,12 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
       nr <- nrow(rawDataSet[[i]]) + nr
     }
     # logfile
-    logFile<-e$logFile
-    cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
-    cat(paste0(a, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nr, "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(a, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nr, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
     
     cleaning_criteria <- c(
       "Functional V-Gene",
@@ -319,7 +317,7 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
     workflow <- matrix(0, length(filter_id), 3)
     
     # Log start time and memory currently used
-    start.time <- Sys.time()
+    #start.time <- Sys.time()
     
     # Combine raw name
     for (i in seq_len(length(name))) {
@@ -576,8 +574,8 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
     confirm <- paste0("Datasets cleaned: ", a, ". Cleaning Filters applied: ", b)
     
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
     
     
     result <- list(
@@ -602,17 +600,17 @@ imgtcleaning <- function(rawDataSet, name, allDatasets, files, cell_id = 1, filt
 
 imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 6, 7, 8, 9, 10), filter_out_char1 = " P", filter_out_char2 = "[:punct:]|X", filter_in_char = "productive", filterStart = "^*", filterEnd = "*$", identityLow = 95, identityHigh = 100, VGene = "", JGene = "", DGene = "", lengthLow = 7, lengthHigh = 15, aminoacid = "CASSPPDTGELFF", seq1 = 1, seq2 = 2) {
     # logfile
-    logFile<-e$logFile
+    # logFile<-e$logFile
     used_columns <- e$used_columns
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
     }
-    cat(paste0("imgtfilter", "\t"), file = logFile, append = TRUE)
-    cat(paste0(a, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(paste0("imgtfilter", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(a, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     cleaning_criteria <- c("Functional V-Gene", "CDR3 with no Special Characters", "Productive Sequence", "Productive Sequences")
     filtering_criteria <- c("V-REGION identity %", "Specific V Gene", "Specific J Gene", "Specific D Gene", "CDR3 length range", "CDR3 length range")
@@ -624,7 +622,7 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     workflow <- matrix(0, length(filter_id), 3)
 
     # Log start time and memory currently used
-    start.time <- Sys.time()
+    #start.time <- Sys.time()
 
     test_column <- c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1])
 
@@ -909,8 +907,8 @@ imgtfilter <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(5, 
     confirm <- paste0("Datasets filtered: ", a, ". Filters applied: ", b)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     result <- list(
         "message" = "",
@@ -944,12 +942,12 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
         nr <- nrow(rawDataSet[[i]]) + nr
     }
     # logfile
-    logFile<-e$logFile
-    cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
-    cat(paste0(a, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nr, "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("imgtcleaning", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(a, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nr, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     cleaning_criteria <- c("Functional V-Gene", "CDR3 with no Special Characters", "Productive Sequence", "Productive Sequences")
 
@@ -960,7 +958,7 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
     workflow <- matrix(0, length(filter_id), 3)
 
     # Log start time and memory currently used
-    start.time <- Sys.time()
+    #start.time <- Sys.time()
 
     # Combine raw name
     for (i in seq_len(length(name))) {
@@ -1227,8 +1225,8 @@ imgtcleaningLow <- function(rawDataSet, name, allDatasets, files, cell_id = 1, f
     confirm <- paste0("Datasets cleaned: ", a, ". Cleaning Filters applied: ", b)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     result <- list("message" = "", "dim" = dim(allData), "workflow" = workflow, "workflow_datasets" = workflow_datasets, "allDataInitial" = allDataInitial, "allData" = allData, "filterOutSum" = filterOutSum, "initial_datasets" = initial_datasets, "cleaned_datasets" = cleaned_datasets, "cleaned_out_datasets" = cleaned_out_datasets, "confirm" = confirm)
     return(result)
@@ -1241,16 +1239,16 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     
     
     # logfile
-    logFile<-e$logFile
+    # logFile<-e$logFile
     a <- "Filter ids "
     for (i in seq_len(length(filter_id))) {
         a <- paste0(a, ",", filter_id[i])
     }
-    cat(paste0("imgtfilter", "\t"), file = logFile, append = TRUE)
-    cat(paste0(a, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(paste0("imgtfilter", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(a, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(rawDataSet[[names(rawDataSet)[1]]]), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     cleaning_criteria <- c("Functional V-Gene", "CDR3 with no Special Characters", "Productive Sequence", "Productive Sequences")
     filtering_criteria <- c("V-REGION identity %", "Specific V Gene", "Specific J Gene", "Specific D Gene", "CDR3 length range", "CDR3 length range")
@@ -1262,7 +1260,7 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     workflow <- matrix(0, length(filter_id), 3)
 
     # Log start time and memory currently used
-    start.time <- Sys.time()
+    #start.time <- Sys.time()
     # mem_used()
 
     test_column <- c(filter_column[1], filter_column[2], filter_column[5], used_columns[["Nt.sequences"]][1])
@@ -1541,8 +1539,8 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
     confirm <- paste0("Datasets filtered: ", a, ". Filters applied: ", b)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
     
     result <- list("message" = "", "dim" = dim(allData), "workflow" = workflow, "workflow_datasets" = workflow_datasets, "allDataInitial" = allDataInitial, "allData" = allData, "filterOutSum" = filterOutSum, "initial_datasets" = initial_datasets, "filtered_datasets" = filtered_datasets, "filtered_out_datasets" = filtered_out_datasets, "confirm" = confirm)
     return(result)
@@ -1559,25 +1557,19 @@ clonotypes <- function(
   run_diagnosis
 ) {
   
-  # save(allData, 
-  #      allele, 
-  #      gene, 
-  #      junction, 
-  #      name, 
-  #      run_diagnosis, file = "D:/clonoINPUT.RData")
   used_columns <- e$used_columns
   # logfile
-  logFile<-e$logFile
+  # logFile<-e$logFile
   message("Clonotype execution started: ")
   
   
   g = ifelse(allele, gene, stringr::str_replace(gene, ".and.allele", ""))
   
-  cat(paste0("clonotypes", "\t"), file = logFile, append = TRUE)
-  cat(paste0(paste(g, junction, sep = ","), "\t"), file = logFile, append = TRUE)
-  cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
-  cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
-  cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  # cat(paste0("clonotypes", "\t"), file = logFile, append = TRUE)
+  # cat(paste0(paste(g, junction, sep = ","), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
   
   # clonotypes all Data
   allData                           <- setDT(allData)
@@ -1953,8 +1945,8 @@ clonotypes <- function(
   )
   
   # log time end and memory used
-  cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-  cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+  # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
   
   return(result)
 }
@@ -2001,12 +1993,12 @@ get_frequent_sequence <- function(data) {
 highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mismatches, take_gene, cdr3_lengths, gene_clonotypes, clonotype_freq_thr_for_highly_sim, name) {
     # logfile
     clono_allData <- as.data.frame(clono_allData)
-    logFile<-e$logFile
-    cat(paste0("highly_similar_clonotypes", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste("take_gene ", take_gene, "threshold", clonotype_freq_thr_for_highly_sim, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("highly_similar_clonotypes", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste("take_gene ", take_gene, "threshold", clonotype_freq_thr_for_highly_sim, sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     ####################################### All Data   #######################################
     clono_allData_only_cdr3 <- clono_allData
@@ -2320,8 +2312,8 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     )
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -2331,12 +2323,12 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
 public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_reads, public_clonotype_thr, name, highly) {
     # logfile
     clono_allData <- as.data.frame(clono_allData)
-    logFile<-e$logFile
-    cat(paste0("public_clonotypes", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste("take_gene ", take_gene, "threshold", public_clonotype_thr, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("public_clonotypes", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste("take_gene ", take_gene, "threshold", public_clonotype_thr, sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "No") {
         a2 <- strsplit(clono_allData$clonotype, " - ")
@@ -2409,8 +2401,8 @@ public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_read
     result <- list("public_clono" = public_clono, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -2425,11 +2417,11 @@ createLink <- function(val, on_click_js) {
 
 viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("viewClonotypes", "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("viewClonotypes", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     temp <- allData
     if (length(gene) > 0) {
@@ -2450,8 +2442,8 @@ viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
     a <- allData[inputVGenes_CDR3, ]
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(a)
 }
@@ -2467,12 +2459,12 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     }
 
     # logfile
-    logFile<-e$logFile
-    cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
-    cat(paste0(g, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(g, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     for (i in seq_len(nrow(clono_allData))) {
         clono_allData[i, 1] <- strsplit(as.character(clono_allData[i, 1]), " - ")[[1]][1]
@@ -2622,8 +2614,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     result <- list("Repertoires_allData" = Repertoires_allData, "Repertoires_datasets" = Repertoires_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -2639,12 +2631,12 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
     }
 
     # logfile
-    logFile<-e$logFile
-    cat(paste0("repertoires_highly_similar", "\t"), file = logFile, append = TRUE)
-    cat(paste0(g, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("repertoires_highly_similar", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(g, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
@@ -2810,8 +2802,8 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
     )
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -2820,17 +2812,17 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
 
 repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, name, highly_sim, id) { # set name equal to the selected dataset
     # logfile
-    logFile<-e$logFile
+    # logFile<-e$logFile
     if (!highly_sim) {
         n <- "repertoires_comparison"
     } else {
         n <- "repertoires_comparison_higly_similar"
     }
-    cat(paste0(n, "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste("Number of datasets: ", length(name), sep = ""), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(Repertoires_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(Repertoires_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(n, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste("Number of datasets: ", length(name), sep = ""), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(Repertoires_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(Repertoires_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     unique_repertoires <- data.frame(Gene = Repertoires_allData$Gene, stringsAsFactors = FALSE)
 
@@ -2866,8 +2858,8 @@ repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, na
     result <- list("unique_repertoires" = unique_repertoires, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -2876,12 +2868,12 @@ repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, na
 
 Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("Multiple_value_comparison", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("Multiple_value_comparison", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     val1_initial <- val1
     val2_initial <- val2
@@ -3133,8 +3125,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     result <- list("Multiple_value_comparison_allData" = Multiple_value_comparison_allData, "Multiple_value_comparison_datasets" = Multiple_value_comparison_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -3144,12 +3136,12 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
 Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
     # logfile
   
-    logFile<-e$logFile
-    cat(paste0("Multiple_value_comparison_highly_similar", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("Multiple_value_comparison_highly_similar", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste(val1, val2, sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     val1_initial <- val1
     val2_initial <- val2
@@ -3432,8 +3424,8 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
     result <- list("Multiple_value_comparison_allData" = Multiple_value_comparison_allData, "Multiple_value_comparison_datasets" = Multiple_value_comparison_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -3442,12 +3434,12 @@ Multiple_value_comparison_highly_similar <- function(clono_allData, clono_datase
 
 createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, FtopN, topClonotypesAlldata, topClonotypesDatasets, gene, junction, allele) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("createFrequencyTableCDR3", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste(region_name, paste0("Top N: ", FtopN), sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("createFrequencyTableCDR3", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste(region_name, paste0("Top N: ", FtopN), sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     input_initial <- input
 
@@ -3655,8 +3647,8 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
     result <- list("region_with_specific_length_dataset" = region_with_specific_length_dataset, "region_with_specific_length" = region_with_specific_length, "table_count" = table_count, "table_freq" = table_freq, "table_count_datasets" = table_count_datasets, "table_freq_datasets" = table_freq_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -3665,12 +3657,12 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
 
 createLogo <- function(table_count, table_count_datasets, name) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("createLogo", "\t"), file = logFile, append = TRUE)
-    cat(paste0("logo plot", "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(table_count), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(table_count), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("createLogo", "\t"), file = logFile, append = TRUE)
+    # cat(paste0("logo plot", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(table_count), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(table_count), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     # Create color matrix
     mat <- matrix(nrow = 20, ncol = 2)
@@ -3754,8 +3746,8 @@ createLogo <- function(table_count, table_count_datasets, name) {
     result <- list("motif_all" = motif_all, "motif_datasets" = motif_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -3766,13 +3758,13 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     used_columns <- e$used_columns
     
     # logfile
-    logFile<-e$logFile
-    
-    cat(paste0("alignment", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste(region, AAorNtAlignment, "top", topNClono, "clonotypes", sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # 
+    # cat(paste0("alignment", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste(region, AAorNtAlignment, "top", topNClono, "clonotypes", sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     if (AAorNtAlignment == "aa") {
         file <- "IMGT.gapped.AA.sequences."
@@ -4206,8 +4198,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
         )
 
         # log time end and memory used
-        cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-        cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+        # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+        # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
         return(result)
     } else {
@@ -4219,12 +4211,12 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
 
 mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClono, FtopN, FclonoSeperately, cl, Fthr, thrClono, FthrSep = TRUE, thrSep) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("mutations", "\t"), file = logFile, append = TRUE)
-    cat(paste0(paste("region", AAorNtMutations, sep = ","), "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(align), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(align), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("mutations", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(paste("region", AAorNtMutations, sep = ","), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(align), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(align), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     if (FtopN) {
         align <- dplyr::filter(align, cluster_id %in% c("-", as.character(seq_len(topNClono))))
@@ -4451,8 +4443,8 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
     result <- list("mutation_change_allData" = mutation_change_allData, "mutation_change_datasets" = mutation_change_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -4462,12 +4454,12 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
 # input: the alignment file
 groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNtAlignment) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("groupedAlignment", "\t"), file = logFile, append = TRUE)
-    cat(paste0("grouping", "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(alignment_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(alignment_allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("groupedAlignment", "\t"), file = logFile, append = TRUE)
+    # cat(paste0("grouping", "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(alignment_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(alignment_allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
 
     input <- data.table(alignment_allData)
 
@@ -4513,8 +4505,8 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
     result <- list("grouped_alignment_allData" = grouped_alignment_allData, "grouped_alignment_datasets" = grouped_alignment_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
@@ -4523,12 +4515,12 @@ groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNt
 
 find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
     # logfile
-    logFile<-e$logFile
-    cat(paste0("find_cdr3_diff1P", "\t"), file = logFile, append = TRUE)
-    cat(paste0("max length ", max_length_cdr3, ",", "Position ", position, "\t"), file = logFile, append = TRUE)
-    cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # logFile<-e$logFile
+    # cat(paste0("find_cdr3_diff1P", "\t"), file = logFile, append = TRUE)
+    # cat(paste0("max length ", max_length_cdr3, ",", "Position ", position, "\t"), file = logFile, append = TRUE)
+    # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
     
     ################## Clonotypes ################
     used_columns <- e$used_columns
@@ -4721,8 +4713,8 @@ find_cdr3_diff1P <- function(allData, max_length_cdr3, position, name) {
     result <- list("cdr3_diff1P_allData" = cdr3_diff1P_allData, "cdr3_diff1P_datasets" = cdr3_diff1P_datasets, "confirm" = confirm)
 
     # log time end and memory used
-    cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
 }
