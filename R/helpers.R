@@ -1931,14 +1931,24 @@ clonotypes <- function(
   
   confirm <- paste0("Clonotypes run!")
   
+  clono_allData <- setDF(clono_allData)
+  clono_datasets <- lapply(clono_datasets, setDF)
+  allData <- setDF(allData)
+  view_specific_clonotype_allData <- lapply(view_specific_clonotype_allData, setDF)
+  convergent_evolution_list_allData <- lapply(convergent_evolution_list_allData, setDF)
+  view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, setDF)
+  convergent_evolution_list_datasets <- lapply(convergent_evolution_list_datasets,setDF)
+  diagnosis <- lapply(diagnosis, setDF)
+  
+  
   result <- list(
     "clono_allData" = clono_allData,
-    "clono_datasets" = clono_datasets,
-    "filterin_highly_clono" = allData,
-    "view_specific_clonotype_allData" = view_specific_clonotype_allData,
-    "convergent_evolution_list_allData" = convergent_evolution_list_allData,
-    "view_specific_clonotype_datasets" = view_specific_clonotype_datasets,
-    "convergent_evolution_list_datasets" = convergent_evolution_list_datasets,
+    "clono_datasets" = clono_datasets, 
+    "filterin_highly_clono" = allData, 
+    "view_specific_clonotype_allData" = view_specific_clonotype_allData, 
+    "convergent_evolution_list_allData" = convergent_evolution_list_allData, 
+    "view_specific_clonotype_datasets" = view_specific_clonotype_datasets, 
+    "convergent_evolution_list_datasets" = convergent_evolution_list_datasets, 
     "convergent_evolution_list_datasets_only_num" = convergent_evolution_list_datasets_only_num,
     "diagnosis" = diagnosis,
     "confirm" = confirm
@@ -2006,8 +2016,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "No") {
         a2 <- strsplit(clono_allData$clonotype, " - ")
         clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 2])
+            t(data.frame(unlist(s)))})[, 2])
         clono_allData_only_cdr3 <- data.table::as.data.table(clono_allData_only_cdr3[, seq_len(3), with=FALSE])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
         clono_allData_only_cdr3 <- clono_allData_only_cdr3[order(-clono_allData_only_cdr3$N), ]
     }
@@ -2015,11 +2024,9 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "Yes") {
         a2 <- strsplit(clono_allData$clonotype, " - ")
         clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 2])
+            t(data.frame(unlist(s)))})[, 2])
         clono_allData_only_cdr3$gene <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 1])
+            t(data.frame(unlist(s)))})[, 1])
     }
 
     # if the gene does matter than I do not have to exclude it from the clono_allData_only_cdr3 table
