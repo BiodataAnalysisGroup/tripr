@@ -1556,14 +1556,16 @@ clonotypes <- function(
   name, 
   run_diagnosis
 ) {
-  # save(allData, 
-  #      allele, 
-  #      gene, 
-  #      junction, 
-  #      name, 
-  #      run_diagnosis,
-  #      file = './2_Clonotypes.RData')
+  
   used_columns <- e$used_columns
+  # save(allData,
+  #      allele,
+  #      gene,
+  #      junction,
+  #      name,
+  #      run_diagnosis,
+  #      used_columns,
+  #      file = './ONLY_CDR3Clonotypes.RData')
   # logfile
   # logFile<-e$logFile
   message("Clonotype execution started: ")
@@ -2542,6 +2544,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                     })[, 1])
                 }
             }
+            ### CHANGE 
+            a <- setDT(a)
             freq_gene <- a[, by = gene, .N]
             
             # freq_gene <- a %>%
@@ -2639,6 +2643,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
 
 repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, take_gene) {
     # logfile
+    #save(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, take_gene, file = './HIGHLY_SIM_REPERTOIRE.RData')
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
     } else {
@@ -2716,6 +2721,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
             for (i in names(view_specific_clonotype_allData)) {
                 if (i %in% clono_allData_initial$clonotype) {
                     a <- view_specific_clonotype_allData[[i]]
+                    a <- setDT(a)
                     if (allele == FALSE) {
                         if (!all(!(stringr::str_detect(a[[gene]], "[*]")))) {
                             a2 <- strsplit(a[[gene]], "[*]")
@@ -2889,7 +2895,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
     # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    #save(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups, file='./Multi_comparisonBcell.RData')
     val1_initial <- val1
     val2_initial <- val2
 
@@ -2971,6 +2977,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 ####################################### All Data
                 freq_gene_name <- data.frame()
                 for (i in names(view_specific_clonotype_allData)) {
+                    
                     a <- view_specific_clonotype_allData[[i]]
                     if ((stringr::str_detect(val_initial[vals], "allele") == FALSE)) {
                         if (!all(!(stringr::str_detect(a[[gene]], "[*]")))) {
@@ -2980,6 +2987,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                             })[, 1])
                         }
                     }
+                    a <- setDT(a)
                     freq_gene <- a[, by = gene , .N]
                     # freq_gene <- a %>%
                     #     dplyr::group_by(a[[gene]]) %>%
