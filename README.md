@@ -72,7 +72,7 @@ library(tripr)
 ## User Guide
 
 To view documentation for the version of this package installed in your system, 
-start R and enter:
+start R and enter: 
 
 ``` r
 browseVignettes("tripr")
