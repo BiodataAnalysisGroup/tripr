@@ -2472,7 +2472,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     } else {
         g <- gene
     }
-
+  
     # logfile
     # logFile<-e$logFile
     # cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
@@ -2544,7 +2544,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                     })[, 1])
                 }
             }
-            ### CHANGE 
+            ### CHANGE
+            a$gene <- a[[gene]]
             a <- setDT(a)
             freq_gene <- a[, by = gene, .N]
             
@@ -2567,7 +2568,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / nrow(clono_allData))
         colnames(freq_gene_name) <- c("Gene", "N", "Freq")
 
-
+        
         ####################################### Separate Datasets
         freq_gene_name_datasets <- list()
 
@@ -2583,6 +2584,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                         })[, 1])
                     }
                 }
+                a$gene <- a[[gene]]
+                a <- setDT(a)
                 freq_gene <- a[, by = gene, .N]
                 # freq_gene <- a %>%
                 #     dplyr::group_by(a[[gene]]) %>%
@@ -2637,6 +2640,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
+
 }
 
 ######################################################################################################################################
