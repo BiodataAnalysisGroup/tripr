@@ -1683,7 +1683,7 @@ clonotypes <- function(
       
       
       fwrite(clono_write,
-             file = paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
+             file = paste0(e$output_folder, "/", "Clonotypes_All_Data", ".txt"),
              row.names = FALSE,
              col.names = TRUE,
              quote = FALSE,
@@ -1838,7 +1838,7 @@ clonotypes <- function(
       # Printing clonotypes file
       
       fwrite(clono_write,
-             paste0(e$output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
+             paste0(e$output_folder, "/", "Clonotypes_", name[j], ".txt"),
              sep = "\t",
              row.names = FALSE,
              col.names = TRUE,
