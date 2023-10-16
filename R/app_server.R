@@ -2984,7 +2984,8 @@ app_server <- function(input, output, session) {
                 FtopN <- FALSE
                 Fthr <- FALSE
             }
-
+            clono_datasetsTopN <- list() ##CHANGE !!!!!
+            clono_allDataTopN <- NULL
             if (FtopN) {
                 if (input$pipeline_highly_similar_clonotypes == FALSE) {
                     clono_allDataTopN <- clono$clono_allData[seq_len(input$topNFreqTable), ]

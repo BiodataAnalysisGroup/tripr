@@ -1,6 +1,6 @@
 testColumnNames <- function(name, files, datapath) {
     # Set Working Directory on level back
-    
+    #save(name,files,datapath, file = "./1_testColumnNames.RData")
     d <- "Datasets loaded:"
 
     d <- paste(d, name, collapse = " ")
@@ -1558,6 +1558,14 @@ clonotypes <- function(
 ) {
   
   used_columns <- e$used_columns
+  # save(allData,
+  #      allele,
+  #      gene,
+  #      junction,
+  #      name,
+  #      run_diagnosis,
+  #      used_columns,
+  #      file = './ONLY_CDR3Clonotypes.RData')
   # logfile
   # logFile<-e$logFile
   message("Clonotype execution started: ")
@@ -1675,7 +1683,7 @@ clonotypes <- function(
       
       
       fwrite(clono_write,
-             file = paste0(e$output_folder, "/", "Clonotypes_", paste0(g, "+", junction), "All_Data", ".txt"),
+             file = paste0(e$output_folder, "/", "Clonotypes_All_Data", ".txt"),
              row.names = FALSE,
              col.names = TRUE,
              quote = FALSE,
@@ -1830,7 +1838,7 @@ clonotypes <- function(
       # Printing clonotypes file
       
       fwrite(clono_write,
-             paste0(e$output_folder, "/", "Clonotypes_", paste(g, "+", junction, "_", sep = ""), name[j], ".txt"),
+             paste0(e$output_folder, "/", "Clonotypes_", name[j], ".txt"),
              sep = "\t",
              row.names = FALSE,
              col.names = TRUE,
@@ -1931,14 +1939,24 @@ clonotypes <- function(
   
   confirm <- paste0("Clonotypes run!")
   
+  clono_allData <- setDF(clono_allData)
+  clono_datasets <- lapply(clono_datasets, setDF)
+  allData <- setDF(allData)
+  view_specific_clonotype_allData <- lapply(view_specific_clonotype_allData, setDF)
+  convergent_evolution_list_allData <- setDF(convergent_evolution_list_allData)
+  view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, setDF)
+  convergent_evolution_list_datasets <- lapply(convergent_evolution_list_datasets,setDF)
+  diagnosis <- lapply(diagnosis, setDF)
+  
+  
   result <- list(
     "clono_allData" = clono_allData,
-    "clono_datasets" = clono_datasets,
-    "filterin_highly_clono" = allData,
-    "view_specific_clonotype_allData" = view_specific_clonotype_allData,
-    "convergent_evolution_list_allData" = convergent_evolution_list_allData,
-    "view_specific_clonotype_datasets" = view_specific_clonotype_datasets,
-    "convergent_evolution_list_datasets" = convergent_evolution_list_datasets,
+    "clono_datasets" = clono_datasets, 
+    "filterin_highly_clono" = allData, 
+    "view_specific_clonotype_allData" = view_specific_clonotype_allData, 
+    "convergent_evolution_list_allData" = convergent_evolution_list_allData, 
+    "view_specific_clonotype_datasets" = view_specific_clonotype_datasets, 
+    "convergent_evolution_list_datasets" = convergent_evolution_list_datasets, 
     "convergent_evolution_list_datasets_only_num" = convergent_evolution_list_datasets_only_num,
     "diagnosis" = diagnosis,
     "confirm" = confirm
@@ -2006,8 +2024,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "No") {
         a2 <- strsplit(clono_allData$clonotype, " - ")
         clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 2])
+            t(data.frame(unlist(s)))})[, 2])
         clono_allData_only_cdr3 <- data.table::as.data.table(clono_allData_only_cdr3[, seq_len(3), with=FALSE])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
         clono_allData_only_cdr3 <- clono_allData_only_cdr3[order(-clono_allData_only_cdr3$N), ]
     }
@@ -2015,11 +2032,9 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "Yes") {
         a2 <- strsplit(clono_allData$clonotype, " - ")
         clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 2])
+            t(data.frame(unlist(s)))})[, 2])
         clono_allData_only_cdr3$gene <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 1])
+            t(data.frame(unlist(s)))})[, 1])
     }
 
     # if the gene does matter than I do not have to exclude it from the clono_allData_only_cdr3 table
@@ -2451,13 +2466,13 @@ viewClonotypes <- function(allData, allele, gene, junction, val1, val2) {
 ######################################################################################################################################
 
 repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets ) {
-    
+    #save(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, file = './4_repertoire.RData')
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
     } else {
         g <- gene
     }
-
+  
     # logfile
     # logFile<-e$logFile
     # cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
@@ -2478,6 +2493,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
 
     if (gene == gene_clonotypes && allele == allele_clonotypes && !(is.null(gene_clonotypes))) {
         ####################################### All Data
+        clono_allData       <- setDT(clono_allData)
         Repertoires_allData <- clono_allData[ , by = clonotype , .N ]
         # Repertoires_allData <- clono_allData %>%
         #     dplyr::group_by(clono_allData[["clonotype"]]) %>%
@@ -2489,6 +2505,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         Repertoires_datasets <- list()
 
         one_run <- function(j) {
+            clono_datasets <- lapply(clono_datasets, setDT)
             Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]][ , by = clonotype, .N]
             # Repertoires_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>%
             #     dplyr::group_by(clono_datasets[[name[j]]][["clonotype"]]) %>%
@@ -2527,6 +2544,9 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                     })[, 1])
                 }
             }
+            ### CHANGE
+            a$gene <- a[[gene]]
+            a <- setDT(a)
             freq_gene <- a[, by = gene, .N]
             
             # freq_gene <- a %>%
@@ -2548,7 +2568,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / nrow(clono_allData))
         colnames(freq_gene_name) <- c("Gene", "N", "Freq")
 
-
+        
         ####################################### Separate Datasets
         freq_gene_name_datasets <- list()
 
@@ -2564,6 +2584,8 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
                         })[, 1])
                     }
                 }
+                a$gene <- a[[gene]]
+                a <- setDT(a)
                 freq_gene <- a[, by = gene, .N]
                 # freq_gene <- a %>%
                 #     dplyr::group_by(a[[gene]]) %>%
@@ -2618,12 +2640,14 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
 
     return(result)
+
 }
 
 ######################################################################################################################################
 
 repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, take_gene) {
     # logfile
+    #save(clono_allData, clono_datasets, allele, allele_clonotypes, gene, gene_clonotypes, name, view_specific_clonotype_allData, view_specific_clonotype_datasets, take_gene, file = './HIGHLY_SIM_REPERTOIRE.RData')
     if (allele == FALSE) {
         g <- stringr::str_replace(gene, ".and.allele", "")
     } else {
@@ -2701,6 +2725,7 @@ repertoires_highly_similar <- function(clono_allData, clono_datasets, allele, al
             for (i in names(view_specific_clonotype_allData)) {
                 if (i %in% clono_allData_initial$clonotype) {
                     a <- view_specific_clonotype_allData[[i]]
+                    a <- setDT(a)
                     if (allele == FALSE) {
                         if (!all(!(stringr::str_detect(a[[gene]], "[*]")))) {
                             a2 <- strsplit(a[[gene]], "[*]")
@@ -2874,7 +2899,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
     # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    #save(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups, file='./Multi_comparisonBcell.RData')
     val1_initial <- val1
     val2_initial <- val2
 
@@ -2956,6 +2981,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                 ####################################### All Data
                 freq_gene_name <- data.frame()
                 for (i in names(view_specific_clonotype_allData)) {
+                    
                     a <- view_specific_clonotype_allData[[i]]
                     if ((stringr::str_detect(val_initial[vals], "allele") == FALSE)) {
                         if (!all(!(stringr::str_detect(a[[gene]], "[*]")))) {
@@ -2965,6 +2991,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                             })[, 1])
                         }
                     }
+                    a <- setDT(a)
                     freq_gene <- a[, by = gene , .N]
                     # freq_gene <- a %>%
                     #     dplyr::group_by(a[[gene]]) %>%
@@ -3440,7 +3467,7 @@ createFrequencyTableCDR3 <- function(region_name, input, name, regionLength, Fto
     # cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
     # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    #save(region_name, input, name, regionLength, FtopN, topClonotypesAlldata, topClonotypesDatasets, gene, junction, allele, file = './3_createFrequency.RData')
     input_initial <- input
 
     if (FtopN) {
@@ -3663,7 +3690,7 @@ createLogo <- function(table_count, table_count_datasets, name) {
     # cat(paste0(nrow(table_count), "\t"), file = logFile, append = TRUE)
     # cat(paste0(ncol(table_count), "\t"), file = logFile, append = TRUE)
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    #save(table_count,table_count_datasets, file = './logo_input.RData')
     # Create color matrix
     mat <- matrix(nrow = 20, ncol = 2)
     mat[1, ] <- c("I", "#0000FF")
