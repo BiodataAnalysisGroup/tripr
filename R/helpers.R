@@ -1272,7 +1272,7 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
 
     # IMPORTANT: Datasets should start with T
     # dataSetIDs <- as.list(levels(unique(allData$dataName)))
-
+    
     allDataInitial <- allData
 
     workflow_datasets <- list()
@@ -1554,7 +1554,8 @@ clonotypes <- function(
   gene, 
   junction, 
   name, 
-  run_diagnosis
+  run_diagnosis,
+  identity_groups
 ) {
   
   used_columns <- e$used_columns
@@ -1569,7 +1570,6 @@ clonotypes <- function(
   # logfile
   # logFile<-e$logFile
   message("Clonotype execution started: ")
-  
   
   g = ifelse(allele, gene, stringr::str_replace(gene, ".and.allele", ""))
   
@@ -1711,7 +1711,8 @@ clonotypes <- function(
   convergent_evolution_list_datasets          <- list()
   convergent_evolution_list_datasets_only_num <- list()
   diagnosis                                   <- list()
-  group.freq.seq      <- list()
+  group.freq.seq                              <- list()
+  vregion_status                              <- list()
   
   message("Clonotype Analysis Step 3")
   
@@ -1809,6 +1810,7 @@ clonotypes <- function(
     colnames(clono_datasets[[name[j]]])[4] <- "Convergent Evolution"
     
     if (junction == "Summary.Sequence") {
+      
       clono_datasets[[name[j]]] <- unique(data[,
                                                c("clonotype", "N", "Freq", 
                                                  "cluster_info", 
@@ -1819,7 +1821,59 @@ clonotypes <- function(
     }
     
     if (run_diagnosis) {
-      group.freq.seq[[name[j]]] <- get_frequent_sequence(group.freq.seq[[name[j]]])
+      index = colnames(group.freq.seq[[name[j]]]) |> 
+        stringr::str_detect("V.GENE.and.allele|V.REGION.identity|AA.JUNCTION") |>
+        which()
+      
+      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
+      
+      index = colnames(group.freq.seq[[name[j]]]) |> 
+        stringr::str_detect("with.ins.del.events") |>
+        which()
+      
+      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, -index, with = FALSE]
+      index = colnames(group.freq.seq[[name[j]]]) |> sort()
+      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
+      colnames(group.freq.seq[[name[j]]]) = c("CDR3", "Gene", "V-Region identity")
+      
+      if (allele == FALSE) {
+        group.freq.seq[[name[j]]]$Gene = group.freq.seq[[name[j]]]$Gene |>
+          stringr::str_split("\\*|\\,") |>
+          lapply(function(x) return(x[1])) |>
+          unlist()
+      } else {
+        group.freq.seq[[name[j]]]$Gene <- group.freq.seq[[name[j]]]$Gene
+      }
+      
+      group.freq.seq[[name[j]]]$clonotype = paste0(group.freq.seq[[name[j]]]$Gene, " - ", group.freq.seq[[name[j]]]$CDR3)
+      group.freq.seq[[name[j]]]$Gene      = NULL
+      group.freq.seq[[name[j]]]$CDR3      = NULL
+      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, by = .(clonotype, `V-Region identity`), .(`No. of sequences` = .N)]
+      group.freq.seq[[name[j]]] = merge(clono_datasets[[name[j]]], group.freq.seq[[name[j]]], by = "clonotype", all = TRUE)
+      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][order(-N, clonotype, -`No. of sequences`)]
+      
+      vregion_status[[name[j]]] = lapply(group.freq.seq[[name[j]]]$`V-Region identity`, function(z) z > identity_groups$low & z <= identity_groups$high)
+      vregion_status[[name[j]]] = as.data.frame(vregion_status[[name[j]]])
+      vregion_status[[name[j]]] = t(vregion_status[[name[j]]])
+      vregion_status[[name[j]]] = as.data.frame(vregion_status[[name[j]]])
+      colnames(vregion_status[[name[j]]]) = identity_groups$status
+      
+      for (i in 1:nrow(vregion_status[[name[j]]])) {
+        for (z in 1:ncol(vregion_status[[name[j]]])) {
+          
+          if (vregion_status[[name[j]]][i, z] == TRUE) {
+            
+            vregion_status[[name[j]]][i, z] = colnames(vregion_status[[name[j]]])[z]
+            
+          } else {
+            vregion_status[[name[j]]][i, z] = ""
+          }
+        }
+      }
+      
+      vregion_status[[name[j]]] = tidyr::unite(vregion_status[[name[j]]], "V-Region status", sep = "")
+      group.freq.seq[[name[j]]]$"V-Region status" = vregion_status[[name[j]]]
+      
     }
     
     if (save_tables_individually) {
@@ -1862,7 +1916,7 @@ clonotypes <- function(
       if (run_diagnosis) {
         
         fwrite(group.freq.seq[[name[j]]],
-               paste0(e$output_folder, "/", "diagnosis_", name[j], ".txt"),
+               paste0(e$output_folder, "/", "vregion_status_", name[j], ".txt"),
                sep = "\t",
                row.names = FALSE,
                col.names = TRUE,
@@ -1948,7 +2002,7 @@ clonotypes <- function(
   convergent_evolution_list_datasets <- lapply(convergent_evolution_list_datasets,setDF)
   diagnosis <- lapply(diagnosis, setDF)
   
-  
+    
   result <- list(
     "clono_allData" = clono_allData,
     "clono_datasets" = clono_datasets, 
@@ -1967,43 +2021,6 @@ clonotypes <- function(
   # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
   
   return(result)
-}
-
-
-######################################################################################################################################
-
-get_frequent_sequence <- function(data) {
-    
-    clonos <- as.list(unique(data$clonotype))
-
-    one.run <- function(index, temp) {
-        clono_in <- temp[which(temp$clonotype == index), ]
-        
-        freq <- 100 * nrow(clono_in) / nrow(temp)
-
-        x1 <- table(clono_in$Summary.Sequence)
-        x1 <- data.table::as.data.table(x1)
-        colnames(x1) <- c("Sequence", "count")
-        sequences <- x1[which(x1$count == max(x1$count)), ]$Sequence
-
-        clono_in <- clono_in[!duplicated(Summary.Sequence), ]
-        map <- BiocGenerics::match(sequences, clono_in$Summary.Sequence)
-        v.region.identity <- clono_in[map, ]$Summary.V.REGION.identity..
-
-        total <- data.table(
-            Clonotype = unique(clono_in$clonotype),
-            Freq = freq,
-            V.Region.Identity = v.region.identity,
-            Sequence = sequences
-        )
-
-        return(total)
-    }
-
-    out <- lapply(clonos, one.run, data)
-    out <- rbindlist(out)
-
-    return(out)
 }
 
 ######################################################################################################################################
@@ -2472,7 +2489,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
     } else {
         g <- gene
     }
-  
+      
     # logfile
     # logFile<-e$logFile
     # cat(paste0("repertoires", "\t"), file = logFile, append = TRUE)
@@ -2902,7 +2919,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
     #save(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups, file='./Multi_comparisonBcell.RData')
     val1_initial <- val1
     val2_initial <- val2
-
+    
     val_initial <- c(val1_initial, val2_initial)
 
     if (val1 == "Molecular mass" || val1 == "pI") {
