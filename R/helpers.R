@@ -3008,6 +3008,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                             })[, 1])
                         }
                     }
+                    a$gene <- a[[gene]]
                     a <- setDT(a)
                     freq_gene <- a[, by = gene , .N]
                     # freq_gene <- a %>%
@@ -3035,6 +3036,8 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                                 })[, 1])
                             }
                         }
+                        a$gene <- a[[gene]]
+                        a <- setDT(a)
                         freq_gene <- a[, by = gene,.N]
                         # freq_gene <- a %>%
                         #     dplyr::group_by(a[[gene]]) %>%
@@ -3809,7 +3812,7 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
     # cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
     # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    
     if (AAorNtAlignment == "aa") {
         file <- "IMGT.gapped.AA.sequences."
     } else {
@@ -3888,6 +3891,8 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
             freq_cluster_id[seq_len(nrow(input))] <- 0
         } else {
             if (!highly) {
+                pattern <- clono_allData$clonotype
+                view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
                 for (i in seq_len(length(view_specific_clonotype_allData))) {
                     index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
                     if (index[1] > 0) {
