@@ -2909,6 +2909,7 @@ repertoires_comparison <- function(Repertoires_allData, Repertoires_datasets, na
 ######################################################################################################################################
 
 Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clonotypes, gene_clonotypes, view_specific_clonotype_allData, view_specific_clonotype_datasets, val1, val2, name, identity_groups) {
+    used_columns <- e$used_columns
     # logfile
     # logFile<-e$logFile
     # cat(paste0("Multiple_value_comparison", "\t"), file = logFile, append = TRUE)

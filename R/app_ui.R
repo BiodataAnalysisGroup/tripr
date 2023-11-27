@@ -1322,6 +1322,12 @@ app_ui <- function(request) {
             ################## Alignment #################
             tabPanel("Alignment",
                 value = "Alignment",
+                conditionalPanel(
+                  condition = "input.pipeline_highly_similar_clonotypes % 2 == 1",
+                  width = 6,
+                  br(),
+                  h4("This tab displays the alignment of highly similar clonotypes.")
+                ),
                 mainPanel(
                     br(), br(), br(), br(),
                     uiOutput("uiSelectDatasetAlignment"),
