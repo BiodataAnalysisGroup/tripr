@@ -1501,7 +1501,7 @@ app_server <- function(input, output, session) {
             } else if (input$select_clonotype == "Sequence") {
                 allele <- FALSE
                 gene <- c()
-                junction <- used_columns[["Summary"]][20]
+                junction <- used_columns[["Summary"]][23]
             } else {
                 allele <- FALSE
                 junction <- used_columns[["IMGT.gapped.nt.sequences"]][9]

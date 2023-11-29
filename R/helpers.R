@@ -1803,7 +1803,7 @@ clonotypes <- function(
           convergent_evolution_list_datasets[[name[j]]]$convergent_evolution)
       
       # hold all info for each clonotype in a list
-      view_specific_clonotype_allData = split(data, data$clonotype)
+      view_specific_clonotype_datasets[[name[j]]] = split(data, data$clonotype)
     }
     
     clono_datasets[[name[j]]] <- unique(data[, c("clonotype", "N", "Freq", "cluster_info")])
