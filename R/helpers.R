@@ -2353,90 +2353,90 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
 ######################################################################################################################################
 
 public_clonotypes <- function(clono_allData, clono_datasets, take_gene, use_reads, public_clonotype_thr, name, highly) {
-    # logfile
-    clono_allData <- as.data.frame(clono_allData)
-    # logFile<-e$logFile
-    # cat(paste0("public_clonotypes", "\t"), file = logFile, append = TRUE)
-    # cat(paste0(paste("take_gene ", take_gene, "threshold", public_clonotype_thr, sep = ","), "\t"), file = logFile, append = TRUE)
-    # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
-    # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
-    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
-    if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "No") {
-        a2 <- strsplit(clono_allData$clonotype, " - ")
-        clono_allData$clonotype <- as.character(plyr::ldply(a2, function(s) {
-            t(data.frame(unlist(s)))
-        })[, 2])
-        clono_allData <- data.table::as.data.table(clono_allData[, seq_len(3), with=FALSE])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
-        clono_allData <- clono_allData[order(-clono_allData$N), ]
+  # logfile
+  clono_allData <- as.data.frame(clono_allData)
+  # logFile<-e$logFile
+  # cat(paste0("public_clonotypes", "\t"), file = logFile, append = TRUE)
+  # cat(paste0(paste("take_gene ", take_gene, "threshold", public_clonotype_thr, sep = ","), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  
+  if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "No") {
+    a2 <- strsplit(clono_allData$clonotype, " - ")
+    clono_allData$clonotype <- as.character(plyr::ldply(a2, function(s) {
+      t(data.frame(unlist(s)))
+    })[, 2])
+    clono_allData <- data.table::as.data.table(clono_allData[, seq_len(3)])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
+    clono_allData <- clono_allData[order(-clono_allData$N), ]
+  }
+  
+  initial_sum <- list()
+  for (n in name) {
+    initial_sum[[n]] <- sum(clono_datasets[[n]]$N)
+  }
+  
+  if (use_reads) {
+    clono_allData <- clono_allData %>% dplyr::filter(N > public_clonotype_thr)
+  } else {
+    clono_allData <- clono_allData[seq_len(public_clonotype_thr), ]
+  }
+  
+  public_clono <- data.frame(clonotype = unique(clono_allData$clonotype), stringsAsFactors = FALSE)
+  
+  # for each dataset
+  for (n in name) {
+    if (stringr::str_detect(clono_datasets[[n]]$clonotype[1], " - ") && take_gene == "No") {
+      a2 <- strsplit(clono_datasets[[n]]$clonotype, " - ")
+      clono_datasets[[n]]$clonotype <- as.character(plyr::ldply(a2, function(s) {
+        t(data.frame(unlist(s)))
+      })[, 2])
+      clono_datasets[[n]] <- data.table::as.data.table(clono_datasets[[n]][, seq_len(3)])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
+      clono_datasets[[n]] <- clono_datasets[[n]][order(-clono_datasets[[n]]$N), ]
     }
-
-    initial_sum <- list()
-    for (n in name) {
-        initial_sum[[n]] <- sum(clono_datasets[[n]]$N)
-    }
-
-    if (use_reads) {
-        clono_allData <- clono_allData %>% dplyr::filter(N > public_clonotype_thr)
-    } else {
-        clono_allData <- clono_allData[seq_len(public_clonotype_thr), ]
-    }
-
-    public_clono <- data.frame(clonotype = unique(clono_allData$clonotype), stringsAsFactors = FALSE)
     
-    # for each dataset
-    for (n in name) {
-        if (stringr::str_detect(clono_datasets[[n]]$clonotype[1], " - ") && take_gene == "No") {
-            a2 <- strsplit(clono_datasets[[n]]$clonotype, " - ")
-            clono_datasets[[n]]$clonotype <- as.character(plyr::ldply(a2, function(s) {
-                t(data.frame(unlist(s)))
-            })[, 2])
-            clono_datasets[[n]] <- data.table::as.data.table(clono_datasets[[n]][, seq_len(3), with=FALSE])[, lapply(.SD, sum), by = .(clonotype = clonotype)]
-            clono_datasets[[n]] <- clono_datasets[[n]][order(-clono_datasets[[n]]$N), ]
-        }
-
-        if (use_reads) {
-            clono_datasets[[n]] <- clono_datasets[[n]] %>% dplyr::filter(N > public_clonotype_thr)
-        } else {
-            clono_datasets[[n]] <- clono_datasets[[n]][seq_len(public_clonotype_thr), ]
-        }
-
-        ids_dataset <- which(clono_datasets[[n]]$clonotype %in% public_clono$clonotype)
-        ids <- match(clono_datasets[[n]]$clonotype, public_clono$clonotype)[which(!(is.na(match(clono_datasets[[n]]$clonotype, public_clono$clonotype))))]
-        public_clono[[paste0(n, "_Reads/Total")]] <- NA
-        public_clono[[paste0(n, "_Freq")]] <- NA
-        public_clono[[paste0(n, "_Reads/Total")]][ids] <- paste0(clono_datasets[[n]]$N[ids_dataset], "/", initial_sum[[n]])
-        public_clono[[paste0(n, "_Freq")]][ids] <- clono_datasets[[n]]$Freq[ids_dataset]
+    if (use_reads) {
+      clono_datasets[[n]] <- clono_datasets[[n]] %>% dplyr::filter(N > public_clonotype_thr)
+    } else {
+      clono_datasets[[n]] <- clono_datasets[[n]][seq_len(public_clonotype_thr), ]
     }
-
-    public_clono$Num_of_patients <- NA
-
-    # filter results
-    public_clono$Num_of_patients <- (apply(public_clono, 1, function(x) sum(!(is.na(x)))) - 1) / 2
-    public_clono <- public_clono %>% dplyr::filter(Num_of_patients > 1)
-
-    # replace NA with 0
-    public_clono[is.na(public_clono)] <- 0
-
-    if (save_tables_individually) {
-        if (highly) {
-            filename <- paste0(e$output_folder, "/", "public_highly_clonotypes", ".txt")
-            write.table(public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-        } else {
-            filename <- paste0(e$output_folder, "/", "public_clonotypes", ".txt")
-            write.table(public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-        }
+    
+    ids_dataset <- which(clono_datasets[[n]]$clonotype %in% public_clono$clonotype)
+    ids <- match(clono_datasets[[n]]$clonotype, public_clono$clonotype)[which(!(is.na(match(clono_datasets[[n]]$clonotype, public_clono$clonotype))))]
+    public_clono[[paste0(n, "_Reads/Total")]] <- NA
+    public_clono[[paste0(n, "_Freq")]] <- NA
+    public_clono[[paste0(n, "_Reads/Total")]][ids] <- paste0(clono_datasets[[n]]$N[ids_dataset], "/", initial_sum[[n]])
+    public_clono[[paste0(n, "_Freq")]][ids] <- clono_datasets[[n]]$Freq[ids_dataset]
+  }
+  
+  public_clono$Num_of_patients <- NA
+  
+  # filter results
+  public_clono$Num_of_patients <- (apply(public_clono, 1, function(x) sum(!(is.na(x)))) - 1) / 2
+  public_clono <- public_clono %>% dplyr::filter(Num_of_patients > 1)
+  
+  # replace NA with 0
+  public_clono[is.na(public_clono)] <- 0
+  
+  if (save_tables_individually) {
+    if (highly) {
+      filename <- paste0(e$output_folder, "/", "public_highly_clonotypes", ".txt")
+      write.table(public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+    } else {
+      filename <- paste0(e$output_folder, "/", "public_clonotypes", ".txt")
+      write.table(public_clono, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
-
-    confirm <- paste0("Shared Clonotypes run!")
-
-    result <- list("public_clono" = public_clono, "confirm" = confirm)
-
-    # log time end and memory used
-    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
-    return(result)
+  }
+  
+  confirm <- paste0("Shared Clonotypes run!")
+  
+  result <- list("public_clono" = public_clono, "confirm" = confirm)
+  
+  # log time end and memory used
+  # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+  
+  return(result)
 }
 
 ######################################################################################################################################
