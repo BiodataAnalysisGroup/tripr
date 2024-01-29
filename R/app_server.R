@@ -1484,7 +1484,7 @@ app_server <- function(input, output, session) {
                 junction <- used_columns[["Summary"]][18]
             } else if (input$select_clonotype == "J Gene and Allele + CDR3 Amino Acids") {
                 allele <- TRUE
-                gene <- used_columns[["Summary"]][3]
+                gene <- used_columns[["Summary"]][8]
                 junction <- used_columns[["Summary"]][18]
             } else if (input$select_clonotype == "J Gene + CDR3 Nucleotide") {
                 allele <- FALSE
