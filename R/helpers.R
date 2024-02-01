@@ -3043,7 +3043,7 @@ Multiple_value_comparison <- function(clono_allData, clono_datasets, allele_clon
                         # freq_gene <- a %>%
                         #     dplyr::group_by(a[[gene]]) %>%
                         #     dplyr::summarise(n = n())
-                        freq_gene <- freq_gene[order(-freq_gene$n), ]
+                        freq_gene <- freq_gene[order(-freq_gene$N), ]
                         freq_gene_name[i, 1] <- freq_gene[1, 1]
                     }
 
