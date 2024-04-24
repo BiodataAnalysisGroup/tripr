@@ -503,23 +503,6 @@ app_ui <- function(request) {
                         ),
                         width = "320"
                         ),
-
-                        checkboxInput("diagnosis", c(
-                            "Diagnosis",
-                            list(
-                                tags$style(type = "text/css", "#q_clonotypes {vertical-align: top;}"),
-                                bsButton("q_diagnosis", label = "", icon = icon("question"), size = "extra-small")
-                            )
-                        ),
-                        width = "500px"
-                        ),
-                        bsPopover(
-                            id = "q_diagnosis", title = "Diagnosis",
-                            content = paste0("Text to write about Diagnosis"),
-                            placement = "right",
-                            trigger = "focus",
-                            options = list(container = "body")
-                        )
                     ),
                     uiOutput("confirmClonotype"),
 
@@ -682,62 +665,82 @@ app_ui <- function(request) {
                     ),
                     conditionalPanel(
                         condition = "input.cell == 'B cell'",
-                        checkboxInput("pipeline_insert_identity_groups", c(
-                            "Insert Identity groups",
-                            list(
-                                tags$style(type = "text/css", "#q_insert_identity_groups {vertical-align: top;}"),
-                                bsButton("q_insert_identity_groups", label = "", icon = icon("question"), size = "extra-small")
-                            )
+                        checkboxInput("diagnosis", c(
+                          "Somatic hypermutation status",
+                          list(
+                            tags$style(type = "text/css", "#q_clonotypes {vertical-align: top;}"),
+                            bsButton("q_diagnosis", label = "", icon = icon("question"), size = "extra-small")
+                          )
                         ),
                         width = "500px"
                         ),
                         bsPopover(
+                          id = "q_diagnosis", title = "Somatic hypermutation status",
+                          content = paste0("Presents the V region identity (%) to the germline V gene sequence due to SHM for all the sequences comprising a particular clonotype. The user can categorize the sequences into different groups defining their SHM status based on this value."),
+                          placement = "right",
+                          trigger = "focus",
+                          options = list(container = "body")
+                        ),
+                        conditionalPanel(
+                          condition = "input.diagnosis % 2 == 1",
+                          checkboxInput("pipeline_insert_identity_groups", c(
+                            "Insert Identity groups",
+                            list(
+                              tags$style(type = "text/css", "#q_insert_identity_groups {vertical-align: top;}"),
+                              bsButton("q_insert_identity_groups", label = "", icon = icon("question"), size = "extra-small")
+                            )
+                          ),
+                          value = TRUE,
+                          width = "500px"
+                          ),
+                          bsPopover(
                             id = "q_insert_identity_groups", title = "Insert Identity groups",
-                            content = paste0("sequences can be grouped in different categories based on the V-region identity %. The user can in this tool determine the number of different identity groups and the limits of every group. (high limit: <, low limit: >=)"),
+                            content = paste0("sequences can be grouped in different categories based on the V-region identity %. The user can in this tool determine the number of different identity groups and the limits of every group. ( > low limit, <= high limit)"),
                             placement = "right",
                             trigger = "focus",
                             options = list(container = "body")
-                        ),
-                        conditionalPanel(
+                          ),
+                          conditionalPanel(
                             condition = "input.pipeline_insert_identity_groups % 2 == 1",
                             numericInput("N_identity_groups", "Number of identity groups:", 5,
-                                min = 0, max = 150, width = "140px"
+                                         min = 0, max = 150, width = "140px"
                             ),
                             uiOutput("insert_identity_groups_ui")
-                        ),
-                        uiOutput("confirmInsert_identity_groups")
-                    ),
-                    conditionalPanel(
-                        condition = "input.cell == 'B cell'",
-                        checkboxInput("pipeline_mutational_status", c(
-                            "Somatic hypermutation status",
+                          ),
+                          uiOutput("confirmInsert_identity_groups"),
+                        conditionalPanel(
+                          condition = "input.pipeline_insert_identity_groups % 2 == 1",
+                          checkboxInput("pipeline_mutational_status", c(
+                            "Somatic hypermutation status plot",
                             list(
-                                tags$style(type = "text/css", "#q_Mutational_status {vertical-align: top;}"),
-                                bsButton("q_Mutational_status", label = "", icon = icon("question"), size = "extra-small")
+                              tags$style(type = "text/css", "#q_Mutational_status {vertical-align: top;}"),
+                              bsButton("q_Mutational_status", label = "", icon = icon("question"), size = "extra-small")
                             )
-                        ),
-                        width = "500px"
-                        ),
-                        bsPopover(
-                            id = "q_Mutational_status", title = "Somatic hypermutation status",
+                          ),
+                          width = "500px"
+                          ),
+                          bsPopover(
+                            id = "q_Mutational_status", title = "Somatic hypermutation status plot",
                             content = paste0("Compute the percentages of rows that belong to each identity group. The results are presented at Visualization tab."),
                             placement = "right",
                             trigger = "focus",
                             options = list(container = "body")
-                        ),
-                        conditionalPanel(
+                          ),
+                          conditionalPanel(
                             condition = "input.pipeline_mutational_status % 2 == 1 & input.pipeline_highly_similar_clonotypes % 2 == 1",
                             radioButtons(
-                                "select_clono_or_highly_for_mutational_status", "Use:",
-                                c(
-                                    "Initial clonotypes" = "initial_clonotypes",
-                                    "Highly similar clonotypes" = "highly_similar_clonotypes"
-                                )
+                              "select_clono_or_highly_for_mutational_status", "Use:",
+                              c(
+                                "Initial clonotypes" = "initial_clonotypes",
+                                "Highly similar clonotypes" = "highly_similar_clonotypes"
+                              )
                             )
+                          ),
+                          uiOutput("confirmMutational_status")
                         ),
-                        uiOutput("confirmMutational_status")
+                        ),
                     ),
-
+                    
                     #### CDR3 Distribution ####
 
                     checkboxInput("pipeline_cdr3_distribution", c(
@@ -1319,6 +1322,12 @@ app_ui <- function(request) {
             ################## Alignment #################
             tabPanel("Alignment",
                 value = "Alignment",
+                conditionalPanel(
+                  condition = "input.pipeline_highly_similar_clonotypes % 2 == 1",
+                  width = 6,
+                  br(),
+                  h4("This tab displays the alignment of highly similar clonotypes.")
+                ),
                 mainPanel(
                     br(), br(), br(), br(),
                     uiOutput("uiSelectDatasetAlignment"),

@@ -1484,7 +1484,7 @@ app_server <- function(input, output, session) {
                 junction <- used_columns[["Summary"]][18]
             } else if (input$select_clonotype == "J Gene and Allele + CDR3 Amino Acids") {
                 allele <- TRUE
-                gene <- used_columns[["Summary"]][3]
+                gene <- used_columns[["Summary"]][8]
                 junction <- used_columns[["Summary"]][18]
             } else if (input$select_clonotype == "J Gene + CDR3 Nucleotide") {
                 allele <- FALSE
@@ -1501,19 +1501,33 @@ app_server <- function(input, output, session) {
             } else if (input$select_clonotype == "Sequence") {
                 allele <- FALSE
                 gene <- c()
-                junction <- used_columns[["Summary"]][20]
+                junction <- used_columns[["Summary"]][23]
             } else {
                 allele <- FALSE
                 junction <- used_columns[["IMGT.gapped.nt.sequences"]][9]
                 gene <- c()
             }
 
+            
             gene_clonotypes <<- gene
             junction_clonotypes <<- junction
             allele_clonotypes <<- allele
             
+            # identity groups
+            low <- c()
+            high <- c()
+            status <- c()
+            for (i in seq_len(input$N_identity_groups)) {
+              low <- c(low, input[[paste0("Identity_low_group", i)]])
+              high <- c(high, input[[paste0("Identity_high_group", i)]])
+              status <- c(status, input[[paste0("V_region_status", i)]])
+            }
+            label <- paste(low, high, sep = "-")
+            
+            identity_groups <<- (data.frame(low = low, high = high, status = status, label = label, stringsAsFactors = FALSE))
+
             if ((just_restored_session_clonotypes == FALSE) & (input$select_load_or_compute_clonotypes != "load_clonotypes")) {
-                clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis) # input$shm_normal,
+                clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis, identity_groups) # input$shm_normal,
             }
 
             just_restored_session_clonotypes <<- FALSE
@@ -2685,11 +2699,15 @@ app_server <- function(input, output, session) {
                 fluidRow(
                     column(
                         3,
-                        numericInput(paste0("Identity_low_group", i), "Low Limit:", 90, min = 0, max = 100, width = "140px")
+                        numericInput(paste0("Identity_low_group", i), "Low Limit:", NULL, min = 0, max = 100, width = "140px")
                     ),
                     column(
                         3,
-                        numericInput(paste0("Identity_high_group", i), "High Limit:", 95, min = 0, max = 100, width = "140px")
+                        numericInput(paste0("Identity_high_group", i), "High Limit:", NULL, min = 0, max = 100, width = "140px")
+                    ),
+                    column(
+                        3,
+                        selectInput(paste0("V_region_status", i), "Status:", c("Truly unmutated", "Unmutated", "Borderline mutated", "Mutated", "Heavily mutated"), selected = NULL, multiple = FALSE, width = "140px")
                     )
                 )
             })
@@ -2703,13 +2721,15 @@ app_server <- function(input, output, session) {
 
         low <- c()
         high <- c()
+        status <- c()
         for (i in seq_len(input$N_identity_groups)) {
             low <- c(low, input[[paste0("Identity_low_group", i)]])
             high <- c(high, input[[paste0("Identity_high_group", i)]])
+            status <- c(status, input[[paste0("V_region_status", i)]])
         }
         label <- paste(low, high, sep = "-")
 
-        identity_groups <<- (data.frame(low = low, high = high, label = label, stringsAsFactors = FALSE))
+        identity_groups <<- (data.frame(low = low, high = high, status = status, label = label, stringsAsFactors = FALSE))
     })
 
     ############################### Multiple value comparison ###############################
@@ -2829,7 +2849,7 @@ app_server <- function(input, output, session) {
 
             label <- paste(low, high, sep = "-")
             identity_groups <<- (data.frame(low = low, high = high, label = label, stringsAsFactors = FALSE))
-
+            
             # Multiple_value_comparison_result<-list()
 
             for (i in seq_len(length(insertedMultiple_value_comparison))) {
@@ -2859,7 +2879,7 @@ app_server <- function(input, output, session) {
 
                 msgMultiple_value_comparison[i] <<- Multiple_value_comparison_result[[i]]$confirm
             }
-
+            
             just_restored_session_Multiple_value_comparison <<- FALSE
 
             # Multiple_value_comparison tab
@@ -4379,14 +4399,16 @@ app_server <- function(input, output, session) {
 
         low <- c()
         high <- c()
+        status <- c()
         for (i in seq_len(input$N_identity_groups)) {
             low <- c(low, input[[paste0("Identity_low_group", i)]])
             high <- c(high, input[[paste0("Identity_high_group", i)]])
+            status <- c(status, input[[paste0("V_region_status", i)]])
         }
         label <- paste(low, high, sep = "-")
-        identity_groups <<- (data.frame(low = low, high = high, label = label, stringsAsFactors = FALSE))
+        identity_groups <<- (data.frame(low = low, high = high, status = status, label = label, stringsAsFactors = FALSE))
         for (i in seq_len(input$N_identity_groups)) {
-            my_table <- c(my_table, paste0("low: ", identity_groups$low[i], ", high: ", identity_groups$high[i]))
+            my_table <- c(my_table, paste0("low: ", identity_groups$low[i], ", high: ", identity_groups$high[i], ", status: ", identity_groups$status[i]))
         }
         my_table <- data.frame(identity_groups = my_table)
         colnames(my_table) <- "Identity Groups"
