@@ -105,6 +105,8 @@ app_server <- function(input, output, session) {
     insertedMultiple_value_comparison <- c()
     insertedRepertoires <- c()
     clono <- c()
+    `No. of sequences` <- c()
+    `V-Region identity` <- c()
     public_clonotypes_results <- list() # delete from global
     highly_sim_public_clonotypes_results <- list() # delete from global
     repertories_results <- c()
