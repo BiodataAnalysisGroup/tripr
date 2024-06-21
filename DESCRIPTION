@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
-Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)  
-Version: 1.9.12
+Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
+Version: 1.11.0
 Authors@R: c(
         person("Maria Th.", "Kotouza", email = "-", role = "aut"),
         person("Katerina", "Gemenetzi", email = "-", role = "aut"),
@@ -25,68 +25,39 @@ Description: TRIP is a software framework that provides analytics services on
     data files from all samples and visualize the results accordingly.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: false
-biocViews: 
-    BatchEffect,
-    MultipleComparison,
-    GeneExpression,
-    ImmunoOncology,
-    TargetedResequencing
-Imports: 
-    shinyjs,
-    shinyFiles,
-    plyr,
-    data.table,
-    DT,
-    stringr,
-    stringdist,
-    plot3D, 
-    gridExtra,  
-    RColorBrewer,  
-    plotly,
-    dplyr,
-    config (>= 0.3.1),
-    golem (>= 0.3.1),
-    methods,
-    grDevices,
-    graphics,
-    stats,
-    utils
-Enhances: 
-    parallel
-Suggests:
-    BiocGenerics,
-    shinycssloaders,
-    tidyverse,
-    BiocManager,
-    Biostrings,
-    xtable,
-    rlist,
-    motifStack,
-    knitr,
-    rmarkdown,
-    testthat (>= 3.0.0),
-    fs,
-    BiocStyle,
-    RefManageR,
-    biocthis,
-    pryr
-Depends:
-    shiny (>= 1.6.0),
-    shinyBS
-Collate:
-    "tripr-package.R"
-    "global.R"
-    "helpers.R"
-    "run_TRIP_without_ui.R"
-    "app_config.R"
-    "app_server.R"
-    "app_ui.R"
-    "run_app.R"
-    "zzz.R"
+biocViews: BatchEffect, MultipleComparison, GeneExpression,
+        ImmunoOncology, TargetedResequencing
+Imports: shinyjs, shinyFiles, plyr, data.table, DT, stringr,
+        stringdist, plot3D, gridExtra, RColorBrewer, plotly, dplyr,
+        config (>= 0.3.1), golem (>= 0.3.1), methods, grDevices,
+        graphics, stats, utils, vegan
+Enhances: parallel
+Suggests: BiocGenerics, shinycssloaders, tidyverse, BiocManager,
+        Biostrings, xtable, rlist, motifStack, knitr, rmarkdown,
+        testthat (>= 3.0.0), fs, BiocStyle, RefManageR, biocthis, pryr
+Depends: shiny (>= 1.6.0), shinyBS
+Collate: "tripr-package.R" "global.R" "helpers.R"
+        "run_TRIP_without_ui.R" "app_config.R" "app_server.R"
+        "app_ui.R" "run_app.R" "zzz.R"
 URL: https://github.com/BiodataAnalysisGroup/tripr
 BugReports: https://github.com/BiodataAnalysisGroup/tripr/issues
 BiocType: Software
 RoxygenNote: 7.2.0
 VignetteBuilder: knitr
 Config/testthat/edition: 3
+NeedsCompilation: no
+Packaged: 2024-06-21 08:18:31 UTC; k.kardamiliotis
+Author: Maria Th. Kotouza [aut],
+  Katerina Gemenetzi [aut],
+  Chrysi Galigalidou [aut],
+  Elisavet Vlachonikola [aut],
+  Nikolaos Pechlivanis [cre],
+  Andreas Agathangelidis [aut],
+  Raphael Sandaltzopoulos [aut],
+  Pericles A. Mitkas [aut],
+  Kostas Stamatopoulos [aut],
+  Anastasia Chatzidimitriou [aut],
+  Fotis E. Psomopoulos [aut],
+  Iason Ofeidis [aut],
+  Aspasia Orfanou [aut]
+Maintainer: Nikolaos Pechlivanis <inab.bioinformatics@lists.certh.gr>
