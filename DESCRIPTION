@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
-Version: 1.11.0
+Version: 1.11.1
 Authors@R: c(
         person("Maria Th.", "Kotouza", email = "-", role = "aut"),
         person("Katerina", "Gemenetzi", email = "-", role = "aut"),
@@ -42,11 +42,11 @@ Collate: "tripr-package.R" "global.R" "helpers.R"
 URL: https://github.com/BiodataAnalysisGroup/tripr
 BugReports: https://github.com/BiodataAnalysisGroup/tripr/issues
 BiocType: Software
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.1
 VignetteBuilder: knitr
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2024-06-21 08:18:31 UTC; k.kardamiliotis
+Packaged: 2024-06-21 10:04:24 UTC; k.kardamiliotis
 Author: Maria Th. Kotouza [aut],
   Katerina Gemenetzi [aut],
   Chrysi Galigalidou [aut],
