@@ -5956,6 +5956,21 @@ app_server <- function(input, output, session) {
                     return(my_table)
                 }
             })
+            
+            output$download_length_distribution_table <- downloadHandler(
+              filename = function() {
+                paste0("CDR3_length_distribution_", input$VisualisationDataset, ".txt")
+              },
+              content = function(file) {
+                if (input$VisualisationDataset == "All Data") {
+                  fwrite(cdr3_length_distribution, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                } 
+                else {
+                fwrite(cdr3_length_distribution_dataset[[input$VisualisationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                }
+              }
+            )
+            
 
             ############ Pi distribution ############
             # if (input$pipeline_pi_distribution) {

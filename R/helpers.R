@@ -1702,13 +1702,17 @@ clonotypes <- function(
       if (Freq_clono_cutoff != 0) {
         clono_allData <- clono_allData %>% filter(Freq > Freq_clono_cutoff)
         clono_allData$Freq  <- 100 * clono_allData$N / sum(clono_allData$N)
-        clono_write <- clono_allData
+        
+        clono_write <- clono_write %>% filter(Freq > Freq_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       if (N_clono_cutoff != 0) {
         clono_allData <- clono_allData %>% filter(N > N_clono_cutoff)
         clono_allData$Freq  <- 100 * clono_allData$N / sum(clono_allData$N)
-        clono_write <- clono_allData
+        
+        clono_write <- clono_write %>% filter(N > N_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       
@@ -2058,13 +2062,17 @@ clonotypes <- function(
       if (Freq_clono_cutoff != 0) {
         clono_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>% filter(Freq > Freq_clono_cutoff)
         clono_datasets[[name[j]]]$Freq  <- 100 * clono_datasets[[name[j]]]$N / sum(clono_datasets[[name[j]]]$N)
-        clono_write <- clono_datasets[[name[j]]]
+        
+        clono_write <- clono_write %>% filter(Freq > Freq_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       if (N_clono_cutoff != 0) {
         clono_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>% filter(N > N_clono_cutoff)
         clono_datasets[[name[j]]]$Freq  <- 100 * clono_datasets[[name[j]]]$N / sum(clono_datasets[[name[j]]]$N)
-        clono_write <- clono_datasets[[name[j]]]
+        
+        clono_write <- clono_write %>% filter(N > N_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       # Printing clonotypes file
@@ -2177,7 +2185,7 @@ clonotypes <- function(
         clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
         clono_write <- data.table::as.data.table(clono_write)
         clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
-        colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution", "pI") #Genes
+        colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution", "pI") #Genes
         } else {
           clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
           clono_write <- data.table::as.data.table(clono_write)

@@ -536,7 +536,7 @@ app_ui <- function(request) {
                           numericInput("Freq_clono_cutoff", "Freq %:", 0, min = 0, max = 100, width = "140px")
                         ),
                         conditionalPanel(
-                          condition = "input.select_clonotype == 'Sequence'",
+                          condition = "input.cell == 'B cell' && input.select_clonotype == 'Sequence'",
                           checkboxInput("pipeline_sub_clonotypes", c(
                             "Sub-clonotypes analysis",
                             list(
@@ -1868,7 +1868,8 @@ app_ui <- function(request) {
                            conditionalPanel(
                              condition = "input.view_length_distribution_table % 2 == 1",
                              br(),
-                             dataTableOutput("length_distribution_table")
+                             dataTableOutput("length_distribution_table"),
+                             downloadButton("download_length_distribution_table", "Download")
                            )
                          )
                        ),
