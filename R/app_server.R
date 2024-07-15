@@ -5842,84 +5842,94 @@ app_server <- function(input, output, session) {
                     highly <- FALSE
                 }
                 if (!highly) {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_allData)) {
-                                d <- c(d, clono$view_specific_clonotype_allData[[i]][[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(clono$clono_allData)
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution <<- d[order(d$CDR3Length), ]
-                        } else {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
-                                d <- c(d, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(clono$clono_datasets[[loaded_datasets[j]]])
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
+                  for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                      
+                      if (input$N_clono_cutoff!=0 | input$Freq_clono_cutoff!=0) {
+                        clono$view_specific_clonotype_allData <- clono$view_specific_clonotype_allData[names(clono$view_specific_clonotype_allData) %in% clono$clono_allData$clonotype]
+                      }
+                      
+                      d <- c()
+                      for (i in names(clono$view_specific_clonotype_allData)) {
+                        d <- c(d, clono$view_specific_clonotype_allData[[i]][[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(clono$clono_allData)
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution <<- d[order(d$CDR3Length), ]
+                    } else {
+                      d <- c()
+                      for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
+                        
+                        if (input$N_clono_cutoff!=0 | input$Freq_clono_cutoff!=0) {
+                          clono$view_specific_clonotype_datasets[[loaded_datasets[j]]] <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]]) %in% clono$clono_datasets[[loaded_datasets[j]]]$clonotype]
                         }
+                        
+                        d <- c(d, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(clono$clono_datasets[[loaded_datasets[j]]])
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
                     }
+                  }
                 } else {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
-                                a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, a[[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(highly_sim)
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution <<- d[order(d$CDR3Length), ]
-                        } else {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
-                                prev_clono <- prev_clono[!is.na(prev_clono)]
-                                a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, a[[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(highly_sim_datasets[[loaded_datasets[j]]])
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
+                  for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                      d <- c()
+                      for (i in seq_len(nrow(highly_sim))) {
+                        prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
+                        a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
+                        if (length(prev_clono) > 1) {
+                          for (cl in 2:length(prev_clono)) {
+                            a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                          }
                         }
+                        d <- c(d, a[[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(highly_sim)
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution <<- d[order(d$CDR3Length), ]
+                    } else {
+                      d <- c()
+                      for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
+                        prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
+                        prev_clono <- prev_clono[!is.na(prev_clono)]
+                        a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
+                        if (length(prev_clono) > 1) {
+                          for (cl in 2:length(prev_clono)) {
+                            a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                          }
+                        }
+                        d <- c(d, a[[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(highly_sim_datasets[[loaded_datasets[j]]])
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
                     }
+                  }
                 }
             }
 
