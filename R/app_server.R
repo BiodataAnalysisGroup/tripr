@@ -2137,7 +2137,7 @@ app_server <- function(input, output, session) {
                     all_filter$highly_freq_cluster_id <- 0
 
                     for (h in seq_len(nrow(temp))) {
-                        prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+                        prev <- as.numeric(strsplit(as.character(temp$prev_cluster[h]), " ")[[1]])
                         all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
                         all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                     }
@@ -2174,7 +2174,7 @@ app_server <- function(input, output, session) {
                 all_filter$highly_freq_cluster_id <- 0
 
                 for (h in seq_len(nrow(temp))) {
-                    prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+                    prev <- as.numeric(strsplit(as.character(temp$prev_cluster[h]), " ")[[1]])
                     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
                     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                 }
