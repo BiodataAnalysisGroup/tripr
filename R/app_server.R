@@ -1555,11 +1555,15 @@ app_server <- function(input, output, session) {
                 allele <- FALSE
                 junction <- used_columns[["Summary"]][18]
                 gene <- c()
-            } else if (input$select_clonotype == "Sequence" & input$select_primer == "IGHC_primer") {
+            } else if (input$cell == "B cell" & input$select_clonotype == "Sequence" & input$select_primer == "IGHC_primer") {
                 allele <- FALSE
                 gene <- c()
                 junction <- used_columns[["IMGT.gapped.nt.sequences"]][1]
-            } else if (input$select_clonotype == "Sequence" & input$select_primer == "IGHJ_primer") {
+            } else if (input$cell == "B cell" & input$select_clonotype == "Sequence" & input$select_primer == "IGHJ_primer") {
+                allele <- FALSE
+                gene <- c()
+                junction <- "IMGT.gapped.nt.sequences.FR1_CDR3"
+            } else if (input$cell == "T cell" & input$select_clonotype == "Sequence") {
                 allele <- FALSE
                 gene <- c()
                 junction <- "IMGT.gapped.nt.sequences.FR1_CDR3"

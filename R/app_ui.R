@@ -504,7 +504,7 @@ app_ui <- function(request) {
                         width = "320"
                         ),
                         conditionalPanel(
-                          condition = "input.select_clonotype == 'Sequence'",
+                          condition = "input.cell == 'B cell' && input.select_clonotype == 'Sequence'",
                           radioButtons("select_primer", "Select Primer:",
                                        c("IGHJ primer" = "IGHJ_primer", "IGHC primer" = "IGHC_primer"))
                         ),
