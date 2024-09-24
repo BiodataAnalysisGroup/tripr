@@ -3947,6 +3947,7 @@ app_server <- function(input, output, session) {
                     if (input$AAorNtAlignment == "both") {
                         message("Alignment Step 1.a")
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3964,6 +3965,7 @@ app_server <- function(input, output, session) {
 
                         message("Alignment Step 2.a")
                         alignmentRegion_results_nt <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3980,6 +3982,7 @@ app_server <- function(input, output, session) {
                         )
                     } else {
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -4000,6 +4003,7 @@ app_server <- function(input, output, session) {
                     if (input$AAorNtAlignment == "both") {
                         message("Alignment Step 1.b")
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -4017,6 +4021,7 @@ app_server <- function(input, output, session) {
 
                         message("Alignment Step 2.b")
                         alignmentRegion_results_nt <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -4032,6 +4037,7 @@ app_server <- function(input, output, session) {
                         )
                     } else {
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,

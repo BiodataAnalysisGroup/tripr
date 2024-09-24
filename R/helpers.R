@@ -4253,9 +4253,9 @@ createLogo <- function(table_count, table_count_datasets, name) {
 
 ######################################################################################################################################
 
-alignment <- function(input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly) {
+alignment <- function(clonotype_type, input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly) {
   used_columns <- e$used_columns
-  
+ 
   # logfile
   # logFile<-e$logFile
   # 
@@ -4264,6 +4264,32 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
   # cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
   # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
   # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  
+  if (clonotype_type == "Sequence") {
+    colnames(clono_allData)[1] <- "clonotype"
+    clono_datasets <- lapply(clono_datasets, function(df) {
+      colnames(df)[1] <- "clonotype"
+      return(df)
+    })
+  
+    names(view_specific_clonotype_allData) <- lapply(view_specific_clonotype_allData, function(df) {
+      levels(as.factor(df$cluster_id))  
+    })
+    
+    # Iterate over each inner list within the main list
+    view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, function(inner_list) {
+      
+      # Apply the function to each dataframe within the inner list
+      names(inner_list) <- sapply(inner_list, function(df) {
+        levels(as.factor(df$cluster_id))[1]  # Extract the first level of the cluster_id column
+      })
+      
+      return(inner_list)  # Return the modified inner list
+    })
+    
+     }
+  
+  
   
   if (AAorNtAlignment == "aa") {
     file <- "IMGT.gapped.AA.sequences."
