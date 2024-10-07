@@ -179,7 +179,7 @@ testColumnNames <- function(name, files, datapath) {
             "rawDataSet" = rawDataSet
         ))
     }
-
+    
     # Correct the wrong column names
     return(list(
         "confirm" = confirm, #"logFile" = logFile,
@@ -1549,13 +1549,16 @@ imgtfilterLow <- function(rawDataSet, name, allData, cell_id = 1, filter_id = c(
 ######################################################################################################################################
 
 clonotypes <- function(
-  allData, 
-  allele, 
-  gene, 
-  junction, 
-  name, 
-  run_diagnosis,
-  identity_groups
+    allData, 
+    allele, 
+    gene, 
+    junction,
+    name, 
+    run_diagnosis,
+    identity_groups,
+    run_sub_clono,
+    N_clono_cutoff,
+    Freq_clono_cutoff
 ) {
   
   used_columns <- e$used_columns
@@ -1578,9 +1581,19 @@ clonotypes <- function(
   # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
   # cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
   # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-  
+ 
   # clonotypes all Data
   allData                           <- setDT(allData)
+  
+  if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION") {
+    allData$IMGT.gapped.nt.sequences.FR4.IMGT <- stringr::str_pad(allData$IMGT.gapped.nt.sequences.FR4.IMGT, width = max(nchar(allData$IMGT.gapped.nt.sequences.FR4.IMGT)), side = "right", pad = ".")
+    allData$new.V.REGION <- paste(allData$IMGT.gapped.nt.sequences.FR1.IMGT, allData$IMGT.gapped.nt.sequences.CDR1.IMGT, allData$IMGT.gapped.nt.sequences.FR2.IMGT, allData$IMGT.gapped.nt.sequences.CDR2.IMGT, allData$IMGT.gapped.nt.sequences.FR3.IMGT, allData$IMGT.gapped.nt.sequences.FR4.IMGT, sep = "")
+  }
+  
+  if (junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
+    allData$IMGT.gapped.nt.sequences.FR1_CDR3 <- paste(allData$IMGT.gapped.nt.sequences.FR1.IMGT, allData$IMGT.gapped.nt.sequences.CDR1.IMGT, allData$IMGT.gapped.nt.sequences.FR2.IMGT, allData$IMGT.gapped.nt.sequences.CDR2.IMGT, allData$IMGT.gapped.nt.sequences.FR3.IMGT, allData$IMGT.gapped.nt.sequences.CDR3.IMGT, sep = "")
+    allData$new.V.REGION <- paste(allData$IMGT.gapped.nt.sequences.FR1.IMGT, allData$IMGT.gapped.nt.sequences.CDR1.IMGT, allData$IMGT.gapped.nt.sequences.FR2.IMGT, allData$IMGT.gapped.nt.sequences.CDR2.IMGT, allData$IMGT.gapped.nt.sequences.FR3.IMGT, sep = "")
+  }
   
   if (length(name) > 1) {
     
@@ -1654,31 +1667,52 @@ clonotypes <- function(
       
     }
     
-    clono_allData <- unique(allData[,c("clonotype", "N","Freq","cluster_info")])
-    colnames(clono_allData) <- c("clonotype", "N", "Freq", "Convergent Evolution")
+    clono_allData <- unique(allData[,c("clonotype", "N", "Freq", "cluster_info", "Junction.pI")])
+    clono_allData <- clono_allData[!duplicated(clono_allData[, c("clonotype", "N", "Freq", "cluster_info")])]
+    colnames(clono_allData) <- c("clonotype", "N", "Freq", "Convergent Evolution", "pI")
     
-    if (junction == "Summary.Sequence") {
-      
+    if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
       clono_allData <- unique(allData[,c(
-        "clonotype", "N", "Freq", "cluster_info", 
-        "Summary.V.GENE.and.allele", "Summary.AA.JUNCTION"
+        "clonotype", "N", "Freq", "cluster_id", 
+        "Summary.V.GENE.and.allele", "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI"
       )])
-      colnames(clono_allData)[4:6] <- c( "Convergent Evolution", "V Gene and allele", "AA Junction")
+      clono_allData <- clono_allData[!duplicated(clono_allData[, c("clonotype", "N", "Freq", "cluster_id")])]
+      colnames(clono_allData)[4:11] <- c("Clonotype ID", "V Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
     }
     
+    
     if (save_tables_individually) {
-      if (junction == "Summary.Sequence") {
+      if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
         colnames(clono_allData) 
+        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_allData <- clono_allData[, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_allData
       } else {
         ## Changed cbind to merge
-        if (length(gene) > 0){
+        if (length(gene) > 0) {
           gene_cdr3 <- unique(allData[,c('gene',"Summary.AA.JUNCTION")])   #gene ##CHANGE
-          clono_write <- cbind(gene_cdr3,clono_allData[, c("N", "Freq", "Convergent Evolution")])
+          clono_write <- cbind(gene_cdr3,clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
           colnames(clono_write)[1:2] <- c('Genes',"CDR3")
         } else{
           clono_write <- clono_allData
         }
+      }
+      
+      
+      if (Freq_clono_cutoff != 0) {
+        clono_allData <- clono_allData %>% filter(Freq > Freq_clono_cutoff)
+        clono_allData$Freq  <- 100 * clono_allData$N / sum(clono_allData$N)
+        
+        clono_write <- clono_write %>% filter(Freq > Freq_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
+      }
+      
+      if (N_clono_cutoff != 0) {
+        clono_allData <- clono_allData %>% filter(N > N_clono_cutoff)
+        clono_allData$Freq  <- 100 * clono_allData$N / sum(clono_allData$N)
+        
+        clono_write <- clono_write %>% filter(N > N_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       
@@ -1706,6 +1740,7 @@ clonotypes <- function(
   # clonotypes datasets
   
   clono_datasets                              <- list()
+  clono_datasets_sub                          <- list()
   filterin_clono_datasets                     <- list()
   view_specific_clonotype_datasets            <- list()
   convergent_evolution_list_datasets          <- list()
@@ -1713,9 +1748,10 @@ clonotypes <- function(
   diagnosis                                   <- list()
   group.freq.seq                              <- list()
   vregion_status                              <- list()
+  div_clono_datasets                          <- list()
   
   message("Clonotype Analysis Step 3")
-  
+
   one_run <- function(j) {
     message("Clonotype Analysis Step 5")
     
@@ -1806,18 +1842,28 @@ clonotypes <- function(
       view_specific_clonotype_datasets[[name[j]]] = split(data, data$clonotype)
     }
     
-    clono_datasets[[name[j]]] <- unique(data[, c("clonotype", "N", "Freq", "cluster_info")])
+    clono_datasets[[name[j]]] <- unique(data[, c("clonotype", "N", "Freq", "cluster_info", "Junction.pI")])
+    clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][!duplicated(clono_datasets[[name[j]]][, c("clonotype", "N", "Freq", "cluster_info")])]
     colnames(clono_datasets[[name[j]]])[4] <- "Convergent Evolution"
+    colnames(clono_datasets[[name[j]]])[5] <- "pI"
     
-    if (junction == "Summary.Sequence") {
+    div_clono_datasets[[name[j]]] <- unique(data[, c("clonotype", "N", "Freq", "cluster_info", "Summary.AA.JUNCTION")])
+    div_clono_datasets[[name[j]]] <- div_clono_datasets[[name[j]]][, c("N", "Freq", "Summary.AA.JUNCTION")]
+    colnames(div_clono_datasets[[name[j]]]) <- c("Clones", "Proportion", "CDR3.aa")
+    
+    if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
       
       clono_datasets[[name[j]]] <- unique(data[,
                                                c("clonotype", "N", "Freq", 
-                                                 "cluster_info", 
+                                                 "cluster_id", 
                                                  "Summary.V.GENE.and.allele", 
-                                                 "Summary.AA.JUNCTION")])
+                                                 "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI")])
+      clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][!duplicated(clono_datasets[[name[j]]][, c("clonotype", "N", "Freq", "cluster_id")])]
+      colnames(clono_datasets[[name[j]]])[4:11] <- c("Clonotype ID", "V Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
       
-      colnames(clono_datasets[[name[j]]])[4:6] <- c("Convergent Evolution", "V Gene and allele", "AA Junction")
+      div_clono_datasets[[name[j]]] <- clono_datasets[[name[j]]]
+      div_clono_datasets[[name[j]]] <- div_clono_datasets[[name[j]]][, c("N", "Freq", "AA Junction")]
+      colnames(div_clono_datasets[[name[j]]]) <- c("Clones", "Proportion", "CDR3.aa")
     }
     
     if (run_diagnosis) {
@@ -1876,17 +1922,157 @@ clonotypes <- function(
       
     }
     
+    if (run_sub_clono == TRUE) {
+      # Functions
+      count_mismatches <- function(reference_string, strings_to_compare) {
+        mismatches <- numeric(length(strings_to_compare))
+        if (nchar(reference_string) == 0) {
+          stop("Reference string cannot be empty")
+        }
+        for (i in seq_along(strings_to_compare)) {
+          string <- strings_to_compare[i]
+          if (nchar(reference_string) != nchar(string)) {
+            stop("Strings must be of equal length")
+          }
+          count <- 0
+          for (y in 1:nchar(reference_string)) {
+            if (substr(reference_string, y, y) != substr(string, y, y)) {
+              count <- count + 1
+            }
+          }
+          mismatches[i] <- count
+        }
+        return(mismatches)
+      }
+      apply_count_mismatches <- function(data) {
+        if (nrow(data)>1) {
+          mismatches <- c("-", count_mismatches(data[1, "new.V.REGION"], data[2:nrow(data), "new.V.REGION"]))
+        } else {
+          mismatches <- "Not applicable"
+        }
+        return(mismatches)
+      }
+      add_sub_cluster_id <- function(df, sub_cluster_id) {
+        df$"Sub-clonotypes cluster ID" <- "" 
+        df$"Sub-clonotypes cluster ID"[1] <- sub_cluster_id
+        return(df)
+      }
+      add_empty_row <- function(df) {
+        empty_row <- as.data.frame(lapply(df, function(x) NA))
+        names(empty_row) <- names(df)
+        rbind(empty_row, df)
+      }
+      sum_Ν <- function(df) {
+        total_sum <- sum(as.numeric(df$N), na.rm = TRUE)
+        df[1, "N"] <- total_sum
+        return(df)
+      }
+      sum_Freq <- function(df) {
+        total_sum <- sum(as.numeric(df$Freq), na.rm = TRUE)
+        df[1, "Freq"] <- total_sum
+        return(df)
+      }
+      aa_junction_fun <- function(df) {
+        levels <- levels(as.factor(df$`AA Junction`))
+        df[1, "AA Junction"] <- paste(levels)
+        return(df)
+      }
+      aa_junction_length_fun <- function(df) {
+        levels <- levels(as.factor(df$`AA Junction length`))
+        df[1, "AA Junction length"] <- paste(levels)
+        return(df)
+      }
+      V.gene_fun <- function(df) {
+        levels <- levels(as.factor(df$V.gene))
+        df[1, "V.gene"] <- paste(levels)
+        return(df)
+      }
+      # Function to modify data frames with exactly 2 rows
+      modify_dfs <- function(df_list) {
+        for (i in seq_along(df_list)) {
+          df <- df_list[[i]]
+          if (nrow(df) == 2) {
+            col_names <- names(df)
+            df_list[[i]] <- data.frame(tail(df, 1))
+            names(df_list[[i]]) <- col_names
+            df_list[[i]][, ncol(df)] <- head(df[, ncol(df)], 1)
+          }
+        }
+        return(df_list)
+      }
+      
+      clono_datasets_sub[[name[j]]] <- setDF(clono_datasets[[name[j]]])
+      
+      if (Freq_clono_cutoff != 0) {
+        clono_datasets_sub[[name[j]]] <- clono_datasets_sub[[name[j]]] %>% filter(Freq > Freq_clono_cutoff)
+        clono_datasets_sub[[name[j]]]$Freq  <- 100 * clono_datasets_sub[[name[j]]]$N / sum(clono_datasets_sub[[name[j]]]$N)
+      }
+      
+      if (N_clono_cutoff != 0) {
+        clono_datasets_sub[[name[j]]] <- clono_datasets_sub[[name[j]]] %>% filter(N > N_clono_cutoff)
+        clono_datasets_sub[[name[j]]]$Freq  <- 100 * clono_datasets_sub[[name[j]]]$N / sum(clono_datasets_sub[[name[j]]]$N)
+      }
+      
+      clono_datasets_sub[[name[j]]]$V.gene <- (as.data.frame(t(as.data.frame(strsplit(clono_datasets_sub[[name[j]]]$`V Gene and allele`, "\\*")))))$V1
+      clono_datasets_sub[[name[j]]]$sub_filter <- paste(clono_datasets_sub[[name[j]]]$V.gene, clono_datasets_sub[[name[j]]]$`nt Junction`)
+      clono_datasets_sub[[name[j]]] <- split(clono_datasets_sub[[name[j]]], clono_datasets_sub[[name[j]]]$sub_filter)
+      num_rows <- sapply(clono_datasets_sub[[name[j]]], function(x) nrow(x))
+      clono_datasets_sub[[name[j]]] <- clono_datasets_sub[[name[j]]][order(-num_rows)]
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], function(x) {
+        x$mismatches <- apply_count_mismatches(x)
+        return(x)
+      })
+      
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], add_empty_row)
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], sum_Ν)
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], sum_Freq)
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], aa_junction_fun)
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], aa_junction_length_fun)
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], V.gene_fun)
+      clono_datasets_sub[[name[j]]] <- clono_datasets_sub[[name[j]]][order(-(sapply(clono_datasets_sub[[name[j]]], function(df) df$Freq[1])))]
+      names(clono_datasets_sub[[name[j]]]) <- paste0(1:length(clono_datasets_sub[[name[j]]]))
+      for (i in seq_along(clono_datasets_sub[[name[j]]])) {
+        clono_datasets_sub[[name[j]]][[i]] <- add_sub_cluster_id(clono_datasets_sub[[name[j]]][[i]], names(clono_datasets_sub[[name[j]]])[i])
+      }
+      
+      clono_datasets_sub[[name[j]]] <- modify_dfs(clono_datasets_sub[[name[j]]])
+      
+      clono_datasets_sub[[name[j]]] <- rbind(clono_datasets_sub[[name[j]]])
+      clono_datasets_sub[[name[j]]] <- do.call(rbind, clono_datasets_sub[[name[j]]])
+      clono_datasets_sub[[name[j]]]$V.gene <- substring(clono_datasets_sub[[name[j]]]$V.gene, 8)
+      clono_datasets_sub[[name[j]]] <- clono_datasets_sub[[name[j]]][, c("Sub-clonotypes cluster ID", "V.gene", "AA Junction", "AA Junction length", "N", "Freq", "V.REGION.identity", "mismatches", "Clonotype ID")]
+    }
+    
     if (save_tables_individually) {
-      if (junction == "Summary.Sequence") {
+      if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
+        clono_datasets[[name[j]]] <- data.table(clono_datasets[[name[j]]])
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_datasets[[name[j]]]
       } else {
         if (length(gene) > 0){
           gene_cdr3 <- unique(data[,c('gene',"Summary.AA.JUNCTION")]) #gene
-          clono_write <- cbind(gene_cdr3,clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution")])
+          clono_write <- cbind(gene_cdr3,clono_datasets[[name[j]]][, c("N", "Freq", "Convergent Evolution", "pI")])
           colnames(clono_write)[1:2] <- c("Genes","CDR3")
         } else{
           clono_write <- clono_datasets[[name[j]]]
         }
+      }
+      
+      if (Freq_clono_cutoff != 0) {
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>% filter(Freq > Freq_clono_cutoff)
+        clono_datasets[[name[j]]]$Freq  <- 100 * clono_datasets[[name[j]]]$N / sum(clono_datasets[[name[j]]]$N)
+        
+        clono_write <- clono_write %>% filter(Freq > Freq_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
+      }
+      
+      if (N_clono_cutoff != 0) {
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]] %>% filter(N > N_clono_cutoff)
+        clono_datasets[[name[j]]]$Freq  <- 100 * clono_datasets[[name[j]]]$N / sum(clono_datasets[[name[j]]]$N)
+        
+        clono_write <- clono_write %>% filter(N > N_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       # Printing clonotypes file
@@ -1923,6 +2109,18 @@ clonotypes <- function(
                quote = FALSE
         )
       }
+      
+      if (run_sub_clono) {
+        
+        fwrite(clono_datasets_sub[[name[j]]],
+               paste0(e$output_folder, "/", "Sub_clonotypes_", name[j], ".txt"),
+               sep = "\t",
+               row.names = FALSE,
+               col.names = TRUE,
+               quote = FALSE
+        )
+      }
+      
     }
     
     result <- list()
@@ -1933,6 +2131,8 @@ clonotypes <- function(
     result[["convergent_evolution_list_datasets"]] <- convergent_evolution_list_datasets[[name[j]]]
     result[["convergent_evolution_list_datasets_only_num"]] <- convergent_evolution_list_datasets_only_num[[name[j]]]
     result[["Diagnosis"]] <- group.freq.seq[[name[j]]]
+    result[["sub_clono_datasets"]] <- clono_datasets_sub[[name[j]]]
+    result[["div_clono_datasets"]] <- div_clono_datasets[[name[j]]]
     
     return(result)
   }
@@ -1948,6 +2148,7 @@ clonotypes <- function(
       convergent_evolution_list_datasets[[name[i]]]          <- a[[i]]$convergent_evolution_list_datasets
       convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
       diagnosis[[name[i]]]                                   <- a[[i]]$Diagnosis
+      clono_datasets_sub[[name[i]]]                          <- a[[i]]$clono_datasets_sub
     }
   } else {
     message("Clonotype Analysis Step 4.b")
@@ -1961,6 +2162,8 @@ clonotypes <- function(
       convergent_evolution_list_datasets[[name[i]]]          <- a[[i]]$convergent_evolution_list_datasets
       convergent_evolution_list_datasets_only_num[[name[i]]] <- a[[i]]$convergent_evolution_list_datasets_only_num
       diagnosis[[name[i]]]                                   <- a[[i]]$Diagnosis
+      clono_datasets_sub[[name[i]]]                          <- a[[i]]$sub_clono_datasets
+      div_clono_datasets[[name[i]]]                          <- a[[i]]$div_clono_datasets
     }
     
   }
@@ -1972,13 +2175,33 @@ clonotypes <- function(
     clono_allData_freq <- a[[1]]$filterin_highly_clono
     
     if (save_tables_individually) {
-      if (junction == "Summary.Sequence") {
+      
+      if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
+        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_allData <- clono_allData[, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_allData
       } else {
+        if (length(gene) > 0) {
         clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
         clono_write <- data.table::as.data.table(clono_write)
-        clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution")])
-        colnames(clono_write) <- c("clonotype", "CDR3", "N", "Freq", "Convergent Evolution") #Genes
+        clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
+        colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution", "pI") #Genes
+        } else {
+          clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
+          clono_write <- data.table::as.data.table(clono_write)
+          clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
+          colnames(clono_write) <- c("clonotype", "N", "Freq", "Convergent Evolution", "pI") #Genes
+      }
+        } 
+      
+      if (Freq_clono_cutoff != 0) {
+        clono_write <- clono_write %>% filter(Freq > Freq_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
+      }
+      
+      if (N_clono_cutoff != 0) {
+        clono_write <- clono_write %>% filter(N > N_clono_cutoff)
+        clono_write$Freq  <- 100 * clono_write$N / sum(clono_write$N)
       }
       
       fwrite(clono_write, paste0(e$output_folder, "/", "Clonotypes_All Data", ".txt"),
@@ -2001,8 +2224,9 @@ clonotypes <- function(
   view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, setDF)
   convergent_evolution_list_datasets <- lapply(convergent_evolution_list_datasets,setDF)
   diagnosis <- lapply(diagnosis, setDF)
+  clono_datasets_sub <- lapply(clono_datasets_sub, setDF)
+  div_clono_datasets <- lapply(div_clono_datasets, setDF)
   
-    
   result <- list(
     "clono_allData" = clono_allData,
     "clono_datasets" = clono_datasets, 
@@ -2013,6 +2237,8 @@ clonotypes <- function(
     "convergent_evolution_list_datasets" = convergent_evolution_list_datasets, 
     "convergent_evolution_list_datasets_only_num" = convergent_evolution_list_datasets_only_num,
     "diagnosis" = diagnosis,
+    "sub_clono_datasets" = clono_datasets_sub,
+    "div_clono_datasets" = div_clono_datasets,
     "confirm" = confirm
   )
   
@@ -2021,6 +2247,231 @@ clonotypes <- function(
   # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
   
   return(result)
+}
+
+######################################################################################################################################
+meta_clonotypes <- function(clono_datasets, num_of_missmatches, cdr3_lengths, name) {
+
+  clono_datasets_meta <- list()
+  mismatches_per_length_df <- data.frame("AA Junction length" = cdr3_lengths, allowed_mismatches = num_of_missmatches)
+  colnames(mismatches_per_length_df)[1] <- "AA Junction length"
+  
+  # Functions
+  count_mismatches <- function(reference_string, strings_to_compare) {
+    mismatches <- numeric(length(strings_to_compare))
+    if (nchar(reference_string) == 0) {
+      stop("Reference string cannot be empty")
+    }
+    for (i in seq_along(strings_to_compare)) {
+      string <- strings_to_compare[i]
+      if (nchar(reference_string) != nchar(string)) {
+        stop("Strings must be of equal length")
+      }
+      count <- 0
+      for (y in 1:nchar(reference_string)) {
+        if (substr(reference_string, y, y) != substr(string, y, y)) {
+          count <- count + 1
+        }
+      }
+      mismatches[i] <- count
+    }
+    return(mismatches)
+  }
+  apply_count_mismatches <- function(data) {
+    if (nrow(data)>1) {
+      mismatches <- c(NA, count_mismatches(data[1, "AA Junction"], data[2:nrow(data), "AA Junction"]))
+    } else {
+      mismatches <- NA
+    }
+    return(mismatches)
+  }
+  add_meta_cluster_column <- function(df, df_name) {
+    df$Meta_cluster_ID <- ifelse(is.na(df$mismatches) | df$mismatches <= df$allowed_mismatches,
+                                 paste0("meta_cluster_", df_name),
+                                 "drop")
+    return(df)
+  }
+  add_empty_row <- function(df) {
+    empty_row <- as.data.frame(lapply(df, function(x) NA))
+    names(empty_row) <- names(df)
+    rbind(empty_row, df)
+  }
+  sum_Ν <- function(df) {
+    total_sum <- sum(as.numeric(df$N), na.rm = TRUE)
+    df[1, "N"] <- total_sum
+    return(df)
+  }
+  sum_Freq <- function(df) {
+    total_sum <- sum(as.numeric(df$Freq), na.rm = TRUE)
+    df[1, "Freq"] <- total_sum
+    return(df)
+  }
+  add_meta_cluster_id <- function(df, meta_cluster_id) {
+    df$"Meta-clonotypes cluster ID" <- "" 
+    df$"Meta-clonotypes cluster ID"[1] <- meta_cluster_id
+    return(df)
+  }
+  add_mismatches_column <- function(df) {
+    reference_string <- df$'AA Junction'[1]
+    strings_to_compare <- df$'AA Junction'[-(1)]
+    mismatches <- sapply(strings_to_compare, function(x) count_mismatches(reference_string, x))
+    df$mismatches <- unlist(c(NA, mismatches))
+    return(df)
+  }
+  aa_junction_fun <- function(df) {
+    df[1, "AA Junction"] <- df[2, "AA Junction"]
+    return(df)
+  }
+  aa_junction_length_fun <- function(df) {
+    levels <- levels(as.factor(df$`AA Junction length`))
+    df[1, "AA Junction length"] <- paste(levels)
+    return(df)
+  }
+  V.gene_fun <- function(df) {
+    levels <- levels(as.factor(df$V.gene))
+    df[1, "V.gene"] <- paste(levels)
+    return(df)
+  }
+  # Function to modify data frames with exactly 2 rows
+  modify_dfs <- function(df_list) {
+    for (i in seq_along(df_list)) {
+      df <- df_list[[i]]
+      if (nrow(df) == 2) {
+        col_names <- names(df)
+        df_list[[i]] <- data.frame(tail(df, 1))
+        names(df_list[[i]]) <- col_names
+        df_list[[i]][, ncol(df)] <- head(df[, ncol(df)], 1)
+      }
+    }
+    return(df_list)
+  }
+
+  for (j in 1:length(name)) {
+
+    clono_datasets_meta[[name[j]]] <- data.table::setDT(clono_datasets[[name[j]]])
+    clono_datasets_meta[[name[j]]]$`AA Junction length` <- as.numeric(clono_datasets_meta[[name[j]]]$`AA Junction length`)
+    clono_datasets_meta[[name[j]]] <- left_join(clono_datasets_meta[[name[j]]], mismatches_per_length_df, by = "AA Junction length")
+    clono_datasets_meta[[name[j]]]$V.gene <- (as.data.frame(t(as.data.frame(strsplit(clono_datasets_meta[[name[j]]]$`V Gene and allele`, "\\*")))))$V1
+    clono_datasets_meta[[name[j]]]$meta_filter <- paste(clono_datasets_meta[[name[j]]]$V.gene, clono_datasets_meta[[name[j]]]$`AA Junction length`)
+    clono_datasets_meta[[name[j]]] <- split(clono_datasets_meta[[name[j]]], clono_datasets_meta[[name[j]]]$meta_filter)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], as.data.frame)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], function(x) {
+      x$mismatches <- apply_count_mismatches(x)
+      return(x)
+    })
+    clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][order(-(sapply(clono_datasets_meta[[name[j]]], function(df) df$Freq[1])))]
+    names(clono_datasets_meta[[name[j]]]) <- paste0(1:length(clono_datasets_meta[[name[j]]]))
+    for (i in seq_along(clono_datasets_meta[[name[j]]])) {
+      df_name <- names(clono_datasets_meta[[name[j]]])[i]
+      clono_datasets_meta[[name[j]]][[i]] <- add_meta_cluster_column(clono_datasets_meta[[name[j]]][[i]], df_name)
+    }
+    clono_datasets_meta[[name[j]]] <- rbind(clono_datasets_meta[[name[j]]])
+    clono_datasets_meta[[name[j]]] <- do.call(rbind, clono_datasets_meta[[name[j]]])
+    clono_datasets_meta[[name[j]]]$new_meta_filter <- paste(clono_datasets_meta[[name[j]]]$meta_filter, clono_datasets_meta[[name[j]]]$Meta_cluster_ID)
+    clono_datasets_meta[[name[j]]] <- split(clono_datasets_meta[[name[j]]], clono_datasets_meta[[name[j]]]$new_meta_filter)
+    drop_dataframes <- clono_datasets_meta[[name[j]]][grep("drop", names(clono_datasets_meta[[name[j]]]))]
+    drop_dataframes <- lapply(drop_dataframes, add_mismatches_column)
+    names_drop_dataframes <- names(drop_dataframes)
+    drop_dataframes_list <- list()
+    for (df in drop_dataframes) {
+      filtered_rows <- df[(df$mismatches > df$allowed_mismatches) & !(is.na(df$mismatches)), ]
+      if (nrow(filtered_rows) > 0) {
+        for (i in 1:nrow(filtered_rows)) {
+          drop_dataframes_list <- c(drop_dataframes_list, list(filtered_rows[i, , drop = FALSE]))
+        }
+      }
+      other_rows <- df[!((df$mismatches > df$allowed_mismatches) & !(is.na(df$mismatches))), ]
+      drop_dataframes_list <- c(list(other_rows), drop_dataframes_list)
+    }
+    for (i in seq_along(drop_dataframes_list)) {
+      df <- drop_dataframes_list[[i]]
+      if (nrow(df) == 1) {
+        df$mismatches <- NA
+        drop_dataframes_list[[i]] <- df
+      }
+    }
+    clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][!names(clono_datasets_meta[[name[j]]]) %in% names_drop_dataframes]
+    clono_datasets_meta[[name[j]]] <- c(clono_datasets_meta[[name[j]]], drop_dataframes_list)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], add_empty_row)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], sum_Ν)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], sum_Freq)
+    clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][order(-(sapply(clono_datasets_meta[[name[j]]], function(df) df$Freq[1])))]
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], aa_junction_fun)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], aa_junction_length_fun)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], V.gene_fun)
+    names(clono_datasets_meta[[name[j]]]) <- paste0(1:length(clono_datasets_meta[[name[j]]]))
+    for (i in seq_along(clono_datasets_meta[[name[j]]])) {
+      clono_datasets_meta[[name[j]]][[i]] <- add_meta_cluster_id(clono_datasets_meta[[name[j]]][[i]], names(clono_datasets_meta[[name[j]]])[i])
+    }
+    clono_datasets_meta[[name[j]]] <- modify_dfs(clono_datasets_meta[[name[j]]])
+    clono_datasets_meta[[name[j]]] <- rbind(clono_datasets_meta[[name[j]]])
+    clono_datasets_meta[[name[j]]] <- do.call(rbind, clono_datasets_meta[[name[j]]])
+    clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][, c("Meta-clonotypes cluster ID", "V.gene", "AA Junction", "AA Junction length", "N", "Freq", "V.REGION.identity", "mismatches", "Clonotype ID")]
+    
+    if (save_tables_individually) {
+    fwrite(clono_datasets_meta[[name[j]]],
+             paste0(e$output_folder, "/", "Meta_clonotypes_", name[j], ".txt"),
+             sep = "\t",
+             row.names = FALSE,
+             col.names = TRUE,
+             quote = FALSE
+      )
+    }
+  }
+  
+  result <- list()
+  result <- list(
+    "meta_clonotypes" = clono_datasets_meta
+  )
+  
+  return(result)
+  
+}
+
+######################################################################################################################################
+diversity_indeces <- function(div_clono_datasets, name, indeces) {
+  
+  diversity_ls <- list()
+
+  transform_div_clono_datasets <- function(x) {
+    x <- t(x)           # Transpose the data frame
+    x <- x[1, , drop = FALSE]  # Keep only the first row
+    x <- as.numeric(x)  # Convert to numeric vector
+    return(x)
+  }
+  
+  div_clono_datasets <- lapply(div_clono_datasets, transform_div_clono_datasets)
+  
+  for (j in 1:length(name)) {
+    
+    diversity_ls[[name[j]]] <- as.data.frame(name[j])
+    colnames(diversity_ls[[name[j]]]) <- "Sample"
+    
+    if ("Richness" %in% indeces) {
+      diversity_ls[[name[j]]]$"Richness" <- specnumber(div_clono_datasets[[name[j]]])
+    }
+    if ("Shannon index" %in% indeces) {
+      diversity_ls[[name[j]]]$"Shannon index" <- diversity(div_clono_datasets[[name[j]]], index = "shannon")
+    }
+    if ("InvSimpson index" %in% indeces) {
+      diversity_ls[[name[j]]]$"InvSimpson index" <- diversity(div_clono_datasets[[name[j]]], index = "invsimpson")
+    }
+    
+  }
+  
+  diversity_ls <- bind_rows(diversity_ls)
+  
+  if (save_tables_individually) {
+  fwrite(diversity_ls, paste0(e$output_folder, "/", "diversity_indeces", ".txt"),
+         sep = "\t", row.names = FALSE, col.names = TRUE, quote = FALSE
+   )
+  }
+  
+  result <- list()
+  result <- list(
+    "diversity_ls" = diversity_ls
+  )
+  
 }
 
 ######################################################################################################################################
@@ -2034,10 +2485,10 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     # cat(paste0(nrow(clono_allData), "\t"), file = logFile, append = TRUE)
     # cat(paste0(ncol(clono_allData), "\t"), file = logFile, append = TRUE)
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+    
     ####################################### All Data   #######################################
     clono_allData_only_cdr3 <- clono_allData
-
+    
     if (stringr::str_detect(clono_allData$clonotype[1], " - ") && take_gene == "No") {
         a2 <- strsplit(clono_allData$clonotype, " - ")
         clono_allData_only_cdr3$clonotype <- as.character(plyr::ldply(a2, function(s) {
@@ -2346,7 +2797,7 @@ highly_similar_clonotypes <- function(clono_allData, clono_datasets, num_of_mism
     # log time end and memory used
     # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
     # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
+    
     return(result)
 }
 
@@ -3802,9 +4253,9 @@ createLogo <- function(table_count, table_count_datasets, name) {
 
 ######################################################################################################################################
 
-alignment <- function(input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly) {
+alignment <- function(clonotype_type, input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly) {
   used_columns <- e$used_columns
-  
+ 
   # logfile
   # logFile<-e$logFile
   # 
@@ -3813,6 +4264,32 @@ alignment <- function(input, region, germline, name, only_one_germline, use_gene
   # cat(paste0(nrow(input), "\t"), file = logFile, append = TRUE)
   # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
   # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  
+  if (clonotype_type == "Sequence") {
+    colnames(clono_allData)[1] <- "clonotype"
+    clono_datasets <- lapply(clono_datasets, function(df) {
+      colnames(df)[1] <- "clonotype"
+      return(df)
+    })
+  
+    names(view_specific_clonotype_allData) <- lapply(view_specific_clonotype_allData, function(df) {
+      levels(as.factor(df$cluster_id))  
+    })
+    
+    # Iterate over each inner list within the main list
+    view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, function(inner_list) {
+      
+      # Apply the function to each dataframe within the inner list
+      names(inner_list) <- sapply(inner_list, function(df) {
+        levels(as.factor(df$cluster_id))[1]  # Extract the first level of the cluster_id column
+      })
+      
+      return(inner_list)  # Return the modified inner list
+    })
+    
+     }
+  
+  
   
   if (AAorNtAlignment == "aa") {
     file <- "IMGT.gapped.AA.sequences."

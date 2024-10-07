@@ -77,6 +77,7 @@ app_server <- function(input, output, session) {
     junction_clonotypes <- ""
     allele_clonotypes <- ""
 
+
     cleaning_parameters <- c()
     filtering_parameters <- c()
     pipeline_parameters <- c()
@@ -105,8 +106,6 @@ app_server <- function(input, output, session) {
     insertedMultiple_value_comparison <- c()
     insertedRepertoires <- c()
     clono <- c()
-    `No. of sequences` <- c()
-    `V-Region identity` <- c()
     public_clonotypes_results <- list() # delete from global
     highly_sim_public_clonotypes_results <- list() # delete from global
     repertories_results <- c()
@@ -131,6 +130,8 @@ app_server <- function(input, output, session) {
     logo_per_region_cl <- list() # delete from global
     CDR3Diff1_results <- list()
     highly_similar_clonotypes_results <- list()
+    meta_clonotypes_results <- list()
+    diversity_results <- list()
 
     just_restored_session <- FALSE
     just_restored_session_cleaning <- FALSE
@@ -176,6 +177,7 @@ app_server <- function(input, output, session) {
     index_2 <- c(26, 38, 55, 65, 104, 114)
 
     cdr3_lengths <- c()
+    
 
     # Distributions
     box_input <- c() # delete from global
@@ -421,6 +423,8 @@ app_server <- function(input, output, session) {
         state$values$highly_sim_repertoires_comparison_results <- highly_sim_repertoires_comparison_results
         state$values$clono <- clono
         state$values$highly_similar_clonotypes_results <- highly_similar_clonotypes_results
+        state$values$meta_clonotypes_results <- meta_clonotypes_results
+        state$values$diversity_results <- diversity_results
         state$values$public_clonotypes_results <- public_clonotypes_results
         state$values$cdr3_lengths <- cdr3_lengths
         state$values$insertedMultiple_value_comparison <- insertedMultiple_value_comparison
@@ -464,6 +468,8 @@ app_server <- function(input, output, session) {
 
         clono <<- state$values$clono
         highly_similar_clonotypes_results <<- state$values$highly_similar_clonotypes_results
+        meta_clonotypes_results <<- state$values$meta_clonotypes_results
+        diversity_results <<- state$values$diversity_results
         public_clonotypes_results <<- state$values$public_clonotypes_results
         cdr3_lengths <<- state$values$cdr3_lengths
         insertedMultiple_value_comparison <<- state$values$insertedMultiple_value_comparison
@@ -619,7 +625,33 @@ app_server <- function(input, output, session) {
             js$disabletab("Clonotypes")
         }
     })
-
+    
+    observeEvent(input$pipeline_sub_clonotypes, {
+      if (input$pipeline_sub_clonotypes) { # If true enable, else disable
+            js$enabletab("Sub-clonotypes")
+        } else {
+            js$disabletab("Sub-clonotypes")
+        }
+    })
+    
+    observeEvent(input$pipeline_meta_clonotypes, {
+      if (input$pipeline_meta_clonotypes) { # If true enable, else disable
+            js$enabletab("Meta-clonotypes")
+        } else {
+            js$disabletab("Meta-clonotypes")
+        }
+       
+    })
+    
+    observeEvent(input$pipeline_diversity, {
+      if (input$pipeline_diversity) { # If true enable, else disable
+        js$enabletab("diversity_estimation")
+      } else {
+        js$disabletab("diversity_estimation")
+      }
+      
+    })
+    
     observeEvent(input$pipeline_highly_similar_clonotypes, {
         if (input$pipeline_highly_similar_clonotypes) { # If true enable, else disable
             js$enabletab("highly_similar_clonotypes")
@@ -659,6 +691,14 @@ app_server <- function(input, output, session) {
             js$disabletab("logo_tab")
         }
     })
+    
+    observeEvent(input$pipeline_cdr3_distribution, {
+      if (input$pipeline_cdr3_distribution) { # If true enable, else disable
+        js$enabletab("cdr3_length_distribution")
+      } else {
+        js$disabletab("cdr3_length_distribution")
+      }
+    })
 
     ############################### In each tab select the dataset you want to see ###############################
     output$uiSelectDatasetCleaning <- renderUI({
@@ -681,6 +721,21 @@ app_server <- function(input, output, session) {
             return()
         }
         selectInput("clonotypesDataset", "Select Dataset:", c("All Data", loaded_datasets), width = "170px")
+    })
+    
+    output$uiSelectDatasetsub_clonotypes <- renderUI({
+      if ((is.null(input$Dataset)) & (length(loaded_datasets) == 0)) {
+        return()
+      }
+      selectInput("sub_clonotypesDataset", "Select Dataset:", loaded_datasets, width = "170px")
+    })
+    
+    output$uiSelectDatasetmeta_clonotypes <- renderUI({
+      if ((is.null(input$Dataset)) & (length(loaded_datasets) == 0)) {
+      return()
+    }
+    selectInput("meta_clonotypesDataset", "Select Dataset:", loaded_datasets, width = "170px")
+        
     })
 
     output$uiSelectDatasethighly_similar_clonotypes <- renderUI({
@@ -1500,10 +1555,18 @@ app_server <- function(input, output, session) {
                 allele <- FALSE
                 junction <- used_columns[["Summary"]][18]
                 gene <- c()
-            } else if (input$select_clonotype == "Sequence") {
+            } else if (input$cell == "B cell" & input$select_clonotype == "Sequence" & input$select_primer == "IGHC_primer") {
                 allele <- FALSE
                 gene <- c()
-                junction <- used_columns[["Summary"]][23]
+                junction <- used_columns[["IMGT.gapped.nt.sequences"]][1]
+            } else if (input$cell == "B cell" & input$select_clonotype == "Sequence" & input$select_primer == "IGHJ_primer") {
+                allele <- FALSE
+                gene <- c()
+                junction <- "IMGT.gapped.nt.sequences.FR1_CDR3"
+            } else if (input$cell == "T cell" & input$select_clonotype == "Sequence") {
+                allele <- FALSE
+                gene <- c()
+                junction <- "IMGT.gapped.nt.sequences.FR1_CDR3"
             } else {
                 allele <- FALSE
                 junction <- used_columns[["IMGT.gapped.nt.sequences"]][9]
@@ -1527,9 +1590,9 @@ app_server <- function(input, output, session) {
             label <- paste(low, high, sep = "-")
             
             identity_groups <<- (data.frame(low = low, high = high, status = status, label = label, stringsAsFactors = FALSE))
-
+            
             if ((just_restored_session_clonotypes == FALSE) & (input$select_load_or_compute_clonotypes != "load_clonotypes")) {
-                clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis, identity_groups) # input$shm_normal,
+                clono <<- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis, identity_groups, input$pipeline_sub_clonotypes, input$N_clono_cutoff, input$Freq_clono_cutoff) # input$shm_normal,
             }
 
             just_restored_session_clonotypes <<- FALSE
@@ -1551,7 +1614,7 @@ app_server <- function(input, output, session) {
                         return(my_table)
                     }
 
-                    colnames(my_table) <- c(paste0("Clonotype (", input$select_clonotype, ")"), "N", "Freq", "Convergent Evolution")
+                    colnames(my_table) <- c(paste0("Clonotype (", input$select_clonotype, ")"), "N", "Freq", "Convergent Evolution", "pI")
 
                     my_table[[paste0("Clonotype (", input$select_clonotype, ")")]] <- vapply(my_table[[paste0("Clonotype (", input$select_clonotype, ")")]], function(x) {
                         as.character(tags$a(href = "#", onclick = sprintf(on_click_js, x), x))
@@ -1602,7 +1665,90 @@ app_server <- function(input, output, session) {
                     }
                 }
             )
+            
+            output$DiversityTable <- renderDataTable(
+              {
+                my_table <- diversity_results$diversity_ls
+                return(my_table) 
+              },
+              escape = FALSE,
+              options = list(
+                autoWidth = FALSE,
+                columnDefs = list(list(width = "40%", targets = 1))
+              )
+            )
+            
+            output$download_diversity_table <- downloadHandler(
+              filename = function() {
+                paste0("Diversity_indeces.txt")
+              },
+              content = function(file) {
+                fwrite(diversity_results$diversity_ls, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+              }
+            )
+            
+            output$SubclonoTable <- renderDataTable(
+              {
+                if (is.null(input$sub_clonotypesDataset)) {
+                  return()
+                }
+                
+                my_table <- clono$sub_clono_datasets[[input$sub_clonotypesDataset]]
+                
+                if (input$select_clonotype == "Sequence") {
+                  return(my_table)
+                }
+                
+                return(my_table)
+              },
+              escape = FALSE,
+              options = list(
+                autoWidth = FALSE,
+                columnDefs = list(list(width = "40%", targets = 1)),
+                row.names = FALSE
+              )
+            )
+            
+            output$download_Sub_Clonotypes <- downloadHandler(
+              filename = function() {
+                paste0("Sub_clonotypes_", input$sub_clonotypesDataset, ".txt")
+              },
+              content = function(file) {
+                fwrite(clono$sub_clono_datasets[[input$sub_clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+              }
+            )
 
+            output$MetaclonoTable <- renderDataTable(
+              {
+                if (is.null(input$meta_clonotypesDataset)) {
+                  return()
+                }
+                
+                my_table <- meta_clonotypes_results$meta_clonotypes[[input$meta_clonotypesDataset]]
+                
+                if (input$select_clonotype == "Sequence") {
+                  return(my_table)
+                }
+                
+                return(my_table)
+              },
+              escape = FALSE,
+              options = list(
+                autoWidth = FALSE,
+                columnDefs = list(list(width = "40%", targets = 1)),
+                row.names = FALSE
+              )
+            )
+            
+            output$download_Meta_Clonotypes <- downloadHandler(
+              filename = function() {
+                paste0("Meta_clonotypes_", input$meta_clonotypesDataset, ".txt")
+              },
+              content = function(file) {
+                fwrite(meta_clonotypes_results$meta_clonotypes[[input$meta_clonotypesDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+              }
+            )
+            
             output$viewSpecificClonotype <- DT::renderDataTable(
                 {
                     if (input$clonotypesDataset == "All Data") {
@@ -1761,8 +1907,109 @@ app_server <- function(input, output, session) {
             })
 
         })
+        
     })
 
+    ############################### Meta - Clonotypes ###############################
+    
+    observeEvent(input$pipeline_meta_clonotypes, {
+      if ((input$select_load_or_compute_clonotypes != "load_clonotypes")) {
+        used_columns <- e$used_columns
+        cdr3_lengths <<- sort(unique(imgtfilter_results$allData[[used_columns[["Summary"]][15]]]))
+        cdr3_lengths <<- as.numeric(cdr3_lengths) #+2
+        cdr3_lengths <<- sort(cdr3_lengths)
+      } else {
+        used_columns <- e$used_columns
+        load("rData files/cdr3_lengths.rData")
+        cdr3_lengths <<- cdr3_lengths
+      }
+      
+      lapply(seq_len(length(cdr3_lengths)), function(i) {
+        output[[paste0("num_of_mismatches_length", i)]] <- renderUI({
+          numericInput(paste0("num_of_missmatches_cdr3_length_", i), paste0("CDR3 Length ", cdr3_lengths[i]), 1, min = 1, max = 100, width = "140px")
+        })
+      })
+      
+      lapply(seq_len(length(cdr3_lengths)), function(i) {
+        output[[paste0("num_of_mismatches_length_thr", i)]] <- renderUI({
+          numericInput(paste0("num_of_mismatches_thr_cdr3_length_", i), paste0("CDR3 Length ", cdr3_lengths[i]), 20, min = 1, max = 100, width = "140px")
+        })
+      })
+      
+      output$select_meta_clonotypes_parameters <- renderUI({
+        fluidRow(
+          h4("Select number of mismatches"),
+          radioButtons(
+            "select_meta_clonotypes_num_of_missmatches", "Use:",
+            c(
+              "Number" = "select_meta_clonotypes_num_of_missmatches_number",
+              "Threshold %" = "select_meta_clonotypes_num_of_missmatches_thr"
+            )
+          ),
+          conditionalPanel(
+            condition = "input.select_meta_clonotypes_num_of_missmatches == 'select_meta_clonotypes_num_of_missmatches_number'",
+            lapply(seq_len(length(cdr3_lengths)), function(i) {
+              column(2, uiOutput(paste0("num_of_mismatches_length", i)))
+            })
+          ),
+          conditionalPanel(
+            condition = "input.select_meta_clonotypes_num_of_missmatches == 'select_meta_clonotypes_num_of_missmatches_thr'",
+            lapply(seq_len(length(cdr3_lengths)), function(i) {
+              column(2, uiOutput(paste0("num_of_mismatches_length_thr", i)))
+            })
+          )
+        )
+        
+      })
+      
+    })
+    
+    observeEvent(input$Execute_pipeline, {
+      if (input$pipeline_meta_clonotypes == FALSE) {
+        return()
+      }
+      
+      withBusyIndicatorServer("Execute_pipeline", {
+        num_of_missmatches <- c()
+        
+        if (input$select_meta_clonotypes_num_of_missmatches == "select_meta_clonotypes_num_of_missmatches_number") {
+          for (i in seq_len(length(cdr3_lengths))) {
+            num_of_missmatches <- c(num_of_missmatches, input[[paste0("num_of_missmatches_cdr3_length_", i)]])
+          }
+        } else {
+          for (i in seq_len(length(cdr3_lengths))) {
+            num_of_missmatches <- c(num_of_missmatches, round(cdr3_lengths[i] * input[[paste0("num_of_mismatches_thr_cdr3_length_", i)]] / 100, 0))
+          }
+        }
+      
+        meta_clonotypes_results <<- meta_clonotypes(
+          clono$clono_datasets,
+          num_of_missmatches,
+          cdr3_lengths,
+          loaded_datasets
+        )
+        
+        })
+    })
+    
+    ############################### Diversity ###############################
+    observeEvent(input$Execute_pipeline, {
+      if (input$pipeline_diversity == FALSE) {
+        return()
+      }
+      
+      withBusyIndicatorServer("Execute_pipeline", {
+        
+        diversity_results <<- diversity_indeces(
+          clono$div_clono_datasets,
+          loaded_datasets,
+          input$diversity_indeces
+        )
+        
+      })
+      
+    })
+    
     ############################### Highly Similar Clonotypes ###############################
     observeEvent(input$pipeline_highly_similar_clonotypes, {
         if ((input$select_load_or_compute_clonotypes != "load_clonotypes") & (just_restored_session_highly_similar_clonotypes == FALSE)) {
@@ -1790,7 +2037,7 @@ app_server <- function(input, output, session) {
 
         output$select_highly_similar_clonotypes_parameters <- renderUI({
             fluidRow(
-                h4("Select number of missmatches"),
+                h4("Select number of mismatches"),
                 radioButtons(
                     "select_highly_sim_num_of_missmatches", "Use:",
                     c(
@@ -1894,7 +2141,7 @@ app_server <- function(input, output, session) {
                     all_filter$highly_freq_cluster_id <- 0
 
                     for (h in seq_len(nrow(temp))) {
-                        prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+                        prev <- as.numeric(strsplit(as.character(temp$prev_cluster[h]), " ")[[1]])
                         all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
                         all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                     }
@@ -1931,7 +2178,7 @@ app_server <- function(input, output, session) {
                 all_filter$highly_freq_cluster_id <- 0
 
                 for (h in seq_len(nrow(temp))) {
-                    prev <- as.numeric(strsplit(temp$prev_cluster[h], " ")[[1]])
+                    prev <- as.numeric(strsplit(as.character(temp$prev_cluster[h]), " ")[[1]])
                     all_filter$highly_cluster_id[which(all_filter$cluster_id %in% prev)] <- h
                     all_filter$highly_freq_cluster_id[which(all_filter$cluster_id %in% prev)] <- temp$Freq
                 }
@@ -3700,6 +3947,7 @@ app_server <- function(input, output, session) {
                     if (input$AAorNtAlignment == "both") {
                         message("Alignment Step 1.a")
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3717,6 +3965,7 @@ app_server <- function(input, output, session) {
 
                         message("Alignment Step 2.a")
                         alignmentRegion_results_nt <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3733,6 +3982,7 @@ app_server <- function(input, output, session) {
                         )
                     } else {
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3753,6 +4003,7 @@ app_server <- function(input, output, session) {
                     if (input$AAorNtAlignment == "both") {
                         message("Alignment Step 1.b")
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3770,6 +4021,7 @@ app_server <- function(input, output, session) {
 
                         message("Alignment Step 2.b")
                         alignmentRegion_results_nt <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -3785,6 +4037,7 @@ app_server <- function(input, output, session) {
                         )
                     } else {
                         alignmentRegion_results <<- alignment(
+                            input$select_clonotype,
                             imgtfilter_results$allData,
                             input$regionAlignment,
                             input$Germline,
@@ -5029,18 +5282,18 @@ app_server <- function(input, output, session) {
             }
 
             # Pi Distribution #######
-            if (input$pipeline_pi_distribution) {
-                png(paste0(in.path, "/", "Pi_Distribution ", "All_Data", ".png"), width = 900, height = 600)
-                boxplot(box_input, horizontal = FALSE, main = " ")
-                dev.off()
-                for (j in seq_len((length(loaded_datasets) + 1))) {
-                    if (j == (length(loaded_datasets) + 1)) {
-                        fwrite(pi_distribution, paste0(in.path, "/", "Pi_Distribution_", "All_Data", ".txt"), sep = "\t")
-                    } else {
-                        fwrite(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path, "/", "Pi_Distribution_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
-                    }
-                }
-            }
+            # if (input$pipeline_pi_distribution) {
+            #    png(paste0(in.path, "/", "Pi_Distribution ", "All_Data", ".png"), width = 900, height = 600)
+            #    boxplot(box_input, horizontal = FALSE, main = " ")
+            #    dev.off()
+            #    for (j in seq_len((length(loaded_datasets) + 1))) {
+            #        if (j == (length(loaded_datasets) + 1)) {
+            #            fwrite(pi_distribution, paste0(in.path, "/", "Pi_Distribution_", "All_Data", ".txt"), sep = "\t")
+            #        } else {
+            #            fwrite(pi_distribution_dataset[[loaded_datasets[j]]], paste0(in.path, "/", "Pi_Distribution_", loaded_datasets[j], ".txt"), sep = "\t", row.names = FALSE)
+            #        }
+            #    }
+            # }
 
 
             ####### logo plots #######
@@ -5241,7 +5494,7 @@ app_server <- function(input, output, session) {
     )
 
     ############################### Visualisation ###############################
-    observeEvent(input$Execute_pipeline, {
+     observeEvent(input$Execute_pipeline, {
         output$nucleotides_per_clonotype_ui <- renderUI({
             checkboxGroupInput(inputId = "nucleotides_per_clonotype_Datasets", label = "Select Datasets", inline = TRUE, choices = loaded_datasets, selected = loaded_datasets)
         })
@@ -5599,84 +5852,94 @@ app_server <- function(input, output, session) {
                     highly <- FALSE
                 }
                 if (!highly) {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_allData)) {
-                                d <- c(d, clono$view_specific_clonotype_allData[[i]][[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(clono$clono_allData)
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution <<- d[order(d$CDR3Length), ]
-                        } else {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
-                                d <- c(d, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(clono$clono_datasets[[loaded_datasets[j]]])
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
+                  for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                      
+                      if (input$N_clono_cutoff!=0 | input$Freq_clono_cutoff!=0) {
+                        clono$view_specific_clonotype_allData <- clono$view_specific_clonotype_allData[names(clono$view_specific_clonotype_allData) %in% clono$clono_allData$clonotype]
+                      }
+                      
+                      d <- c()
+                      for (i in names(clono$view_specific_clonotype_allData)) {
+                        d <- c(d, clono$view_specific_clonotype_allData[[i]][[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(clono$clono_allData)
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution <<- d[order(d$CDR3Length), ]
+                    } else {
+                      d <- c()
+                      for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
+                        
+                        if (input$N_clono_cutoff!=0 | input$Freq_clono_cutoff!=0) {
+                          clono$view_specific_clonotype_datasets[[loaded_datasets[j]]] <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]]) %in% clono$clono_datasets[[loaded_datasets[j]]]$clonotype]
                         }
+                        
+                        d <- c(d, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(clono$clono_datasets[[loaded_datasets[j]]])
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
                     }
+                  }
                 } else {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
-                                a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, a[[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(highly_sim)
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution <<- d[order(d$CDR3Length), ]
-                        } else {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
-                                prev_clono <- prev_clono[!is.na(prev_clono)]
-                                a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, a[[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(highly_sim_datasets[[loaded_datasets[j]]])
-                            colnames(d) <- c("CDR3Length", "n", "Freq")
-                            d$CDR3Length <- as.numeric(d$CDR3Length)
-                            cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
+                  for (j in seq_len((length(loaded_datasets) + 1))) {
+                    if (j == (length(loaded_datasets) + 1)) {
+                      d <- c()
+                      for (i in seq_len(nrow(highly_sim))) {
+                        prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
+                        a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
+                        if (length(prev_clono) > 1) {
+                          for (cl in 2:length(prev_clono)) {
+                            a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+                          }
                         }
+                        d <- c(d, a[[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(highly_sim)
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution <<- d[order(d$CDR3Length), ]
+                    } else {
+                      d <- c()
+                      for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
+                        prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
+                        prev_clono <- prev_clono[!is.na(prev_clono)]
+                        a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
+                        if (length(prev_clono) > 1) {
+                          for (cl in 2:length(prev_clono)) {
+                            a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+                          }
+                        }
+                        d <- c(d, a[[var]][1])
+                      }
+                      d <- as.data.frame(d, stringsAsFactors = FALSE)
+                      colnames(d) <- var
+                      d <- d %>%
+                        dplyr::group_by((d[[var]])) %>%
+                        dplyr::summarise(n = n())
+                      d$Freq <- 100 * d$n / nrow(highly_sim_datasets[[loaded_datasets[j]]])
+                      colnames(d) <- c("CDR3Length", "n", "Freq")
+                      d$CDR3Length <- as.numeric(d$CDR3Length)
+                      cdr3_length_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$CDR3Length), ]
                     }
+                  }
                 }
             }
 
@@ -5713,194 +5976,210 @@ app_server <- function(input, output, session) {
                     return(my_table)
                 }
             })
+            
+            output$download_length_distribution_table <- downloadHandler(
+              filename = function() {
+                paste0("CDR3_length_distribution_", input$VisualisationDataset, ".txt")
+              },
+              content = function(file) {
+                if (input$VisualisationDataset == "All Data") {
+                  fwrite(cdr3_length_distribution, file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                } 
+                else {
+                fwrite(cdr3_length_distribution_dataset[[input$VisualisationDataset]], file, sep = "\t", row.names = FALSE, col.names = TRUE)
+                }
+              }
+            )
+            
 
             ############ Pi distribution ############
-            if (input$pipeline_pi_distribution) {
-                var <- "Junction.pI"
-                max_length <- length(as.numeric(imgtfilter_results$allData[[var]]))
-                box_input <<- c()
+            # if (input$pipeline_pi_distribution) {
+            #    var <- "Junction.pI"
+            #    max_length <- length(as.numeric(imgtfilter_results$allData[[var]]))
+            #    box_input <<- c()
+            #  
+            #    if (input$pipeline_highly_similar_clonotypes) {
+            #        if (input$select_clono_or_highly_for_pi_distribution == "initial_clonotypes") {
+            #            highly <- FALSE
+            #        } else {
+            #            highly <- TRUE
+            #        }
+            #    } else {
+            #        highly <- FALSE
+            #    }
+            #
+            #    if (!highly) {
+            #        for (j in seq_len((length(loaded_datasets) + 1))) {
+            #            if (j == (length(loaded_datasets) + 1)) {
+            #                d <- c()
+            #                for (i in names(clono$view_specific_clonotype_allData)) {
+            #                    d <- c(d, as.numeric(clono$view_specific_clonotype_allData[[i]][[var]][1]))
+            #                }
+            #                box_input <<- cbind(box_input, d)
+            #            } else {
+            #                d <- c()
+            #                for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
+            #                    d <- c(d, as.numeric(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1]))
+            #                }
+            #                box_input <<- cbind(box_input, d)
+            #            }
+            #        }
+            #    } else {
+            #        for (j in seq_len((length(loaded_datasets) + 1))) {
+            #            if (j == (length(loaded_datasets) + 1)) {
+            #                d <- c()
+            #                for (i in seq_len(nrow(highly_sim))) {
+            #                    prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
+            #                    a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
+            #                    if (length(prev_clono) > 1) {
+            #                        for (cl in 2:length(prev_clono)) {
+            #                            a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+            #                        }
+            #                    }
+            #                    d <- c(d, as.numeric(a[[var]][1]))
+            #                }
+            #                box_input <<- cbind(box_input, d)
+            #            } else {
+            #                d <- c()
+            #                for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
+            #                    prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
+            #                    prev_clono <- prev_clono[!is.na(prev_clono)]
+            #                    a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
+            #                    if (length(prev_clono) > 1) {
+            #                        for (cl in 2:length(prev_clono)) {
+            #                            a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+            #                        }
+            #                    }
+            #                    d <- c(d, as.numeric(a[[var]][1]))
+            #                }
+            #                box_input <<- cbind(box_input, d)
+            #            }
+            #        }
+            #    }
 
-                if (input$pipeline_highly_similar_clonotypes) {
-                    if (input$select_clono_or_highly_for_pi_distribution == "initial_clonotypes") {
-                        highly <- FALSE
-                    } else {
-                        highly <- TRUE
-                    }
-                } else {
-                    highly <- FALSE
-                }
+            #    colnames(box_input) <- c(loaded_datasets, "All Data")
+            #    box_input <<- box_input
+            # }
 
-                if (!highly) {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_allData)) {
-                                d <- c(d, as.numeric(clono$view_specific_clonotype_allData[[i]][[var]][1]))
-                            }
-                            box_input <<- cbind(box_input, d)
-                        } else {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
-                                d <- c(d, as.numeric(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1]))
-                            }
-                            box_input <<- cbind(box_input, d)
-                        }
-                    }
-                } else {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
-                                a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, as.numeric(a[[var]][1]))
-                            }
-                            box_input <<- cbind(box_input, d)
-                        } else {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
-                                prev_clono <- prev_clono[!is.na(prev_clono)]
-                                a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, as.numeric(a[[var]][1]))
-                            }
-                            box_input <<- cbind(box_input, d)
-                        }
-                    }
-                }
+            # if ("6_Junction.txt" %in% input$inputFiles) {
+            #    var <- "Junction.pI"
 
-                colnames(box_input) <- c(loaded_datasets, "All Data")
-                box_input <<- box_input
-            }
+            #    if (input$pipeline_highly_similar_clonotypes) {
+            #        if (input$select_clono_or_highly_for_pi_distribution == "initial_clonotypes") {
+            #            highly <- FALSE
+            #        } else {
+            #            highly <- TRUE
+            #        }
+            #    } else {
+            #        highly <- FALSE
+            #    }
 
-            if ("6_Junction.txt" %in% input$inputFiles) {
-                var <- "Junction.pI"
+            #    if (!highly) {
+            #        for (j in seq_len((length(loaded_datasets) + 1))) {
+            #            if (j == (length(loaded_datasets) + 1)) {
+            #                d <- c()
+            #                for (i in names(clono$view_specific_clonotype_allData)) {
+            #                    d <- c(d, clono$view_specific_clonotype_allData[[i]][[var]][1])
+            #                }
+            #                d <- as.data.frame(d, stringsAsFactors = FALSE)
+            #                colnames(d) <- var
+            #                d <- d %>%
+            #                    dplyr::group_by((d[[var]])) %>%
+            #                    dplyr::summarise(n = n())
+            #                d$Freq <- 100 * d$n / nrow(clono$clono_allData)
+            #                colnames(d) <- c("Pi", "n", "Freq")
+            #                d$Pi <- as.numeric(d$Pi)
+            #                pi_distribution <<- d[order(d$Pi), ]
+            #            } else {
+            #                d <- c()
+            #                for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
+            #                    d <- c(d, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
+            #                }
+            #                d <- as.data.frame(d, stringsAsFactors = FALSE)
+            #                colnames(d) <- var
+            #                d <- d %>%
+            #                    dplyr::group_by((d[[var]])) %>%
+            #                    dplyr::summarise(n = n())
+            #                d$Freq <- 100 * d$n / nrow(clono$clono_datasets[[loaded_datasets[j]]])
+            #                colnames(d) <- c("Pi", "n", "Freq")
+            #                d$Pi <- as.numeric(d$Pi)
+            #                pi_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$Pi), ]
+            #            }
+            #        }
+            #    } else {
+            #        for (j in seq_len((length(loaded_datasets) + 1))) {
+            #            if (j == (length(loaded_datasets) + 1)) {
+            #                d <- c()
+            #                for (i in seq_len(nrow(highly_sim))) {
+            #                    prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
+            #                    a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
+            #                    if (length(prev_clono) > 1) {
+            #                        for (cl in 2:length(prev_clono)) {
+            #                            a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
+            #                        }
+            #                    }
+            #                    d <- c(d, a[[var]][1])
+            #                }
+            #                d <- as.data.frame(d, stringsAsFactors = FALSE)
+            #                colnames(d) <- var
+            #                d <- d %>%
+            #                    dplyr::group_by((d[[var]])) %>%
+            #                    dplyr::summarise(n = n())
+            #                d$Freq <- 100 * d$n / nrow(highly_sim)
+            #                colnames(d) <- c("Pi", "n", "Freq")
+            #                d$Pi <- as.numeric(d$Pi)
+            #                pi_distribution <<- d[order(d$Pi), ]
+            #            } else {
+            #                d <- c()
+            #                for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
+            #                    prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
+            #                    prev_clono <- prev_clono[!is.na(prev_clono)]
+            #                    a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
+            #                    if (length(prev_clono) > 1) {
+            #                        for (cl in 2:length(prev_clono)) {
+            #                            a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
+            #                        }
+            #                    }
+            #                    d <- c(d, a[[var]][1])
+            #                }
+            #                d <- as.data.frame(d, stringsAsFactors = FALSE)
+            #                colnames(d) <- var
+            #                d <- d %>%
+            #                    dplyr::group_by((d[[var]])) %>%
+            #                    dplyr::summarise(n = n())
+            #                d$Freq <- 100 * d$n / nrow(highly_sim_datasets[[loaded_datasets[j]]])
+            #                colnames(d) <- c("Pi", "n", "Freq")
+            #                d$Pi <- as.numeric(d$Pi)
+            #                pi_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$Pi), ]
+            #            }
+            #        }
+            #    }
+            # }
 
-                if (input$pipeline_highly_similar_clonotypes) {
-                    if (input$select_clono_or_highly_for_pi_distribution == "initial_clonotypes") {
-                        highly <- FALSE
-                    } else {
-                        highly <- TRUE
-                    }
-                } else {
-                    highly <- FALSE
-                }
-
-                if (!highly) {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_allData)) {
-                                d <- c(d, clono$view_specific_clonotype_allData[[i]][[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(clono$clono_allData)
-                            colnames(d) <- c("Pi", "n", "Freq")
-                            d$Pi <- as.numeric(d$Pi)
-                            pi_distribution <<- d[order(d$Pi), ]
-                        } else {
-                            d <- c()
-                            for (i in names(clono$view_specific_clonotype_datasets[[loaded_datasets[j]]])) {
-                                d <- c(d, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[i]][[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(clono$clono_datasets[[loaded_datasets[j]]])
-                            colnames(d) <- c("Pi", "n", "Freq")
-                            d$Pi <- as.numeric(d$Pi)
-                            pi_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$Pi), ]
-                        }
-                    }
-                } else {
-                    for (j in seq_len((length(loaded_datasets) + 1))) {
-                        if (j == (length(loaded_datasets) + 1)) {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim$prev_cluster[i]), " ")[[1]])])
-                                a <- clono$view_specific_clonotype_allData[[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_allData[[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, a[[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(highly_sim)
-                            colnames(d) <- c("Pi", "n", "Freq")
-                            d$Pi <- as.numeric(d$Pi)
-                            pi_distribution <<- d[order(d$Pi), ]
-                        } else {
-                            d <- c()
-                            for (i in seq_len(nrow(highly_sim_datasets[[loaded_datasets[j]]]))) {
-                                prev_clono <- as.numeric(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(highly_sim_datasets[[loaded_datasets[j]]]$prev_cluster[i]), " ")[[1]])])
-                                prev_clono <- prev_clono[!is.na(prev_clono)]
-                                a <- clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[1]]]
-                                if (length(prev_clono) > 1) {
-                                    for (cl in 2:length(prev_clono)) {
-                                        a <- rbind(a, clono$view_specific_clonotype_datasets[[loaded_datasets[j]]][[prev_clono[cl]]])
-                                    }
-                                }
-                                d <- c(d, a[[var]][1])
-                            }
-                            d <- as.data.frame(d, stringsAsFactors = FALSE)
-                            colnames(d) <- var
-                            d <- d %>%
-                                dplyr::group_by((d[[var]])) %>%
-                                dplyr::summarise(n = n())
-                            d$Freq <- 100 * d$n / nrow(highly_sim_datasets[[loaded_datasets[j]]])
-                            colnames(d) <- c("Pi", "n", "Freq")
-                            d$Pi <- as.numeric(d$Pi)
-                            pi_distribution_dataset[[loaded_datasets[j]]] <<- d[order(d$Pi), ]
-                        }
-                    }
-                }
-            }
-
-            output$pI_distribution <- renderPlot({
-                if (is.null(input$VisualisationDataset)) {
-                    return()
-                }
-                if ("6_Junction.txt" %in% input$inputFiles) {
-                    boxplot(box_input, horizontal = FALSE, main = " ")
-                }
-            })
+            # output$pI_distribution <- renderPlot({
+            #     if (is.null(input$VisualisationDataset)) {
+            #        return()
+            #    }
+            #    if ("6_Junction.txt" %in% input$inputFiles) {
+            #        boxplot(box_input, horizontal = FALSE, main = " ")
+            #    }
+            # })
 
             # pI distribution table
-            output$pI_distribution_table <- renderDataTable({
-                if (is.null(input$VisualisationDataset)) {
-                    return()
-                }
-                if ("6_Junction.txt" %in% input$inputFiles) {
-                    if (input$VisualisationDataset == "All Data") {
-                        my_table <- pi_distribution
-                    } else {
-                        my_table <- pi_distribution_dataset[[input$VisualisationDataset]]
-                    }
-                    return(my_table)
-                }
-            })
+            # output$pI_distribution_table <- renderDataTable({
+            #    if (is.null(input$VisualisationDataset)) {
+            #        return()
+            #    }
+            #    if ("6_Junction.txt" %in% input$inputFiles) {
+            #        if (input$VisualisationDataset == "All Data") {
+            #            my_table <- pi_distribution
+            #        } else {
+            #            my_table <- pi_distribution_dataset[[input$VisualisationDataset]]
+            #        }
+            #        return(my_table)
+            #    }
+            # })
+            
         }
     })
 

@@ -473,7 +473,7 @@ app_ui <- function(request) {
                     ),
                     bsPopover(
                         id = "q_clonotypes", title = "Clonotypes",
-                        content = paste0("<p>The clonotype frequencies of the samples are computed.</p> <p>There are 10 different clonotype definitions from which the user might choose. Convergent evolution of each clonotype is also computed, when possible.</p> <p>The results are presented at the Clonotypes tab as a table, where the clonotype, the counts, the frequency and the convergent evolution (when feasible) are given. Each clonotypes is also a link, leading to another table specific for the particular clonotype. This second table is consisted of the sequences assigned to that clonotypes with all the information about them.</p>"),
+                        content = paste0("<p>Computation based on 10 different user-selectable definitions.</p> <p>The results are presented in the Clonotypes tab as a table, including detailed descriptions and the frequency of each clonotype.</p>"),
                         placement = "right",
                         trigger = "focus",
                         options = list(container = "body")
@@ -503,12 +503,112 @@ app_ui <- function(request) {
                         ),
                         width = "320"
                         ),
+                        conditionalPanel(
+                          condition = "input.cell == 'B cell' && input.select_clonotype == 'Sequence'",
+                          radioButtons("select_primer", "Select Primer:",
+                                       c("IGHJ primer" = "IGHJ_primer", "IGHC primer" = "IGHC_primer"))
+                        ),
+                        conditionalPanel(
+                          condition = "input.pipeline_clonotypes % 2 == 1",
+                          selectInput("select_minimum_threshold", "Select minimum threshold:", c(
+                            "No",
+                            "Yes"
+                          ),
+                          width = "320"
+                                      )
+                        ),
+                        conditionalPanel(
+                          condition = "input.select_minimum_threshold == 'Yes'",
+                          radioButtons(
+                            "select_N_or_Freq", "Select:",
+                            c(
+                              "Minimum number of reads" = "N",
+                              "Minimum frequency of clonotypes" = "Freq"
+                            )
+                          )
+                        ),
+                        conditionalPanel(
+                          condition = "input.select_minimum_threshold == 'Yes' & input.select_N_or_Freq == 'N'",
+                          numericInput("N_clono_cutoff", "N:", 0, min = 0, width = "140px")
+                        ),
+                        conditionalPanel(
+                          condition = "input.select_minimum_threshold == 'Yes' & input.select_N_or_Freq == 'Freq'",
+                          numericInput("Freq_clono_cutoff", "Freq %:", 0, min = 0, max = 100, width = "140px")
+                        ),
+                        conditionalPanel(
+                          condition = "input.cell == 'B cell' && input.select_clonotype == 'Sequence'",
+                          checkboxInput("pipeline_sub_clonotypes", c(
+                            "Sub-clonotypes analysis",
+                            list(
+                              tags$style(type = "text/css", "#q_sub_clonotypes {vertical-align: top;}"),
+                              bsButton("q_sub_clonotypes", label = "", icon = icon("question"), size = "extra-small")
+                            )
+                          ),
+                          width = "500px"
+                          ),
+                          bsPopover(
+                            id = "q_sub_clonotypes", title = "Sub-clonotypes",
+                            content = paste0("If clonotypes are defined in the previous step as unique nucleotide sequences, this step clusters sequences using the same V gene and identical CDR3 nucleotide sequences, allowing for SHMs in the FR1—FR3 regions of the V domain."),
+                            placement = "right",
+                            trigger = "focus",
+                            options = list(container = "body")
+                          ),
+                        ),
+                        conditionalPanel(
+                          condition = "input.select_clonotype == 'Sequence'",
+                          checkboxInput("pipeline_meta_clonotypes", c(
+                            "Meta-clonotypes analysis",
+                            list(
+                              tags$style(type = "text/css", "#q_meta_clonotypes {vertical-align: top;}"),
+                              bsButton("q_meta_clonotypes", label = "", icon = icon("question"), size = "extra-small")
+                            )
+                          ),
+                          width = "500px"
+                          ),
+                          bsPopover(
+                            id = "q_meta_clonotypes", title = "Meta-clonotypes",
+                            content = paste0("If clonotypes are defined in the previous step as unique nucleotide sequences, this step clusters sequences based on V gene and CDR3 identity/similarity, allowing the user to select the number of mismatches permitted for each CDR3 length."),
+                            placement = "right",
+                            trigger = "focus",
+                            options = list(container = "body")
+                          ),
+                        ),
+                        conditionalPanel(
+                          condition = "input.pipeline_meta_clonotypes % 2 == 1",
+                          uiOutput("select_meta_clonotypes_parameters")
+                        ),
                     ),
                     uiOutput("confirmClonotype"),
 
+                    
+                    #### Diversity ####
+                    checkboxInput("pipeline_diversity", c("Diversity estimation", 
+                                                          list(
+                                                            tags$style(type = "text/css", "#q_diversity {vertical-align: top;}"),
+                                                            bsButton("q_diversity", label = "", icon = icon("question"), size = "extra-small")
+                                                          )
+                                                        ),
+                          
+                                  width = "500px"
+                    ),
+                    bsPopover(
+                      id = "q_diversity", title = "Diversity indeces",
+                      content = paste0("<p>Richness: Accounts for the total number of unique clonotypes present in a sample. A higher richness indicates a more diverse immune repertoire.</p> <p>Shannon index: Accounts for both richness and the relative abundance of different clonotypes. A higher Shannon index suggests that the clonotypes in the immune repertoire are more evenly distributed.</p> <p>Inverse Simpson index: Accounts for the dominance of clonotypes in the repertoire. Higher values indicate repertoires dominated by a few abundant clonotypes.</p>"),
+                      placement = "right",
+                      trigger = "focus",
+                      options = list(container = "body")
+                    ),
+                    conditionalPanel(
+                      condition = "input.pipeline_diversity % 2 == 1",
+                      checkboxGroupInput("diversity_indeces", "Diversity indeces:",
+                                         choices = c("Richness", "Shannon index", "InvSimpson index"),
+                                         selected = character(0))
+                    ),
+                    
                     #### Highly Similar Clonotypes computation ####
-
-                    checkboxInput("pipeline_highly_similar_clonotypes", c(
+                    conditionalPanel(
+                      condition = "input.select_clonotype != 'Sequence'",
+                      checkboxInput("pipeline_highly_similar_clonotypes", c(
                         "Highly Similar Clonotypes computation",
                         list(
                             tags$style(type = "text/css", "#q_highly_similar_clonotypes {vertical-align: top;}"),
@@ -516,10 +616,11 @@ app_ui <- function(request) {
                         )
                     ),
                     width = "500px"
+                    )
                     ),
                     bsPopover(
                         id = "q_highly_similar_clonotypes", title = "Highly Similar Clonotypes",
-                        content = paste0("The clonotype frequencies of the highly similar clonotypes."),
+                        content = paste0("Clonotype computation by clustering sequences based on V gene and CDR3 identity/similarity, allowing the user to select the number of mismatches permitted for each CDR3 length."),
                         placement = "right",
                         trigger = "focus",
                         options = list(container = "body")
@@ -613,7 +714,7 @@ app_ui <- function(request) {
                     ),
                     bsPopover(
                         id = "q_Repertoires", title = "Repertoires",
-                        content = paste0("The number of clonotypes using each V, J or D gene/allele is computed over the total number of clonotypes based on the definition given in the clonotype computation step. More than one repertoires can be computed at the same time. The results are presented at the Repertoires tab as tables. Each table includes the gene/allele, the counts and the frequency."),
+                        content = paste0("Computation of each V, J or D gene/allele frequency by accounting for the number of clonotypes using a particular gene over the total number of clonotypes, based on the definitions given in the clonotype computation step. More than one repertoire can be computed at the same time."),
                         placement = "right",
                         trigger = "focus",
                         options = list(container = "body")
@@ -636,7 +737,7 @@ app_ui <- function(request) {
                         ),
                         bsPopover(
                             id = "q_HighlySim_Repertoires", title = "HighlySim_Repertoires",
-                            content = paste0("The number of clonotypes using each V, J or D gene is computed over the total number of the highly similar clonotypes."),
+                            content = paste0("Computation of each V, J or D gene/allele frequency by accounting for the number of clonotypes using a particular gene over the total number of highly similar clonotypes."),
                             placement = "right",
                             trigger = "focus",
                             options = list(container = "body")
@@ -676,7 +777,7 @@ app_ui <- function(request) {
                         ),
                         bsPopover(
                           id = "q_diagnosis", title = "Somatic hypermutation status",
-                          content = paste0("Presents the V region identity (%) to the germline V gene sequence due to SHM for all the sequences comprising a particular clonotype. The user can categorize the sequences into different groups defining their SHM status based on this value."),
+                          content = paste0("Computation of the IGHV/IGLV region identity (%) of sequences comprising a particular clonotype against to the respective germline sequence. Users can assign each clonotype into different groups based on their SHM status."),
                           placement = "right",
                           trigger = "focus",
                           options = list(container = "body")
@@ -744,7 +845,7 @@ app_ui <- function(request) {
                     #### CDR3 Distribution ####
 
                     checkboxInput("pipeline_cdr3_distribution", c(
-                        "CDR3 Distribution",
+                        "CDR3 length distribution",
                         list(
                             tags$style(type = "text/css", "#q_cdr3_distribution {vertical-align: top;}"),
                             bsButton("q_cdr3_distribution", label = "", icon = icon("question"), size = "extra-small")
@@ -754,7 +855,7 @@ app_ui <- function(request) {
                     ),
                     bsPopover(
                         id = "q_cdr3_distribution", title = "CDR3 Distribution",
-                        content = paste0("Compute the CDR3 Distribution over the initial or the highly similar clonotypes. The results are presented at Visualization tab."),
+                        content = paste0("Computation of the number and frequency of clonotypes with a CDR3 of a particular length. The length is measured by the number of amino acids in the CDR3."),
                         placement = "right",
                         trigger = "focus",
                         options = list(container = "body")
@@ -773,32 +874,32 @@ app_ui <- function(request) {
 
                     #### Pi Distribution ####
 
-                    checkboxInput("pipeline_pi_distribution", c(
-                        "Pi Distribution",
-                        list(
-                            tags$style(type = "text/css", "#q_pi_distribution {vertical-align: top;}"),
-                            bsButton("q_pi_distribution", label = "", icon = icon("question"), size = "extra-small")
-                        )
-                    ),
-                    width = "500px"
-                    ),
-                    bsPopover(
-                        id = "q_pi_distribution", title = "Pi Distribution",
-                        content = paste0("Compute the Pi Distribution over the initial or the highly similar clonotypes. The results are presented at Visualization tab."),
-                        placement = "right",
-                        trigger = "focus",
-                        options = list(container = "body")
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_pi_distribution % 2 == 1 & input.pipeline_highly_similar_clonotypes % 2 == 1",
-                        radioButtons(
-                            "select_clono_or_highly_for_pi_distribution", "Use:",
-                            c(
-                                "Initial clonotypes" = "initial_clonotypes",
-                                "Highly similar clonotypes" = "highly_similar_clonotypes"
-                            )
-                        )
-                    ),
+                     # checkboxInput("pipeline_pi_distribution", c(
+                     #  "Pi Distribution",
+                     #   list(
+                     #        tags$style(type = "text/css", "#q_pi_distribution {vertical-align: top;}"),
+                     #      bsButton("q_pi_distribution", label = "", icon = icon("question"), size = "extra-small")
+                     #   )
+                     # ),
+                     # width = "500px"
+                     # ),
+                     # bsPopover(
+                     #    id = "q_pi_distribution", title = "Pi Distribution",
+                     #   content = paste0("Compute the Pi Distribution over the initial or the highly similar clonotypes. The results are presented at Visualization tab."),
+                     #    placement = "right",
+                     #   trigger = "focus",
+                     #    options = list(container = "body")
+                     # ),
+                     # conditionalPanel(
+                     #    condition = "input.pipeline_pi_distribution % 2 == 1 & input.pipeline_highly_similar_clonotypes % 2 == 1",
+                     #   radioButtons(
+                     #        "select_clono_or_highly_for_pi_distribution", "Use:",
+                     #       c(
+                     #          "Initial clonotypes" = "initial_clonotypes",
+                     #           "Highly similar clonotypes" = "highly_similar_clonotypes"
+                     #        )
+                     #   )
+                     # ),
 
 
                     #### Multiple value comparison ####
@@ -814,7 +915,7 @@ app_ui <- function(request) {
                     ),
                     bsPopover(
                         id = "q_Multiple_value_comparison", title = "Multiple value comparison",
-                        content = paste0("The number of the combination of the two selected variables is computed. Many different combinations can be selected by the user to be created. The possible combinations depend on the selected input files from the Home tab. The results are presented at the Multiple value comparison tab in tables. Each table gives the values that are found to be associated and how many times."),
+                        content = paste0("Computes combinations of two selected variables based on the previous steps of the pipeline. Users can create various combinations, and the results are presented in the Multiple Value Comparison tab as tables, showing the associated values and their frequencies."),
                         placement = "right",
                         trigger = "focus",
                         options = list(container = "body")
@@ -1130,6 +1231,59 @@ app_ui <- function(request) {
                 )
             ),
 
+            ################## Diversity estimation ##################
+            tabPanel("Diversity estimation",
+                     value = "diversity_estimation",
+                     mainPanel(
+                       br(), br(), br(), br(),
+                       br(),
+                       actionButton("diversity_btn", "View Diversity estimation", style = "color: #fff; background-color: #5F021F; border-color: #fff"),
+                       conditionalPanel(
+                         condition = "input.diversity_btn % 2 == 1",
+                         br(),
+                         br(),
+                         dataTableOutput("DiversityTable"),
+                         downloadButton("download_diversity_table", "Download")
+                       )
+                     )
+            ),
+            
+            ################## Sub-clonotypes ##########
+            tabPanel("Sub-clonotypes",
+                value = "Sub-clonotypes",
+                mainPanel(
+                  br(), br(), br(), br(),
+                  uiOutput("uiSelectDatasetsub_clonotypes"),
+                  br(),
+                  actionButton("sub_clonotypes_btn", "View Sub-clonotypes", style = "color: #fff; background-color: #5F021F; border-color: #fff"),
+                  conditionalPanel(
+                    condition = "input.sub_clonotypes_btn % 2 == 1",
+                    br(),
+                    br(),
+                    dataTableOutput("SubclonoTable"),
+                    downloadButton("download_Sub_Clonotypes", "Download")
+                  )
+                )
+                     ),
+            
+            ################## Meta-clonotypes ##########
+            tabPanel("Meta-clonotypes",
+                value = "Meta-clonotypes",
+                mainPanel(
+                  br(), br(), br(), br(),
+                  uiOutput("uiSelectDatasetmeta_clonotypes"),
+                  br(),
+                  actionButton("meta_clonotypes_btn", "View Meta-clonotypes", style = "color: #fff; background-color: #5F021F; border-color: #fff"),
+                  conditionalPanel(
+                    condition = "input.meta_clonotypes_btn % 2 == 1",
+                    br(),
+                    br(),
+                    dataTableOutput("MetaclonoTable"),
+                    downloadButton("download_Meta_Clonotypes", "Download")
+                  )
+                )
+                     ),
+            
             ################## High Similar Clonotypes ##########
             tabPanel("Highly Similar Clonotypes",
                 value = "highly_similar_clonotypes",
@@ -1522,231 +1676,233 @@ app_ui <- function(request) {
                 )
             ),
 
-            ################## Visualisation ################
-            tabPanel("Visualisation",
-                value = "Visualisation",
-                mainPanel(
-                    br(), br(), br(), br(),
-                    uiOutput("uiSelectDatasetVisualisation"),
-                    br(),
-                    conditionalPanel(
-                        condition = "input.pipeline_clonotypes == 1",
-                        actionButton("view_clonotype_bar", "View Clonotype bar plots",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_clonotype_bar % 2 == 1",
-                            br(),
-                            br(),
-                            numericInput("clonotypes_barchart_threshold", "Select %threshold for bar chart:", 0.5,
-                                min = 0, max = 100, width = "140px"
-                            ),
-                            h4("Or"),
-                            checkboxInput("clonotypes_barplot_select_range", "Select range of clusters to show",
-                                width = "500px"
-                            ),
-                            conditionalPanel(
-                                condition = "input.clonotypes_barplot_select_range % 2 == 1",
-                                numericInput("clonotypes_barchart_down_threshold", "From cluster:", 1,
-                                    min = 0, max = 100, width = "140px"
-                                ),
-                                numericInput("clonotypes_barchart_up_threshold", "To cluster:", 1,
-                                    min = 0, max = 10000000, width = "140px"
-                                )
-                            ),
-                            br(),
-                            plotOutput("clonotypes_bar_plot")
-                        ),
-                        br()
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_highly_similar_clonotypes == 1",
-                        actionButton("view_higly_sim_clonotype_bar", "View Highly Similar Clonotype bar plots",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_higly_sim_clonotype_bar % 2 == 1",
-                            br(),
-                            br(),
-                            numericInput("higly_sim_clonotypes_barchart_threshold", "Select %threshold for bar chart:", 0.5,
-                                min = 0, max = 100, width = "140px"
-                            ),
-                            h4("Or"),
-                            checkboxInput("higly_sim_clonotypes_barplot_select_range", "Select range of clusters to show",
-                                width = "500px"
-                            ),
-                            conditionalPanel(
-                                condition = "input.higly_sim_clonotypes_barplot_select_range % 2 == 1",
-                                numericInput("higly_sim_clonotypes_barchart_down_threshold", "From cluster:", 1,
-                                    min = 0, max = 100, width = "140px"
-                                ),
-                                numericInput("higly_sim_clonotypes_barchart_up_threshold", "To cluster:", 1,
-                                    min = 0, max = 10000000, width = "140px"
-                                )
-                            ),
-                            br(),
-                            plotOutput("higly_sim_clonotypes_bar_plot")
-                        ),
-                        br()
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_Repertoires == 1",
-                        actionButton("view_repertoire_pies", "View Repertoire pies",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_repertoire_pies % 2 == 1",
-                            br(),
-                            uiOutput("RepertoiresPiesUi")
-                        ),
-                        br()
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_Repertoires == 1 & input.pipeline_HighlySim_Repertoires == 1",
-                        actionButton("view_highly_sim_repertoire_pies", "View Highly Similar Repertoire pies",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_highly_sim_repertoire_pies % 2 == 1",
-                            br(),
-                            uiOutput("HighlySim_RepertoiresPiesUi")
-                        ),
-                        br()
-                    ),
-
-                    conditionalPanel(
-                        condition = "input.pipeline_mutational_status == 1",
-                        actionButton("view_mutational_status", "View Somatic hypermutation status plots",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        conditionalPanel(
-                            condition = "input.view_mutational_status % 2 == 1",
-                            br(),
-                            plotOutput("mutational_status_plot"),
-                            br(),
-                            actionButton("view_mutational_status_table", "View Somatic hypermutation status Table",
-                                style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                            ),
-                            conditionalPanel(
-                                condition = "input.view_mutational_status_table % 2 == 1",
-                                br(),
-                                tableOutput("mutational_status_table")
-                            )
-                        ),
-                        br(),
-                        br()
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_logo == 1",
-                        actionButton("view_logo_plots", "View Logo plots",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_logo_plots % 2 == 1",
-                            plotOutput("logo_visualisation")
-                        ),
-                        br()
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_clonotypes == 1 && output.num_of_datasets>1",
-                        actionButton("nucleotides_per_clonotype", "View nucleotides per clonotype",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-
-                        conditionalPanel(
-                            condition = "input.nucleotides_per_clonotype % 2 == 1",
-                            br(),
-                            selectInput("select_plot_type_nucleotides_per_clonotype", "Select plot type:",
-                                c("hist3D", "persp3D", "image2D", "surface"),
-                                width = "200"
-                            ),
-                            numericInput("nucleotides_per_clonotype_topN", "Select top N Clonotypes:", 10,
-                                min = 1, max = 1000, width = "140px"
-                            ),
-                            br(),
-                            uiOutput("nucleotides_per_clonotype_ui"),
-                            br(),
-                            conditionalPanel(
-                                condition = "input.select_plot_type_nucleotides_per_clonotype == 'hist3D'",
-                                plotOutput("nucleotides_per_clonotype_hist3D"),
-                                br()
-                            ),
-                            conditionalPanel(
-                                condition = "input.select_plot_type_nucleotides_per_clonotype == 'persp3D'",
-                                plotOutput("nucleotides_per_clonotype_persp3D"),
-                                br()
-                            ),
-                            conditionalPanel(
-                                condition = "input.select_plot_type_nucleotides_per_clonotype == 'image2D'",
-                                plotOutput("nucleotides_per_clonotype_image2D"),
-                                br()
-                            ),
-                            conditionalPanel(
-                                condition = "input.select_plot_type_nucleotides_per_clonotype == 'surface'",
-                                plotly::plotlyOutput("nucleotides_per_clonotype_surface"),
-                                br()
-                            )
-
-                        ),
-                        br()
-                    ),
-                    conditionalPanel(
-                        condition = "input.pipeline_cdr3_distribution == 1",
-                        actionButton("view_length_distribution", "View CDR3 length Distribution",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_length_distribution % 2 == 1",
-                            br(),
-                            plotOutput("length_distribution"),
-                            br(),
-                            actionButton("view_length_distribution_table", "View CDR3 length Distribution Table",
-                                style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                            ),
-                            br(),
-                            conditionalPanel(
-                                condition = "input.view_length_distribution_table % 2 == 1",
-                                br(),
-                                dataTableOutput("length_distribution_table")
-                            )
-                        )
-                    ),
-                    br(),
-                    conditionalPanel(
-                        condition = "input.pipeline_pi_distribution == 1",
-                        actionButton("view_pI_distribution", "View pI Distribution",
-                            style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                        ),
-                        br(),
-                        conditionalPanel(
-                            condition = "input.view_pI_distribution % 2 == 1",
-                            br(),
-                            plotOutput("pI_distribution"),
-                            br(),
-                            actionButton("view_pI_distribution_table", "View Pi Distribution Table",
-                                style = "color: #fff; background-color: #5F021F; border-color: #fff"
-                            ),
-                            br(),
-                            conditionalPanel(
-                                condition = "input.view_pI_distribution_table % 2 == 1",
-                                br(),
-                                dataTableOutput("pI_distribution_table")
-                            )
-                        ),
-                        br(),
-                        br(),
-                        downloadButton("downloadAllPlots", "Download zip")
-                    )
-                )
+            ################## CDR3 Length Distribution ################
+            tabPanel("CDR3 length distribution",
+                     value = "cdr3_length_distribution",
+                     mainPanel(
+                       br(), br(), br(), br(),
+                       uiOutput("uiSelectDatasetVisualisation"),
+                       br(),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_clonotypes == 1",
+                       #  actionButton("view_clonotype_bar", "View Clonotype bar plots",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       #  conditionalPanel(
+                       #     condition = "input.view_clonotype_bar % 2 == 1",
+                       #    br(),
+                       #     br(),
+                       #    numericInput("clonotypes_barchart_threshold", "Select %threshold for bar chart:", 0.5,
+                       #                  min = 0, max = 100, width = "140px"
+                       #    ),
+                       #     h4("Or"),
+                       #    checkboxInput("clonotypes_barplot_select_range", "Select range of clusters to show",
+                       #                   width = "500px"
+                       #    ),
+                       #     conditionalPanel(
+                       #      condition = "input.clonotypes_barplot_select_range % 2 == 1",
+                       #       numericInput("clonotypes_barchart_down_threshold", "From cluster:", 1,
+                       #                   min = 0, max = 100, width = "140px"
+                       #       ),
+                       #      numericInput("clonotypes_barchart_up_threshold", "To cluster:", 1,
+                       #                    min = 0, max = 10000000, width = "140px"
+                       #      )
+                       #     ),
+                       #    br(),
+                       #     plotOutput("clonotypes_bar_plot")
+                       #  ),
+                       #   br()
+                       # ),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_highly_similar_clonotypes == 1",
+                       #  actionButton("view_higly_sim_clonotype_bar", "View Highly Similar Clonotype bar plots",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       #  conditionalPanel(
+                       #     condition = "input.view_higly_sim_clonotype_bar % 2 == 1",
+                       #    br(),
+                       #     br(),
+                       #    numericInput("higly_sim_clonotypes_barchart_threshold", "Select %threshold for bar chart:", 0.5,
+                       #                  min = 0, max = 100, width = "140px"
+                       #    ),
+                       #     h4("Or"),
+                       #    checkboxInput("higly_sim_clonotypes_barplot_select_range", "Select range of clusters to show",
+                       #                   width = "500px"
+                       #    ),
+                       #     conditionalPanel(
+                       #      condition = "input.higly_sim_clonotypes_barplot_select_range % 2 == 1",
+                       #       numericInput("higly_sim_clonotypes_barchart_down_threshold", "From cluster:", 1,
+                       #                   min = 0, max = 100, width = "140px"
+                       #       ),
+                       #      numericInput("higly_sim_clonotypes_barchart_up_threshold", "To cluster:", 1,
+                       #                    min = 0, max = 10000000, width = "140px"
+                       #      )
+                       #     ),
+                       #    br(),
+                       #     plotOutput("higly_sim_clonotypes_bar_plot")
+                       #  ),
+                       #   br()
+                       #  ),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_Repertoires == 1",
+                       #  actionButton("view_repertoire_pies", "View Repertoire pies",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       #  conditionalPanel(
+                       #     condition = "input.view_repertoire_pies % 2 == 1",
+                       #    br(),
+                       #     uiOutput("RepertoiresPiesUi")
+                       #  ),
+                       #   br()
+                       # ),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_Repertoires == 1 & input.pipeline_HighlySim_Repertoires == 1",
+                       #  actionButton("view_highly_sim_repertoire_pies", "View Highly Similar Repertoire pies",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       #  conditionalPanel(
+                       #     condition = "input.view_highly_sim_repertoire_pies % 2 == 1",
+                       #    br(),
+                       #     uiOutput("HighlySim_RepertoiresPiesUi")
+                       #  ),
+                       #  br()
+                       # ),
+                       
+                       # conditionalPanel(
+                       # condition = "input.pipeline_mutational_status == 1",
+                       #  actionButton("view_mutational_status", "View Somatic hypermutation status plots",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   conditionalPanel(
+                       #    condition = "input.view_mutational_status % 2 == 1",
+                       #     br(),
+                       #    plotOutput("mutational_status_plot"),
+                       #     br(),
+                       #    actionButton("view_mutational_status_table", "View Somatic hypermutation status Table",
+                       #                  style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #    ),
+                       #     conditionalPanel(
+                       #      condition = "input.view_mutational_status_table % 2 == 1",
+                       #       br(),
+                       #      tableOutput("mutational_status_table")
+                       #     )
+                       #  ),
+                       #   br(),
+                       #  br()
+                       # ),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_logo == 1",
+                       #  actionButton("view_logo_plots", "View Logo plots",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       #  conditionalPanel(
+                       #     condition = "input.view_logo_plots % 2 == 1",
+                       #    plotOutput("logo_visualisation")
+                       #   ),
+                       #  br()
+                       # ),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_clonotypes == 1 && output.num_of_datasets>1",
+                       #  actionButton("nucleotides_per_clonotype", "View nucleotides per clonotype",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       
+                       #  conditionalPanel(
+                       #     condition = "input.nucleotides_per_clonotype % 2 == 1",
+                       #    br(),
+                       #     selectInput("select_plot_type_nucleotides_per_clonotype", "Select plot type:",
+                       #                c("hist3D", "persp3D", "image2D", "surface"),
+                       #                 width = "200"
+                       #    ),
+                       #    numericInput("nucleotides_per_clonotype_topN", "Select top N Clonotypes:", 10,
+                       #                  min = 1, max = 1000, width = "140px"
+                       #    ),
+                       #     br(),
+                       #    uiOutput("nucleotides_per_clonotype_ui"),
+                       #    br(),
+                       #     conditionalPanel(
+                       #      condition = "input.select_plot_type_nucleotides_per_clonotype == 'hist3D'",
+                       #       plotOutput("nucleotides_per_clonotype_hist3D"),
+                       #      br()
+                       #    ),
+                       #     conditionalPanel(
+                       #      condition = "input.select_plot_type_nucleotides_per_clonotype == 'persp3D'",
+                       #      plotOutput("nucleotides_per_clonotype_persp3D"),
+                       #       br()
+                       #    ),
+                       #     conditionalPanel(
+                       #      condition = "input.select_plot_type_nucleotides_per_clonotype == 'image2D'",
+                       #       plotOutput("nucleotides_per_clonotype_image2D"),
+                       #     br()
+                       #    ),
+                       #     conditionalPanel(
+                       #      condition = "input.select_plot_type_nucleotides_per_clonotype == 'surface'",
+                       #       plotly::plotlyOutput("nucleotides_per_clonotype_surface"),
+                       #      br()
+                       #     )
+                       #    
+                       #   ),
+                       #  br()
+                       # ),
+                       conditionalPanel(
+                         condition = "input.pipeline_cdr3_distribution == 1",
+                         actionButton("view_length_distribution", "View CDR3 length Distribution",
+                                      style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                         ),
+                         br(),
+                         conditionalPanel(
+                           condition = "input.view_length_distribution % 2 == 1",
+                           br(),
+                           plotOutput("length_distribution"),
+                           br(),
+                           actionButton("view_length_distribution_table", "View CDR3 length Distribution Table",
+                                        style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                           ),
+                           br(),
+                           conditionalPanel(
+                             condition = "input.view_length_distribution_table % 2 == 1",
+                             br(),
+                             dataTableOutput("length_distribution_table"),
+                             downloadButton("download_length_distribution_table", "Download")
+                           )
+                         )
+                       ),
+                       br(),
+                       # conditionalPanel(
+                       #   condition = "input.pipeline_pi_distribution == 1",
+                       #  actionButton("view_pI_distribution", "View pI Distribution",
+                       #                style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #  ),
+                       #   br(),
+                       #  conditionalPanel(
+                       #     condition = "input.view_pI_distribution % 2 == 1",
+                       #    br(),
+                       #    plotOutput("pI_distribution"),
+                       #     br(),
+                       #     actionButton("view_pI_distribution_table", "View Pi Distribution Table",
+                       #                 style = "color: #fff; background-color: #5F021F; border-color: #fff"
+                       #    ),
+                       #     br(),
+                       #    conditionalPanel(
+                       #      condition = "input.view_pI_distribution_table % 2 == 1",
+                       #       br(),
+                       #      dataTableOutput("pI_distribution_table")
+                       #    )
+                       #   ),
+                       #  br(),
+                       #   br(),
+                       #  downloadButton("downloadAllPlots", "Download zip")
+                       # )
+                     )
             ),
-
+            
+            
             ################## Overview #################
             tabPanel("Overview",
                 value = "Overview",

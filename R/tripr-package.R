@@ -27,5 +27,6 @@
 #' @importFrom stringr str_length str_detect
 #' @importFrom gridExtra grid.table
 #' @importFrom data.table data.table .N rbindlist .SD fread fwrite setDT setDF
+#' @importFrom vegan diversity specnumber
 #'
 NULL

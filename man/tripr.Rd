@@ -2,6 +2,7 @@
 % Please edit documentation in R/tripr-package.R
 \docType{package}
 \name{tripr}
+\alias{tripr-package}
 \alias{tripr}
 \title{tripr}
 \description{
@@ -10,4 +11,32 @@ T-cell Receptor/Immunoglobulin Profiler (TRIP)
 \details{
 The only function you're likely to need from tripr is [run_app()].
 Otherwise refer to the vignettes for using tripr.
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/BiodataAnalysisGroup/tripr}
+  \item Report bugs at \url{https://github.com/BiodataAnalysisGroup/tripr/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Nikolaos Pechlivanis \email{inab.bioinformatics@lists.certh.gr}
+
+Authors:
+\itemize{
+  \item Maria Th. Kotouza \email{-}
+  \item Katerina Gemenetzi \email{-}
+  \item Chrysi Galigalidou \email{-}
+  \item Elisavet Vlachonikola \email{-}
+  \item Andreas Agathangelidis \email{-}
+  \item Raphael Sandaltzopoulos \email{-}
+  \item Pericles A. Mitkas \email{-}
+  \item Kostas Stamatopoulos \email{-}
+  \item Anastasia Chatzidimitriou \email{-}
+  \item Fotis E. Psomopoulos \email{-}
+  \item Iason Ofeidis \email{-}
+  \item Aspasia Orfanou \email{-}
+}
+
 }
