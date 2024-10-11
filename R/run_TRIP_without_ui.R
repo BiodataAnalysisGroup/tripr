@@ -531,7 +531,7 @@ run_TRIP <- function(
         junction_clonotypes <- junction
         allele_clonotypes <- allele
 
-        clono <- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, pipeline_diagnosis)
+        clono <- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis, identity_groups, input$pipeline_sub_clonotypes, input$N_clono_cutoff, input$Freq_clono_cutoff)
     }
 
     ############ Highly similar clonotypes #############

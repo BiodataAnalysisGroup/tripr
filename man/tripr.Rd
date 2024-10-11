@@ -25,18 +25,18 @@ Useful links:
 
 Authors:
 \itemize{
-  \item Maria Th. Kotouza \email{-}
-  \item Katerina Gemenetzi \email{-}
-  \item Chrysi Galigalidou \email{-}
-  \item Elisavet Vlachonikola \email{-}
-  \item Andreas Agathangelidis \email{-}
-  \item Raphael Sandaltzopoulos \email{-}
-  \item Pericles A. Mitkas \email{-}
-  \item Kostas Stamatopoulos \email{-}
-  \item Anastasia Chatzidimitriou \email{-}
-  \item Fotis E. Psomopoulos \email{-}
-  \item Iason Ofeidis \email{-}
-  \item Aspasia Orfanou \email{-}
+  \item Maria Th. Kotouza
+  \item Katerina Gemenetzi
+  \item Chrysi Galigalidou
+  \item Elisavet Vlachonikola
+  \item Andreas Agathangelidis
+  \item Raphael Sandaltzopoulos
+  \item Pericles A. Mitkas
+  \item Kostas Stamatopoulos
+  \item Anastasia Chatzidimitriou
+  \item Fotis E. Psomopoulos
+  \item Iason Ofeidis
+  \item Aspasia Orfanou
 }
 
 }

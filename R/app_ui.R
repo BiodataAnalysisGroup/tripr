@@ -548,7 +548,7 @@ app_ui <- function(request) {
                           ),
                           bsPopover(
                             id = "q_sub_clonotypes", title = "Sub-clonotypes",
-                            content = paste0("If clonotypes are defined in the previous step as unique nucleotide sequences, this step clusters sequences using the same V gene and identical CDR3 nucleotide sequences, allowing for SHMs in the FR1—FR3 regions of the V domain."),
+                            content = paste0("If clonotypes are defined in the previous step as unique nucleotide sequences, this step clusters sequences using the same V gene and identical CDR3 nucleotide sequences, allowing for SHMs in the FR1-FR3 regions of the V domain."),
                             placement = "right",
                             trigger = "focus",
                             options = list(container = "body")
