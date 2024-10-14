@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
-Version: 1.11.8
+Version: 1.11.9
 Authors@R: c(
         person("Maria Th.", "Kotouza", role = "aut"),
         person("Katerina", "Gemenetzi", role = "aut"),

@@ -402,6 +402,9 @@ run_TRIP <- function(
     pipeline_SHM_normal <- FALSE
     pipeline_SHM_High_similarity <- FALSE
     pipeline_diagnosis <- FALSE
+    pipeline_sub_clonotypes <- FALSE
+    N_clono_cutoff <- 0
+    Freq_clono_cutoff <- 0
 
     if (1 %in% pipeline) {
         pipeline_clonotypes <- TRUE
@@ -531,7 +534,7 @@ run_TRIP <- function(
         junction_clonotypes <- junction
         allele_clonotypes <- allele
 
-        clono <- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, input$diagnosis, identity_groups, input$pipeline_sub_clonotypes, input$N_clono_cutoff, input$Freq_clono_cutoff)
+        clono <- clonotypes(imgtfilter_results$allData, allele, gene, junction, loaded_datasets, pipeline_diagnosis, identity_groups, pipeline_sub_clonotypes, N_clono_cutoff, Freq_clono_cutoff)
     }
 
     ############ Highly similar clonotypes #############
