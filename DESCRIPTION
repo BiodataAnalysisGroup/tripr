@@ -1,21 +1,21 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
-Version: 1.11.7
+Version: 1.11.10
 Authors@R: c(
-        person("Maria Th.", "Kotouza", email = "-", role = "aut"),
-        person("Katerina", "Gemenetzi", email = "-", role = "aut"),
-        person("Chrysi", "Galigalidou", email = "-", role = "aut"),
-        person("Elisavet", "Vlachonikola", email = "-", role = "aut"),
+        person("Maria Th.", "Kotouza", role = "aut"),
+        person("Katerina", "Gemenetzi", role = "aut"),
+        person("Chrysi", "Galigalidou", role = "aut"),
+        person("Elisavet", "Vlachonikola", role = "aut"),
         person("Nikolaos", "Pechlivanis", email = "inab.bioinformatics@lists.certh.gr", role = "cre"),
-        person("Andreas", "Agathangelidis", email = "-", role = "aut"),
-        person("Raphael", "Sandaltzopoulos", email = "-", role = "aut"),
-        person("Pericles A.", "Mitkas", email = "-", role = "aut"),
-        person("Kostas", "Stamatopoulos", email = "-", role = "aut"),
-        person("Anastasia", "Chatzidimitriou", email = "-", role = "aut"),
-        person("Fotis E.", "Psomopoulos", email = "-", role = "aut"),
-        person("Iason", "Ofeidis", email = "-", role = "aut"),
-        person("Aspasia", "Orfanou", email = "-", role = "aut")
+        person("Andreas", "Agathangelidis", role = "aut"),
+        person("Raphael", "Sandaltzopoulos", role = "aut"),
+        person("Pericles A.", "Mitkas", role = "aut"),
+        person("Kostas", "Stamatopoulos", role = "aut"),
+        person("Anastasia", "Chatzidimitriou", role = "aut"),
+        person("Fotis E.", "Psomopoulos", role = "aut"),
+        person("Iason", "Ofeidis", role = "aut"),
+        person("Aspasia", "Orfanou", role = "aut")
         )
 Description: TRIP is a software framework that provides analytics services on 
     antigen receptor (B cell receptor immunoglobulin, BcR IG | T cell receptor, 

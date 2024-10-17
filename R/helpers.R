@@ -1962,7 +1962,7 @@ clonotypes <- function(
         names(empty_row) <- names(df)
         rbind(empty_row, df)
       }
-      sum_Ν <- function(df) {
+      sum_N <- function(df) {
         total_sum <- sum(as.numeric(df$N), na.rm = TRUE)
         df[1, "N"] <- total_sum
         return(df)
@@ -2024,7 +2024,7 @@ clonotypes <- function(
       })
       
       clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], add_empty_row)
-      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], sum_Ν)
+      clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], sum_N)
       clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], sum_Freq)
       clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], aa_junction_fun)
       clono_datasets_sub[[name[j]]] <- lapply(clono_datasets_sub[[name[j]]], aa_junction_length_fun)
@@ -2296,7 +2296,7 @@ meta_clonotypes <- function(clono_datasets, num_of_missmatches, cdr3_lengths, na
     names(empty_row) <- names(df)
     rbind(empty_row, df)
   }
-  sum_Ν <- function(df) {
+  sum_N <- function(df) {
     total_sum <- sum(as.numeric(df$N), na.rm = TRUE)
     df[1, "N"] <- total_sum
     return(df)
@@ -2393,7 +2393,7 @@ meta_clonotypes <- function(clono_datasets, num_of_missmatches, cdr3_lengths, na
     clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][!names(clono_datasets_meta[[name[j]]]) %in% names_drop_dataframes]
     clono_datasets_meta[[name[j]]] <- c(clono_datasets_meta[[name[j]]], drop_dataframes_list)
     clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], add_empty_row)
-    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], sum_Ν)
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], sum_N)
     clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], sum_Freq)
     clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][order(-(sapply(clono_datasets_meta[[name[j]]], function(df) df$Freq[1])))]
     clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], aa_junction_fun)
@@ -3033,7 +3033,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         #     dplyr::group_by(freq_gene_name[["Gene"]]) %>%
         #     dplyr::summarise(n = n())
         freq_gene_name <- freq_gene_name[order(-freq_gene_name$N), ]
-        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / nrow(clono_allData))
+        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / sum(freq_gene_name$N))
         colnames(freq_gene_name) <- c("Gene", "N", "Freq")
 
         
@@ -3068,7 +3068,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
             #     dplyr::group_by(freq_gene_name_datasets[[name[[j]]]][["Gene"]]) %>%
             #     dplyr::summarise(n = n())
             freq_gene_name_datasets[[name[j]]] <- freq_gene_name_datasets[[name[j]]][order(-freq_gene_name_datasets[[name[j]]]$N), ]
-            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$N / nrow(clono_datasets[[name[j]]]))
+            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$N / sum(freq_gene_name_datasets[[name[j]]]$N))
 
             colnames(freq_gene_name_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
