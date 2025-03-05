@@ -1674,18 +1674,20 @@ clonotypes <- function(
     if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
       clono_allData <- unique(allData[,c(
         "clonotype", "N", "Freq", "cluster_id", 
-        "Summary.V.GENE.and.allele", "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI"
+        "Summary.V.GENE.and.allele", "Summary.D.GENE.and.allele", "Summary.J.GENE.and.allele", "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI"
       )])
       clono_allData <- clono_allData[!duplicated(clono_allData[, c("clonotype", "N", "Freq", "cluster_id")])]
-      colnames(clono_allData)[4:11] <- c("Clonotype ID", "V Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
+      colnames(clono_allData)[4:13] <- c("Clonotype ID", "V Gene and allele", "D Gene and allele", "J Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
     }
     
     
     if (save_tables_individually) {
       if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
         colnames(clono_allData) 
-        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `D Gene and allele`, `J Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
         clono_allData <- clono_allData[, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `D Gene and allele` := stringr::str_replace(`D Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `J Gene and allele` := stringr::str_replace(`J Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_allData
       } else {
         ## Changed cbind to merge
@@ -1856,10 +1858,10 @@ clonotypes <- function(
       clono_datasets[[name[j]]] <- unique(data[,
                                                c("clonotype", "N", "Freq", 
                                                  "cluster_id", 
-                                                 "Summary.V.GENE.and.allele", 
+                                                 "Summary.V.GENE.and.allele", "Summary.D.GENE.and.allele", "Summary.J.GENE.and.allele", 
                                                  "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI")])
       clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][!duplicated(clono_datasets[[name[j]]][, c("clonotype", "N", "Freq", "cluster_id")])]
-      colnames(clono_datasets[[name[j]]])[4:11] <- c("Clonotype ID", "V Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
+      colnames(clono_datasets[[name[j]]])[4:13] <- c("Clonotype ID", "V Gene and allele", "D Gene and allele", "J Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
       
       div_clono_datasets[[name[j]]] <- clono_datasets[[name[j]]]
       div_clono_datasets[[name[j]]] <- div_clono_datasets[[name[j]]][, c("N", "Freq", "AA Junction")]
@@ -2069,8 +2071,10 @@ clonotypes <- function(
     if (save_tables_individually) {
       if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
         clono_datasets[[name[j]]] <- data.table(clono_datasets[[name[j]]])
-        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, .(`Clonotype ID`, `V Gene and allele`, `D Gene and allele`, `J Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
         clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `D Gene and allele` := stringr::str_replace(`D Gene and allele`, "^Homsap ", "")]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `J Gene and allele` := stringr::str_replace(`J Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_datasets[[name[j]]]
       } else {
         if (length(gene) > 0){
@@ -2200,8 +2204,11 @@ clonotypes <- function(
     if (save_tables_individually) {
       
       if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
-        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_allData <- data.table(clono_allData)
+        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `D Gene and allele`, `J Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
         clono_allData <- clono_allData[, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `D Gene and allele` := stringr::str_replace(`D Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `J Gene and allele` := stringr::str_replace(`J Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_allData
       } else {
         if (length(gene) > 0) {
