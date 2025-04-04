@@ -1581,7 +1581,7 @@ clonotypes <- function(
   # cat(paste0(nrow(allData), "\t"), file = logFile, append = TRUE)
   # cat(paste0(ncol(allData), "\t"), file = logFile, append = TRUE)
   # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
- 
+  
   # clonotypes all Data
   allData                           <- setDT(allData)
   
@@ -1674,18 +1674,20 @@ clonotypes <- function(
     if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
       clono_allData <- unique(allData[,c(
         "clonotype", "N", "Freq", "cluster_id", 
-        "Summary.V.GENE.and.allele", "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI"
+        "Summary.V.GENE.and.allele", "Summary.D.GENE.and.allele", "Summary.J.GENE.and.allele", "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI"
       )])
       clono_allData <- clono_allData[!duplicated(clono_allData[, c("clonotype", "N", "Freq", "cluster_id")])]
-      colnames(clono_allData)[4:11] <- c("Clonotype ID", "V Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
+      colnames(clono_allData)[4:13] <- c("Clonotype ID", "V Gene and allele", "D Gene and allele", "J Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
     }
     
     
     if (save_tables_individually) {
       if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
         colnames(clono_allData) 
-        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `D Gene and allele`, `J Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
         clono_allData <- clono_allData[, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `D Gene and allele` := stringr::str_replace(`D Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `J Gene and allele` := stringr::str_replace(`J Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_allData
       } else {
         ## Changed cbind to merge
@@ -1751,7 +1753,7 @@ clonotypes <- function(
   div_clono_datasets                          <- list()
   
   message("Clonotype Analysis Step 3")
-
+  
   one_run <- function(j) {
     message("Clonotype Analysis Step 5")
     
@@ -1856,10 +1858,10 @@ clonotypes <- function(
       clono_datasets[[name[j]]] <- unique(data[,
                                                c("clonotype", "N", "Freq", 
                                                  "cluster_id", 
-                                                 "Summary.V.GENE.and.allele", 
+                                                 "Summary.V.GENE.and.allele", "Summary.D.GENE.and.allele", "Summary.J.GENE.and.allele", 
                                                  "Summary.AA.JUNCTION", "Summary.CDR3.IMGT.length", "IMGT.gapped.nt.sequences.CDR3.IMGT", "new.V.REGION", "Summary.V.REGION.identity..", "Junction.pI")])
       clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][!duplicated(clono_datasets[[name[j]]][, c("clonotype", "N", "Freq", "cluster_id")])]
-      colnames(clono_datasets[[name[j]]])[4:11] <- c("Clonotype ID", "V Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
+      colnames(clono_datasets[[name[j]]])[4:13] <- c("Clonotype ID", "V Gene and allele", "D Gene and allele", "J Gene and allele", "AA Junction", "AA Junction length", "nt Junction", "new.V.REGION", "V.REGION.identity", "pI")
       
       div_clono_datasets[[name[j]]] <- clono_datasets[[name[j]]]
       div_clono_datasets[[name[j]]] <- div_clono_datasets[[name[j]]][, c("N", "Freq", "AA Junction")]
@@ -1867,33 +1869,56 @@ clonotypes <- function(
     }
     
     if (run_diagnosis) {
-      index = colnames(group.freq.seq[[name[j]]]) |> 
-        stringr::str_detect("V.GENE.and.allele|V.REGION.identity|AA.JUNCTION") |>
-        which()
       
-      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
-      
-      index = colnames(group.freq.seq[[name[j]]]) |> 
-        stringr::str_detect("with.ins.del.events") |>
-        which()
-      
-      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, -index, with = FALSE]
-      index = colnames(group.freq.seq[[name[j]]]) |> sort()
-      group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
-      colnames(group.freq.seq[[name[j]]]) = c("CDR3", "Gene", "V-Region identity")
-      
-      if (allele == FALSE) {
-        group.freq.seq[[name[j]]]$Gene = group.freq.seq[[name[j]]]$Gene |>
-          stringr::str_split("\\*|\\,") |>
-          lapply(function(x) return(x[1])) |>
-          unlist()
+      if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
+        
+        index = colnames(group.freq.seq[[name[j]]]) |> 
+          stringr::str_detect(paste0(junction, "|V.REGION.identity")) |>
+          which()
+        
+        group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
+        
+        index = colnames(group.freq.seq[[name[j]]]) |> 
+          stringr::str_detect("with.ins.del.events") |>
+          which()
+        
+        group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, -index, with = FALSE]
+        index = colnames(group.freq.seq[[name[j]]]) |> sort()
+        group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
+        colnames(group.freq.seq[[name[j]]]) = c("clonotype", "V-Region identity")
+        
       } else {
-        group.freq.seq[[name[j]]]$Gene <- group.freq.seq[[name[j]]]$Gene
+        
+        index = colnames(group.freq.seq[[name[j]]]) |> 
+          stringr::str_detect("V.GENE.and.allele|V.REGION.identity|AA.JUNCTION") |>
+          which()
+        
+        group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
+        
+        index = colnames(group.freq.seq[[name[j]]]) |> 
+          stringr::str_detect("with.ins.del.events") |>
+          which()
+        
+        group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, -index, with = FALSE]
+        index = colnames(group.freq.seq[[name[j]]]) |> sort()
+        group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, index, with = FALSE]
+        colnames(group.freq.seq[[name[j]]]) = c("CDR3", "Gene", "V-Region identity")
+        
+        if (allele == FALSE) {
+          group.freq.seq[[name[j]]]$Gene = group.freq.seq[[name[j]]]$Gene |>
+            stringr::str_split("\\*|\\,") |>
+            lapply(function(x) return(x[1])) |>
+            unlist()
+        } else {
+          group.freq.seq[[name[j]]]$Gene <- group.freq.seq[[name[j]]]$Gene
+        }
+        
+        group.freq.seq[[name[j]]]$clonotype = paste0(group.freq.seq[[name[j]]]$Gene, " - ", group.freq.seq[[name[j]]]$CDR3)
+        group.freq.seq[[name[j]]]$Gene      = NULL
+        group.freq.seq[[name[j]]]$CDR3      = NULL
+        
       }
       
-      group.freq.seq[[name[j]]]$clonotype = paste0(group.freq.seq[[name[j]]]$Gene, " - ", group.freq.seq[[name[j]]]$CDR3)
-      group.freq.seq[[name[j]]]$Gene      = NULL
-      group.freq.seq[[name[j]]]$CDR3      = NULL
       group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][, by = .(clonotype, `V-Region identity`), .(`No. of sequences` = .N)]
       group.freq.seq[[name[j]]] = merge(clono_datasets[[name[j]]], group.freq.seq[[name[j]]], by = "clonotype", all = TRUE)
       group.freq.seq[[name[j]]] = group.freq.seq[[name[j]]][order(-N, clonotype, -`No. of sequences`)]
@@ -2046,8 +2071,10 @@ clonotypes <- function(
     if (save_tables_individually) {
       if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
         clono_datasets[[name[j]]] <- data.table(clono_datasets[[name[j]]])
-        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, .(`Clonotype ID`, `V Gene and allele`, `D Gene and allele`, `J Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
         clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `D Gene and allele` := stringr::str_replace(`D Gene and allele`, "^Homsap ", "")]
+        clono_datasets[[name[j]]] <- clono_datasets[[name[j]]][, `J Gene and allele` := stringr::str_replace(`J Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_datasets[[name[j]]]
       } else {
         if (length(gene) > 0){
@@ -2177,22 +2204,25 @@ clonotypes <- function(
     if (save_tables_individually) {
       
       if (junction == "IMGT.gapped.nt.sequences.V.D.J.REGION" | junction == "IMGT.gapped.nt.sequences.FR1_CDR3") {
-        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
+        clono_allData <- data.table(clono_allData)
+        clono_allData <- clono_allData[, .(`Clonotype ID`, `V Gene and allele`, `D Gene and allele`, `J Gene and allele`, `AA Junction`, `AA Junction length`, N, Freq, V.REGION.identity, pI)]
         clono_allData <- clono_allData[, `V Gene and allele` := stringr::str_replace(`V Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `D Gene and allele` := stringr::str_replace(`D Gene and allele`, "^Homsap ", "")]
+        clono_allData <- clono_allData[, `J Gene and allele` := stringr::str_replace(`J Gene and allele`, "^Homsap ", "")]
         clono_write <- clono_allData
       } else {
         if (length(gene) > 0) {
-        clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
-        clono_write <- data.table::as.data.table(clono_write)
-        clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
-        colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution", "pI") #Genes
+          clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
+          clono_write <- data.table::as.data.table(clono_write)
+          clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
+          colnames(clono_write) <- c("Genes", "CDR3", "N", "Freq", "Convergent Evolution", "pI") #Genes
         } else {
           clono_write <- stringr::str_split(clono_allData$clonotype, " - ", simplify = TRUE)
           clono_write <- data.table::as.data.table(clono_write)
           clono_write <- cbind(clono_write, clono_allData[, c("N", "Freq", "Convergent Evolution", "pI")])
           colnames(clono_write) <- c("clonotype", "N", "Freq", "Convergent Evolution", "pI") #Genes
-      }
-        } 
+        }
+      } 
       
       if (Freq_clono_cutoff != 0) {
         clono_write <- clono_write %>% filter(Freq > Freq_clono_cutoff)
@@ -2251,7 +2281,7 @@ clonotypes <- function(
 
 ######################################################################################################################################
 meta_clonotypes <- function(clono_datasets, num_of_missmatches, cdr3_lengths, name) {
-
+  
   clono_datasets_meta <- list()
   mismatches_per_length_df <- data.frame("AA Junction length" = cdr3_lengths, allowed_mismatches = num_of_missmatches)
   colnames(mismatches_per_length_df)[1] <- "AA Junction length"
@@ -2405,6 +2435,14 @@ meta_clonotypes <- function(clono_datasets, num_of_missmatches, cdr3_lengths, na
     }
     clono_datasets_meta[[name[j]]] <- modify_dfs(clono_datasets_meta[[name[j]]])
     clono_datasets_meta[[name[j]]] <- rbind(clono_datasets_meta[[name[j]]])
+    
+    clono_datasets_meta[[name[j]]] <- lapply(clono_datasets_meta[[name[j]]], function(df) {t
+      if ("Clonotype ID" %in% names(df) && nrow(df) > 1) {
+        df$`Clonotype ID`[1] <- paste("",df$`Clonotype ID`[-1],collapse = "")
+      }
+      return(df)
+    })
+    
     clono_datasets_meta[[name[j]]] <- do.call(rbind, clono_datasets_meta[[name[j]]])
     clono_datasets_meta[[name[j]]] <- clono_datasets_meta[[name[j]]][, c("Meta-clonotypes cluster ID", "V.gene", "AA Junction", "AA Junction length", "N", "Freq", "V.REGION.identity", "mismatches", "Clonotype ID")]
     
@@ -3033,7 +3071,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
         #     dplyr::group_by(freq_gene_name[["Gene"]]) %>%
         #     dplyr::summarise(n = n())
         freq_gene_name <- freq_gene_name[order(-freq_gene_name$N), ]
-        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / nrow(clono_allData))
+        freq_gene_name <- cbind(freq_gene_name, Freq = 100 * freq_gene_name$N / sum(freq_gene_name$N))
         colnames(freq_gene_name) <- c("Gene", "N", "Freq")
 
         
@@ -3068,7 +3106,7 @@ repertoires <- function(clono_allData, clono_datasets, allele, allele_clonotypes
             #     dplyr::group_by(freq_gene_name_datasets[[name[[j]]]][["Gene"]]) %>%
             #     dplyr::summarise(n = n())
             freq_gene_name_datasets[[name[j]]] <- freq_gene_name_datasets[[name[j]]][order(-freq_gene_name_datasets[[name[j]]]$N), ]
-            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$N / nrow(clono_datasets[[name[j]]]))
+            freq_gene_name_datasets[[name[j]]] <- cbind(freq_gene_name_datasets[[name[j]]], Freq = 100 * freq_gene_name_datasets[[name[j]]]$N / sum(freq_gene_name_datasets[[name[j]]]$N))
 
             colnames(freq_gene_name_datasets[[name[j]]]) <- c("Gene", "N", "Freq")
 
@@ -4253,9 +4291,9 @@ createLogo <- function(table_count, table_count_datasets, name) {
 
 ######################################################################################################################################
 
-alignment <- function(clonotype_type, input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly) {
+alignment <- function(clonotype_type, input, region, germline, name, only_one_germline, use_genes_germline, Tcell, AAorNtAlignment, clono_allData, clono_datasets, view_specific_clonotype_allData, view_specific_clonotype_datasets, topNClono, FtopN, thrClono, Fthr, highly, meta_clonotypes) {
   used_columns <- e$used_columns
- 
+  
   # logfile
   # logFile<-e$logFile
   # 
@@ -4265,386 +4303,506 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
   # cat(paste0(ncol(input), "\t"), file = logFile, append = TRUE)
   # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
   
-  if (clonotype_type == "Sequence") {
-    colnames(clono_allData)[1] <- "clonotype"
-    clono_datasets <- lapply(clono_datasets, function(df) {
-      colnames(df)[1] <- "clonotype"
+  if (length(meta_clonotypes) != 0) {
+    
+    highly <- TRUE
+    
+    meta_clonotypes <- lapply(meta_clonotypes, function(df) df[, c("Meta-clonotypes cluster ID", "V.gene", "AA Junction", "N", "Freq", "Clonotype ID"), drop = FALSE])
+    meta_clonotypes <- lapply(meta_clonotypes, function(df) {
+      colnames(df)[colnames(df) == "Clonotype ID"] <- "prev_cluster"
+      df <- df %>% mutate(clonotype = paste("Homsap", V.gene, "-", `AA Junction`))
+      df <- df[df$`Meta-clonotypes cluster ID` != "", ]
+      df <- df %>% select(clonotype, N, Freq, prev_cluster)
       return(df)
     })
-  
-    names(view_specific_clonotype_allData) <- lapply(view_specific_clonotype_allData, function(df) {
-      levels(as.factor(df$cluster_id))  
-    })
+    clono_datasets <- meta_clonotypes
     
-    # Iterate over each inner list within the main list
-    view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, function(inner_list) {
-      
-      # Apply the function to each dataframe within the inner list
-      names(inner_list) <- sapply(inner_list, function(df) {
-        levels(as.factor(df$cluster_id))[1]  # Extract the first level of the cluster_id column
+    if (clonotype_type == "Sequence") {
+      colnames(clono_allData)[1] <- "clonotype"
+      clono_datasets <- lapply(clono_datasets, function(df) {
+        colnames(df)[1] <- "clonotype"
+        return(df)
       })
       
-      return(inner_list)  # Return the modified inner list
-    })
-    
-     }
-  
-  
-  
-  if (AAorNtAlignment == "aa") {
-    file <- "IMGT.gapped.AA.sequences."
-  } else {
-    file <- "IMGT.gapped.nt.sequences."
-  }
-  
-  if (region == "CDR3") region <- "JUNCTION"
-  region <- paste0(file, region)
-  
-  max_length_region <- max(str_length(input[[region]]))
-  
-  if (Tcell == FALSE && only_one_germline == FALSE) {
-    type <- strsplit(strsplit(as.character(input[[used_columns[["Summary"]][3]]][1]), " ")[[1]][2], "V")[[1]][1]
-    
-    if ((type == "IGK") | (type == "IGL")) {
-      germline_file <- paste0("Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
-      Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
-                                                    package = "tripr", mustWork = TRUE
-      ),
-      sep = ";", stringsAsFactors = FALSE,
-      colClasses = c("character")
-      ))
+      names(view_specific_clonotype_allData) <- lapply(view_specific_clonotype_allData, function(df) {
+        levels(as.factor(df$cluster_id))  
+      })
       
-      if (AAorNtAlignment == "aa") {
-        Tgermlines[, 113:117] <- "."
-      } else {
-        Tgermlines[, 336:351] <- "."
-      }
-      
-      germline_file <- paste0("Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
-      te <- as.data.frame(fread(system.file("extdata/param", germline_file,
-                                            package = "tripr", mustWork = TRUE
-      ),
-      sep = ";", stringsAsFactors = FALSE,
-      colClasses = c("character")
-      ))
-      
-      
-      
-      colnames(Tgermlines) <- colnames(te)
-      Tgermlines <- rbind(Tgermlines, te)
-    } else {
-      germline_file <- paste0("Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
-      Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
-                                                    package = "tripr", mustWork = TRUE
-      ),
-      sep = ";", stringsAsFactors = FALSE,
-      colClasses = c("character")
-      ))
-    }
-    
-    Tgermlines <- unique(Tgermlines)
-    colnames(Tgermlines) <- c("V1", seq_len((ncol(Tgermlines) - 1)))
-    
-    a2 <- strsplit(Tgermlines$V1, " or|,| [(]see| OR")
-    Tgermlines$V1 <- as.character(plyr::ldply(a2, function(s) {
-      t(data.frame(unlist(s)))
-    })[, 1])
-    
-    if (max_length_region > (ncol(Tgermlines) - 1)) {
-      extra_dots <- matrix(".", nrow(Tgermlines), max_length_region - ncol(Tgermlines))
-      Tgermlines <- cbind(Tgermlines, extra_dots)
-      colnames(Tgermlines) <- c("V1", seq_len((max_length_region - 1)))
-      Tgermlines[Tgermlines == ""] <- "."
-      Tgermlines[is.na(Tgermlines)] <- "."
-    }
-  }
-  
-  if (region %in% colnames(input)) {
-    
-    ############### Clonotypes ##############
-    cluster_id <- c()
-    freq_cluster_id <- c()
-    if (length(view_specific_clonotype_allData) == 0) {
-      cluster_id[seq_len(nrow(input))] <- 0
-      freq_cluster_id[seq_len(nrow(input))] <- 0
-    } else {
-      if (!highly) {
-        pattern <- clono_allData$clonotype
-        view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
-        for (i in seq_len(length(view_specific_clonotype_allData))) {
-          index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
-          if (index[1] > 0) {
-            freq_cluster_id[index] <- clono_allData$Freq[i]
-            cluster_id[index] <- i
-          }
-        }
-      } else {
-        cluster_id_vector <- lapply(view_specific_clonotype_allData, function(x){
-          x <- levels(as.factor(x$cluster_id))
-          return(x)
+      # Iterate over each inner list within the main list
+      view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, function(inner_list) {
+        
+        # Apply the function to each dataframe within the inner list
+        names(inner_list) <- sapply(inner_list, function(df) {
+          levels(as.factor(df$cluster_id))[1]  # Extract the first level of the cluster_id column
         })
-        cluster_id_vector <- unlist(cluster_id_vector)
-        names(view_specific_clonotype_allData) <- cluster_id_vector
-        prev_clono <- c()
-        for (i in seq_len(nrow(clono_allData))) {
-          prev_clono[[i]] <- as.numeric(strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]])])
+        
+        return(inner_list)  # Return the modified inner list
+      })
+      
+    }
+    
+    if (AAorNtAlignment == "aa") {
+      file <- "IMGT.gapped.AA.sequences."
+    } else {
+      file <- "IMGT.gapped.nt.sequences."
+    }
+    
+    if (region == "CDR3") region <- "JUNCTION"
+    region <- paste0(file, region)
+    
+    max_length_region <- max(str_length(input[[region]]))
+    
+    if (Tcell == FALSE && only_one_germline == FALSE) {
+      type <- strsplit(strsplit(as.character(input[[used_columns[["Summary"]][3]]][1]), " ")[[1]][2], "V")[[1]][1]
+      
+      if ((type == "IGK") | (type == "IGL")) {
+        germline_file <- paste0("Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
+        Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
+                                                      package = "tripr", mustWork = TRUE
+        ),
+        sep = ";", stringsAsFactors = FALSE,
+        colClasses = c("character")
+        ))
+        
+        if (AAorNtAlignment == "aa") {
+          Tgermlines[, 113:117] <- "."
+        } else {
+          Tgermlines[, 336:351] <- "."
         }
-        names(prev_clono) <- clono_allData$clonotype
-        prev_clono <- data.frame(ID = rep(names(prev_clono), sapply(prev_clono, length)),
-                                 Obs = unlist(prev_clono))
-        prev_clono <- na.omit(prev_clono)
-        prev_clono <- prev_clono[match(names(view_specific_clonotype_allData), prev_clono$Obs),]
-        names(view_specific_clonotype_allData) <- prev_clono$ID
-        view_specific_clonotype_allData <- names(view_specific_clonotype_allData) %>% 
-          unique %>% 
-          purrr::map(~ view_specific_clonotype_allData[names(view_specific_clonotype_allData)==.x] %>% 
-                       bind_rows(.id = "id"))
-        clono_allData_clonotypes <- unlist(lapply(view_specific_clonotype_allData, function(x) levels(as.factor(x$id))))
-        names(view_specific_clonotype_allData) <- clono_allData_clonotypes
-        pattern <- clono_allData$clonotype
-        view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
-        for (i in seq_len(length(view_specific_clonotype_allData))) {
-          index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
-          if (index[1] > 0) {
-            freq_cluster_id[index] <- clono_allData$Freq[i]
-            cluster_id[index] <- i
+        
+        germline_file <- paste0("Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
+        te <- as.data.frame(fread(system.file("extdata/param", germline_file,
+                                              package = "tripr", mustWork = TRUE
+        ),
+        sep = ";", stringsAsFactors = FALSE,
+        colClasses = c("character")
+        ))
+        
+        
+        
+        colnames(Tgermlines) <- colnames(te)
+        Tgermlines <- rbind(Tgermlines, te)
+      } else {
+        germline_file <- paste0("Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
+        Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
+                                                      package = "tripr", mustWork = TRUE
+        ),
+        sep = ";", stringsAsFactors = FALSE,
+        colClasses = c("character")
+        ))
+      }
+      
+      Tgermlines <- unique(Tgermlines)
+      colnames(Tgermlines) <- c("V1", seq_len((ncol(Tgermlines) - 1)))
+      
+      a2 <- strsplit(Tgermlines$V1, " or|,| [(]see| OR")
+      Tgermlines$V1 <- as.character(plyr::ldply(a2, function(s) {
+        t(data.frame(unlist(s)))
+      })[, 1])
+      
+      if (max_length_region > (ncol(Tgermlines) - 1)) {
+        extra_dots <- matrix(".", nrow(Tgermlines), max_length_region - ncol(Tgermlines))
+        Tgermlines <- cbind(Tgermlines, extra_dots)
+        colnames(Tgermlines) <- c("V1", seq_len((max_length_region - 1)))
+        Tgermlines[Tgermlines == ""] <- "."
+        Tgermlines[is.na(Tgermlines)] <- "."
+      }
+    }
+    
+    if (region %in% colnames(input)) {
+      
+      alignment_allData <- NULL
+      
+      ################################ for Separate datasets ###############################
+      alignment_datasets <- list()
+      
+      one_run <- function(j) {
+        input_tmp <- input %>% dplyr::filter(input$dataName == name[j])
+        ############### Clonotypes ##############
+        cluster_id <- c()
+        freq_cluster_id <- c()
+        
+        if (length(view_specific_clonotype_allData) == 0) {
+          cluster_id[seq_len(nrow(input_tmp))] <- 0
+          freq_cluster_id[seq_len(nrow(input))] <- 0
+        } else {
+          if (!highly) {
+            patterns <- list()
+            for (i in seq_len(length(clono_datasets))) {
+              patterns[[i]] <- clono_datasets[[i]]$clonotype
+            }
+            names(patterns) <- name
+            view_specific_clonotype_datasets[[name[j]]] <- view_specific_clonotype_datasets[[name[j]]][patterns[[name[j]]]]
+            for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))) {
+              index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+              if (index[1] > 0) {
+                cluster_id[index] <- i
+                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
+              }
+            }
+          } else {
+            cluster_id_vector <- list()
+            for (i in seq_len(length(view_specific_clonotype_datasets))) {
+              cluster_id_vector[[i]] <- lapply(view_specific_clonotype_datasets[[i]], function(x){
+                x <- levels(as.factor(x$cluster_id))
+                return(x)
+              })
+            }
+            for (i in seq_len(length(cluster_id_vector))) {
+              cluster_id_vector[[i]] <- unlist(cluster_id_vector[[i]])
+            }
+            for (i in seq_len(length(view_specific_clonotype_datasets))) {
+              names(view_specific_clonotype_datasets[[i]]) <- cluster_id_vector[[i]]
+            }
+            prev_clono_function <- function(clono_df) {
+              prev_clono <- list()
+              for (i in seq_len(nrow(clono_df))) {
+                x <- as.numeric(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]])])
+                prev_clono[[i]] <- x
+              }
+              return(prev_clono)
+            }
+            prev_clono <- list()
+            prev_clono <- lapply(clono_datasets , prev_clono_function)
+            names(prev_clono[[name[j]]]) <- clono_datasets[[name[j]]]$clonotype
+            prev_clono[[name[j]]] <- data.frame(ID = rep(names(prev_clono[[name[j]]]), sapply(prev_clono[[name[j]]], length)),
+                                                Obs = unlist(prev_clono[[name[j]]]))
+            prev_clono[[name[j]]] <- na.omit(prev_clono[[name[j]]])
+            prev_clono[[name[j]]] <- prev_clono[[name[j]]][match(names(view_specific_clonotype_datasets[[name[j]]]), prev_clono[[name[j]]]$Obs),]
+            names(view_specific_clonotype_datasets[[name[j]]]) <- prev_clono[[name[j]]]$ID
+            setDF_function <- function(x_list) {
+              a <- list()
+              for (i in seq_len(length(x_list))) {
+                x <- setDF(x_list[[i]])
+                a[[i]] <- x
+                names(a[[i]]) <- names(x_list[[i]])
+              }
+              return(a)
+            }
+            view <- list()
+            view <- lapply(view_specific_clonotype_datasets, setDF_function)
+            names(view[[name[j]]]) <- names(view_specific_clonotype_datasets[[name[j]]])
+            view[[name[j]]] <- names(view[[name[j]]]) %>% 
+              unique %>% 
+              purrr::map(~ view[[name[j]]][names(view[[name[j]]])==.x] %>% 
+                           bind_rows(.id = "id"))
+            clono_datasets_clonotypes <- list()
+            clono_datasets_clonotypes[[name[j]]] <- unlist(lapply(view[[name[j]]], function(x) levels(as.factor(x$id))))
+            names(view[[name[j]]]) <- clono_datasets_clonotypes[[name[j]]]
+            patterns <- list()
+            for (i in seq_len(length(clono_datasets))) {
+              patterns[[i]] <- clono_datasets[[i]]$clonotype
+            }
+            names(patterns) <- name
+            view[[name[j]]] <- view[[name[j]]][patterns[[name[j]]]]
+            for (i in seq_len(length(view[[name[j]]]))) {
+              index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view[[name[j]]][[names(view[[name[j]]])[i]]][[ used_columns[["Summary"]][1]]])
+              if (index[1] > 0) {
+                cluster_id[index] <- i
+                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
+              }
+            }
           }
         }
+        
+        #########################################
+        region_split <- strsplit(input_tmp[[region]], "")
+        for (i in seq_len(length(region_split))) {
+          if (length(region_split[[i]]) > max_length_region) {
+            region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
+          }
+          
+          if (length(region_split[[i]]) < max_length_region) {
+            region_split[[i]][length(region_split[[i]]):max_length_region] <- "."
+          }
+        }
+        
+        region_split <- as.data.frame(region_split)
+        region_split <- t(region_split)
+        row.names(region_split) <- NULL
+        
+        region_alignment <- cbind(
+          as.data.frame(cluster_id),
+          as.data.frame(freq_cluster_id),
+          Functionality = "productive"
+        )
+        
+        region_alignment <- cbind(region_alignment,
+                                  J.GENE.and.allele = input_tmp[[used_columns[["Summary"]][8]]],
+                                  D.GENE.and.allele = input_tmp[[used_columns[["Summary"]][11]]],
+                                  V.GENE.and.allele = input_tmp[[used_columns[["Summary"]][3]]],
+                                  region_split, stringsAsFactors = FALSE
+        )
+        
+        region_alignment$cluster_id <- as.character(cluster_id)
+        region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
+        
+        if (FtopN) {
+          region_alignment <- region_alignment %>%
+            dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
+        }
+        
+        if (Fthr) {
+          region_alignment <- region_alignment %>%
+            dplyr::filter(as.numeric(as.character(freq_cluster_id)) >= thrClono | region_alignment$cluster_id == "-")
+        }
+        
+        if (only_one_germline) {
+          alignment_with_germline <- rbind(germline, region_alignment[, seq_len(length(germline)), with=FALSE])
+          
+          a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
+            x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
+          })) # x: a row of input[count,XColumns]
+          temp <- replace(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], a == TRUE, "-")
+          # add the first and the second columns
+          temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), seq_len(2), with=FALSE], temp)
+          # add the last columns
+          if ((length(alignment_with_germline) + 1) < length(region_alignment)) {
+            temp2 <- rbind(temp2, region_alignment[, (length(alignment_with_germline) + 1):length(region_alignment)])
+          }
+          # add the germline (first row)
+          germline_new <- germline
+          colnames(germline_new) <- colnames(temp2)
+          output <- rbind(germline_new[1, ], temp2)
+        } else {
+          if (use_genes_germline) {
+            for (i in seq_len(nrow(region_alignment))) {
+              region_alignment$V.GENE.and.allele[i] <- strsplit(region_alignment$V.GENE.and.allele[i], "[*]")[[1]][1]
+            }
+          }
+          
+          a <- matrix(".", ncol = ncol(region_alignment) - ncol(Tgermlines) - 5, nrow = nrow(Tgermlines))
+          germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines, a)
+          colnames(germlines) <- colnames(region_alignment)
+          
+          alignment_with_germline <- rbind(germlines, region_alignment)
+          
+          germline <- c()
+          output <- c()
+          a <- c()
+          XColumns <- seq_len((ncol(region_alignment) - 6))
+          XColumns <- as.character(XColumns)
+          
+          alignment_with_germline <- data.table::as.data.table(alignment_with_germline)
+          
+          for (germ in unique(alignment_with_germline$V.GENE.and.allele)) {
+            y <- alignment_with_germline[which(alignment_with_germline$V.GENE.and.allele == germ), ]
+            
+            germline <- which(y[["Functionality"]] == "germline")
+            productive <- which(y[["Functionality"]] == "productive")
+            
+            if (length(germline) > 0 && length(productive) > 0) {
+              germline <- germline[1]
+              
+              t <- as.matrix(y[germline, ..XColumns])
+              t <- rep(t, length(productive))
+              t <- matrix(data = t, nrow = length(productive), byrow = TRUE)
+              
+              a <- y[productive, ..XColumns] == t & y[productive, ..XColumns] != "."
+              
+              temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
+              
+              temp.names <- colnames(alignment_with_germline[, seq_len(6), with=FALSE])
+              
+              temp2 <- cbind(y[productive, ..temp.names], temp)
+              
+              temp.names <- c(temp.names, XColumns)
+              
+              output <- rbind(output, y[germline, ..temp.names], temp2)
+            }
+          }
+        }
+        
+        
+        alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))
+        
+        if (save_tables_individually) {
+          filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", name[j], ".txt")
+          write.table(alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        }
+        
+        return(alignment_datasets[[name[j]]])
       }
-    }
-    
-    #########################################
-    region_split <- strsplit(input[[region]], "")
-    
-    
-    for (i in seq_len(length(region_split))) {
-      if (length(region_split[[i]]) > max_length_region) {
-        region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
-      }
-      if (length(region_split[[i]]) < max_length_region) {
-        region_split[[i]][length(region_split[[i]]):max_length_region] <- "."
-      }
-    }
-    
-    region_split <- as.data.frame(region_split)
-    region_split <- t(region_split)
-    row.names(region_split) <- NULL
-    
-    region_alignment <- cbind(as.data.frame(cluster_id),
-                              as.data.frame(freq_cluster_id),
-                              Functionality = "productive"
-    )
-    
-    
-    region_alignment <- cbind(region_alignment,
-                              J.GENE.and.allele = input[[used_columns[["Summary"]][8]]],
-                              D.GENE.and.allele = input[[used_columns[["Summary"]][11]]],
-                              V.GENE.and.allele = input[[used_columns[["Summary"]][3]]],
-                              region_split, stringsAsFactors = FALSE
-    )
-    
-    region_alignment$cluster_id <- as.character(cluster_id)
-    region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
-    
-    if (FtopN) {
-      region_alignment <- region_alignment %>% dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
-    }
-    
-    if (Fthr) {
-      region_alignment <- region_alignment %>% dplyr::filter(as.numeric(as.character(freq_cluster_id)) >= thrClono | region_alignment$cluster_id == "-")
-    }
-    
-    if (only_one_germline) {
-      germline <- strsplit(germline, "")[[1]]
-      germline <- data.frame(t(germline), stringsAsFactors = FALSE)
-      germline <- c("-", "-", "germline", "-", "-", "-", germline)
-      germline <- as.data.frame(germline, stringsAsFactors = FALSE)
-      colnames(germline) <- colnames(region_alignment[, seq_len(ncol(germline)), with=FALSE])
-      alignment_with_germline <- rbind(germline, region_alignment[, seq_len(ncol(germline)), with=FALSE])
       
-      a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
-        x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
-      })) # x: a row of input[count,XColumns]
-      temp <- replace(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], a == TRUE, "-")
-      # add the first and the second columns
-      temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), seq_len(2), with=FALSE], temp)
-      # add the last columns
-      if ((length(alignment_with_germline) + 1) < length(region_alignment)) {
-        temp2 <- rbind(temp2, region_alignment[, (length(alignment_with_germline) + 1):length(region_alignment)])
-      }
-      # add the germline (first row)
-      germline_new <- germline
-      colnames(germline_new) <- colnames(temp2)
-      output <- rbind(germline_new[1, ], temp2)
+      alignment_datasets <- lapply(seq_len(length(name)), one_run)
+      
+      names(alignment_datasets) <- name
+      
+      confirm <- "Alignment run!"
+      
+      result <- list(
+        "alignment_allData" = alignment_allData,
+        "alignment_datasets" = alignment_datasets,
+        "confirm" = confirm
+      )
+      
+      # log time end and memory used
+      # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+      # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+      
+      return(result)
     } else {
-      if (use_genes_germline) {
-        Tgermlines <- Tgermlines %>% dplyr::filter(stringr::str_detect(Tgermlines$V1, "[*]01 F"))
-        for (i in seq_len(nrow(Tgermlines))) {
-          Tgermlines$V1[i] <- strsplit(Tgermlines$V1, "[*]")[[i]][1]
-        }
-        
-        region_alignment <- region_alignment
-        
-        for (i in seq_len(nrow(region_alignment))) {
-          region_alignment$V.GENE.and.allele[i] <- strsplit(region_alignment$V.GENE.and.allele[i], "[*]")[[1]][1]
-        }
-      }
+      return(0)
+    }
+    
+  } else {
+    
+    if (clonotype_type == "Sequence") {
+      colnames(clono_allData)[1] <- "clonotype"
+      clono_datasets <- lapply(clono_datasets, function(df) {
+        colnames(df)[1] <- "clonotype"
+        return(df)
+      })
       
-      if ((ncol(region_alignment) - ncol(Tgermlines) - 5) > 0) {
-        a <- matrix(".", ncol = ncol(region_alignment) - ncol(Tgermlines) - 5, nrow = nrow(Tgermlines))
-        germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines, a)
-        colnames(germlines) <- colnames(region_alignment)
-        alignment_with_germline <- rbind(germlines, region_alignment)
+      names(view_specific_clonotype_allData) <- lapply(view_specific_clonotype_allData, function(df) {
+        levels(as.factor(df$cluster_id))  
+      })
+      
+      # Iterate over each inner list within the main list
+      view_specific_clonotype_datasets <- lapply(view_specific_clonotype_datasets, function(inner_list) {
+        
+        # Apply the function to each dataframe within the inner list
+        names(inner_list) <- sapply(inner_list, function(df) {
+          levels(as.factor(df$cluster_id))[1]  # Extract the first level of the cluster_id column
+        })
+        
+        return(inner_list)  # Return the modified inner list
+      })
+      
+    }
+    
+    
+    
+    if (AAorNtAlignment == "aa") {
+      file <- "IMGT.gapped.AA.sequences."
+    } else {
+      file <- "IMGT.gapped.nt.sequences."
+    }
+    
+    if (region == "CDR3") region <- "JUNCTION"
+    region <- paste0(file, region)
+    
+    max_length_region <- max(str_length(input[[region]]))
+    
+    if (Tcell == FALSE && only_one_germline == FALSE) {
+      type <- strsplit(strsplit(as.character(input[[used_columns[["Summary"]][3]]][1]), " ")[[1]][2], "V")[[1]][1]
+      
+      if ((type == "IGK") | (type == "IGL")) {
+        germline_file <- paste0("Germline_sequences_alignments_", "IGK", "V_", AAorNtAlignment, ".csv")
+        Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
+                                                      package = "tripr", mustWork = TRUE
+        ),
+        sep = ";", stringsAsFactors = FALSE,
+        colClasses = c("character")
+        ))
+        
+        if (AAorNtAlignment == "aa") {
+          Tgermlines[, 113:117] <- "."
+        } else {
+          Tgermlines[, 336:351] <- "."
+        }
+        
+        germline_file <- paste0("Germline_sequences_alignments_", "IGL", "V_", AAorNtAlignment, ".csv")
+        te <- as.data.frame(fread(system.file("extdata/param", germline_file,
+                                              package = "tripr", mustWork = TRUE
+        ),
+        sep = ";", stringsAsFactors = FALSE,
+        colClasses = c("character")
+        ))
+        
+        
+        
+        colnames(Tgermlines) <- colnames(te)
+        Tgermlines <- rbind(Tgermlines, te)
       } else {
-        germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines)
-        germlines <- germlines[, seq_len(ncol(region_alignment)), with=FALSE]
-        colnames(germlines) <- colnames(region_alignment)
-        
-        alignment_with_germline <- rbind(germlines, region_alignment)
+        germline_file <- paste0("Germline_sequences_alignments_", type, "V_", AAorNtAlignment, ".csv")
+        Tgermlines <- as.data.frame(fread(system.file("extdata/param", germline_file,
+                                                      package = "tripr", mustWork = TRUE
+        ),
+        sep = ";", stringsAsFactors = FALSE,
+        colClasses = c("character")
+        ))
       }
       
-      df3 <- alignment_with_germline
+      Tgermlines <- unique(Tgermlines)
+      colnames(Tgermlines) <- c("V1", seq_len((ncol(Tgermlines) - 1)))
       
-      germline <- c()
-      output <- c()
-      a <- c()
-      XColumns <- seq_len((ncol(region_alignment) - 6))
-      XColumns <- as.character(XColumns)
+      a2 <- strsplit(Tgermlines$V1, " or|,| [(]see| OR")
+      Tgermlines$V1 <- as.character(plyr::ldply(a2, function(s) {
+        t(data.frame(unlist(s)))
+      })[, 1])
       
-      alignment_with_germline <- data.table::as.data.table(alignment_with_germline)
-      
-      for (germ in unique(alignment_with_germline$V.GENE.and.allele)) {
-        y <- alignment_with_germline[which(alignment_with_germline$V.GENE.and.allele == germ), ]
-        
-        germline <- which(y[["Functionality"]] == "germline")
-        
-        productive <- which(y[["Functionality"]] == "productive")
-        
-        
-        
-        if (length(germline) > 0 && length(productive) > 0) {
-          germline <- germline[1]
-          
-          t <- as.matrix(y[germline, ..XColumns])
-          t <- rep(t, length(productive))
-          t <- matrix(data = t, nrow = length(productive), byrow = TRUE)
-          
-          a <- y[productive, ..XColumns] == t & y[productive, ..XColumns] != "."
-          
-          temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
-          
-          temp.names <- colnames(alignment_with_germline[, seq_len(6), with=FALSE])
-          
-          temp2 <- cbind(y[productive, ..temp.names], temp)
-          
-          temp.names <- c(temp.names, XColumns)
-          
-          output <- rbind(output, y[germline, ..temp.names], temp2)
-        }
+      if (max_length_region > (ncol(Tgermlines) - 1)) {
+        extra_dots <- matrix(".", nrow(Tgermlines), max_length_region - ncol(Tgermlines))
+        Tgermlines <- cbind(Tgermlines, extra_dots)
+        colnames(Tgermlines) <- c("V1", seq_len((max_length_region - 1)))
+        Tgermlines[Tgermlines == ""] <- "."
+        Tgermlines[is.na(Tgermlines)] <- "."
       }
     }
     
-    alignment_allData <- output %>% select(-c(Functionality))
-    
-    ################################ for Separate datasets ###############################
-    alignment_datasets <- list()
-    
-    one_run <- function(j) {
-      input_tmp <- input %>% dplyr::filter(input$dataName == name[j])
+    if (region %in% colnames(input)) {
+      
       ############### Clonotypes ##############
       cluster_id <- c()
       freq_cluster_id <- c()
-      
       if (length(view_specific_clonotype_allData) == 0) {
-        cluster_id[seq_len(nrow(input_tmp))] <- 0
+        cluster_id[seq_len(nrow(input))] <- 0
         freq_cluster_id[seq_len(nrow(input))] <- 0
       } else {
         if (!highly) {
-          patterns <- list()
-          for (i in seq_len(length(clono_datasets))) {
-            patterns[[i]] <- clono_datasets[[i]]$clonotype
-          }
-          names(patterns) <- name
-          view_specific_clonotype_datasets[[name[j]]] <- view_specific_clonotype_datasets[[name[j]]][patterns[[name[j]]]]
-          for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))) {
-            index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+          pattern <- clono_allData$clonotype
+          view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
+          for (i in seq_len(length(view_specific_clonotype_allData))) {
+            index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
             if (index[1] > 0) {
+              freq_cluster_id[index] <- clono_allData$Freq[i]
               cluster_id[index] <- i
-              freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
             }
           }
         } else {
-          cluster_id_vector <- list()
-          for (i in seq_len(length(view_specific_clonotype_datasets))) {
-            cluster_id_vector[[i]] <- lapply(view_specific_clonotype_datasets[[i]], function(x){
-              x <- levels(as.factor(x$cluster_id))
-              return(x)
-            })
+          cluster_id_vector <- lapply(view_specific_clonotype_allData, function(x){
+            x <- levels(as.factor(x$cluster_id))
+            return(x)
+          })
+          cluster_id_vector <- unlist(cluster_id_vector)
+          names(view_specific_clonotype_allData) <- cluster_id_vector
+          prev_clono <- c()
+          for (i in seq_len(nrow(clono_allData))) {
+            prev_clono[[i]] <- as.numeric(strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]])])
           }
-          for (i in seq_len(length(cluster_id_vector))) {
-            cluster_id_vector[[i]] <- unlist(cluster_id_vector[[i]])
-          }
-          for (i in seq_len(length(view_specific_clonotype_datasets))) {
-            names(view_specific_clonotype_datasets[[i]]) <- cluster_id_vector[[i]]
-          }
-          prev_clono_function <- function(clono_df) {
-            prev_clono <- list()
-            for (i in seq_len(nrow(clono_df))) {
-              x <- as.numeric(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]])])
-              prev_clono[[i]] <- x
-            }
-            return(prev_clono)
-          }
-          prev_clono <- list()
-          prev_clono <- lapply(clono_datasets , prev_clono_function)
-          names(prev_clono[[name[j]]]) <- clono_datasets[[name[j]]]$clonotype
-          prev_clono[[name[j]]] <- data.frame(ID = rep(names(prev_clono[[name[j]]]), sapply(prev_clono[[name[j]]], length)),
-                                              Obs = unlist(prev_clono[[name[j]]]))
-          prev_clono[[name[j]]] <- na.omit(prev_clono[[name[j]]])
-          prev_clono[[name[j]]] <- prev_clono[[name[j]]][match(names(view_specific_clonotype_datasets[[name[j]]]), prev_clono[[name[j]]]$Obs),]
-          names(view_specific_clonotype_datasets[[name[j]]]) <- prev_clono[[name[j]]]$ID
-          setDF_function <- function(x_list) {
-            a <- list()
-            for (i in seq_len(length(x_list))) {
-              x <- setDF(x_list[[i]])
-              a[[i]] <- x
-              names(a[[i]]) <- names(x_list[[i]])
-            }
-            return(a)
-          }
-          view <- list()
-          view <- lapply(view_specific_clonotype_datasets, setDF_function)
-          names(view[[name[j]]]) <- names(view_specific_clonotype_datasets[[name[j]]])
-          view[[name[j]]] <- names(view[[name[j]]]) %>% 
+          names(prev_clono) <- clono_allData$clonotype
+          prev_clono <- data.frame(ID = rep(names(prev_clono), sapply(prev_clono, length)),
+                                   Obs = unlist(prev_clono))
+          prev_clono <- na.omit(prev_clono)
+          prev_clono <- prev_clono[match(names(view_specific_clonotype_allData), prev_clono$Obs),]
+          names(view_specific_clonotype_allData) <- prev_clono$ID
+          view_specific_clonotype_allData <- names(view_specific_clonotype_allData) %>% 
             unique %>% 
-            purrr::map(~ view[[name[j]]][names(view[[name[j]]])==.x] %>% 
+            purrr::map(~ view_specific_clonotype_allData[names(view_specific_clonotype_allData)==.x] %>% 
                          bind_rows(.id = "id"))
-          clono_datasets_clonotypes <- list()
-          clono_datasets_clonotypes[[name[j]]] <- unlist(lapply(view[[name[j]]], function(x) levels(as.factor(x$id))))
-          names(view[[name[j]]]) <- clono_datasets_clonotypes[[name[j]]]
-          patterns <- list()
-          for (i in seq_len(length(clono_datasets))) {
-            patterns[[i]] <- clono_datasets[[i]]$clonotype
-          }
-          names(patterns) <- name
-          view[[name[j]]] <- view[[name[j]]][patterns[[name[j]]]]
-          for (i in seq_len(length(view[[name[j]]]))) {
-            index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view[[name[j]]][[names(view[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+          clono_allData_clonotypes <- unlist(lapply(view_specific_clonotype_allData, function(x) levels(as.factor(x$id))))
+          names(view_specific_clonotype_allData) <- clono_allData_clonotypes
+          pattern <- clono_allData$clonotype
+          view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
+          for (i in seq_len(length(view_specific_clonotype_allData))) {
+            index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
             if (index[1] > 0) {
+              freq_cluster_id[index] <- clono_allData$Freq[i]
               cluster_id[index] <- i
-              freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
             }
           }
         }
       }
       
       #########################################
-      region_split <- strsplit(input_tmp[[region]], "")
+      region_split <- strsplit(input[[region]], "")
+      
+      
       for (i in seq_len(length(region_split))) {
         if (length(region_split[[i]]) > max_length_region) {
           region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
         }
-        
         if (length(region_split[[i]]) < max_length_region) {
           region_split[[i]][length(region_split[[i]]):max_length_region] <- "."
         }
@@ -4654,16 +4812,16 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
       region_split <- t(region_split)
       row.names(region_split) <- NULL
       
-      region_alignment <- cbind(
-        as.data.frame(cluster_id),
-        as.data.frame(freq_cluster_id),
-        Functionality = "productive"
+      region_alignment <- cbind(as.data.frame(cluster_id),
+                                as.data.frame(freq_cluster_id),
+                                Functionality = "productive"
       )
       
+      
       region_alignment <- cbind(region_alignment,
-                                J.GENE.and.allele = input_tmp[[used_columns[["Summary"]][8]]],
-                                D.GENE.and.allele = input_tmp[[used_columns[["Summary"]][11]]],
-                                V.GENE.and.allele = input_tmp[[used_columns[["Summary"]][3]]],
+                                J.GENE.and.allele = input[[used_columns[["Summary"]][8]]],
+                                D.GENE.and.allele = input[[used_columns[["Summary"]][11]]],
+                                V.GENE.and.allele = input[[used_columns[["Summary"]][3]]],
                                 region_split, stringsAsFactors = FALSE
       )
       
@@ -4671,17 +4829,20 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
       region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
       
       if (FtopN) {
-        region_alignment <- region_alignment %>%
-          dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
+        region_alignment <- region_alignment %>% dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
       }
       
       if (Fthr) {
-        region_alignment <- region_alignment %>%
-          dplyr::filter(as.numeric(as.character(freq_cluster_id)) >= thrClono | region_alignment$cluster_id == "-")
+        region_alignment <- region_alignment %>% dplyr::filter(as.numeric(as.character(freq_cluster_id)) >= thrClono | region_alignment$cluster_id == "-")
       }
       
       if (only_one_germline) {
-        alignment_with_germline <- rbind(germline, region_alignment[, seq_len(length(germline)), with=FALSE])
+        germline <- strsplit(germline, "")[[1]]
+        germline <- data.frame(t(germline), stringsAsFactors = FALSE)
+        germline <- c("-", "-", "germline", "-", "-", "-", germline)
+        germline <- as.data.frame(germline, stringsAsFactors = FALSE)
+        colnames(germline) <- colnames(region_alignment[, seq_len(ncol(germline)), with=FALSE])
+        alignment_with_germline <- rbind(germline, region_alignment[, seq_len(ncol(germline)), with=FALSE])
         
         a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
           x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
@@ -4699,16 +4860,32 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
         output <- rbind(germline_new[1, ], temp2)
       } else {
         if (use_genes_germline) {
+          Tgermlines <- Tgermlines %>% dplyr::filter(stringr::str_detect(Tgermlines$V1, "[*]01 F"))
+          for (i in seq_len(nrow(Tgermlines))) {
+            Tgermlines$V1[i] <- strsplit(Tgermlines$V1, "[*]")[[i]][1]
+          }
+          
+          region_alignment <- region_alignment
+          
           for (i in seq_len(nrow(region_alignment))) {
             region_alignment$V.GENE.and.allele[i] <- strsplit(region_alignment$V.GENE.and.allele[i], "[*]")[[1]][1]
           }
         }
         
-        a <- matrix(".", ncol = ncol(region_alignment) - ncol(Tgermlines) - 5, nrow = nrow(Tgermlines))
-        germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines, a)
-        colnames(germlines) <- colnames(region_alignment)
+        if ((ncol(region_alignment) - ncol(Tgermlines) - 5) > 0) {
+          a <- matrix(".", ncol = ncol(region_alignment) - ncol(Tgermlines) - 5, nrow = nrow(Tgermlines))
+          germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines, a)
+          colnames(germlines) <- colnames(region_alignment)
+          alignment_with_germline <- rbind(germlines, region_alignment)
+        } else {
+          germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines)
+          germlines <- germlines[, seq_len(ncol(region_alignment)), with=FALSE]
+          colnames(germlines) <- colnames(region_alignment)
+          
+          alignment_with_germline <- rbind(germlines, region_alignment)
+        }
         
-        alignment_with_germline <- rbind(germlines, region_alignment)
+        df3 <- alignment_with_germline
         
         germline <- c()
         output <- c()
@@ -4722,7 +4899,10 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
           y <- alignment_with_germline[which(alignment_with_germline$V.GENE.and.allele == germ), ]
           
           germline <- which(y[["Functionality"]] == "germline")
+          
           productive <- which(y[["Functionality"]] == "productive")
+          
+          
           
           if (length(germline) > 0 && length(productive) > 0) {
             germline <- germline[1]
@@ -4746,55 +4926,260 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
         }
       }
       
+      alignment_allData <- output %>% select(-c(Functionality))
       
-      alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))
+      ################################ for Separate datasets ###############################
+      alignment_datasets <- list()
+      
+      one_run <- function(j) {
+        input_tmp <- input %>% dplyr::filter(input$dataName == name[j])
+        ############### Clonotypes ##############
+        cluster_id <- c()
+        freq_cluster_id <- c()
+        
+        if (length(view_specific_clonotype_allData) == 0) {
+          cluster_id[seq_len(nrow(input_tmp))] <- 0
+          freq_cluster_id[seq_len(nrow(input))] <- 0
+        } else {
+          if (!highly) {
+            patterns <- list()
+            for (i in seq_len(length(clono_datasets))) {
+              patterns[[i]] <- clono_datasets[[i]]$clonotype
+            }
+            names(patterns) <- name
+            view_specific_clonotype_datasets[[name[j]]] <- view_specific_clonotype_datasets[[name[j]]][patterns[[name[j]]]]
+            for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))) {
+              index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+              if (index[1] > 0) {
+                cluster_id[index] <- i
+                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
+              }
+            }
+          } else {
+            cluster_id_vector <- list()
+            for (i in seq_len(length(view_specific_clonotype_datasets))) {
+              cluster_id_vector[[i]] <- lapply(view_specific_clonotype_datasets[[i]], function(x){
+                x <- levels(as.factor(x$cluster_id))
+                return(x)
+              })
+            }
+            for (i in seq_len(length(cluster_id_vector))) {
+              cluster_id_vector[[i]] <- unlist(cluster_id_vector[[i]])
+            }
+            for (i in seq_len(length(view_specific_clonotype_datasets))) {
+              names(view_specific_clonotype_datasets[[i]]) <- cluster_id_vector[[i]]
+            }
+            prev_clono_function <- function(clono_df) {
+              prev_clono <- list()
+              for (i in seq_len(nrow(clono_df))) {
+                x <- as.numeric(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]])])
+                prev_clono[[i]] <- x
+              }
+              return(prev_clono)
+            }
+            prev_clono <- list()
+            prev_clono <- lapply(clono_datasets , prev_clono_function)
+            names(prev_clono[[name[j]]]) <- clono_datasets[[name[j]]]$clonotype
+            prev_clono[[name[j]]] <- data.frame(ID = rep(names(prev_clono[[name[j]]]), sapply(prev_clono[[name[j]]], length)),
+                                                Obs = unlist(prev_clono[[name[j]]]))
+            prev_clono[[name[j]]] <- na.omit(prev_clono[[name[j]]])
+            prev_clono[[name[j]]] <- prev_clono[[name[j]]][match(names(view_specific_clonotype_datasets[[name[j]]]), prev_clono[[name[j]]]$Obs),]
+            names(view_specific_clonotype_datasets[[name[j]]]) <- prev_clono[[name[j]]]$ID
+            setDF_function <- function(x_list) {
+              a <- list()
+              for (i in seq_len(length(x_list))) {
+                x <- setDF(x_list[[i]])
+                a[[i]] <- x
+                names(a[[i]]) <- names(x_list[[i]])
+              }
+              return(a)
+            }
+            view <- list()
+            view <- lapply(view_specific_clonotype_datasets, setDF_function)
+            names(view[[name[j]]]) <- names(view_specific_clonotype_datasets[[name[j]]])
+            view[[name[j]]] <- names(view[[name[j]]]) %>% 
+              unique %>% 
+              purrr::map(~ view[[name[j]]][names(view[[name[j]]])==.x] %>% 
+                           bind_rows(.id = "id"))
+            clono_datasets_clonotypes <- list()
+            clono_datasets_clonotypes[[name[j]]] <- unlist(lapply(view[[name[j]]], function(x) levels(as.factor(x$id))))
+            names(view[[name[j]]]) <- clono_datasets_clonotypes[[name[j]]]
+            patterns <- list()
+            for (i in seq_len(length(clono_datasets))) {
+              patterns[[i]] <- clono_datasets[[i]]$clonotype
+            }
+            names(patterns) <- name
+            view[[name[j]]] <- view[[name[j]]][patterns[[name[j]]]]
+            for (i in seq_len(length(view[[name[j]]]))) {
+              index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view[[name[j]]][[names(view[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
+              if (index[1] > 0) {
+                cluster_id[index] <- i
+                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
+              }
+            }
+          }
+        }
+        
+        #########################################
+        region_split <- strsplit(input_tmp[[region]], "")
+        for (i in seq_len(length(region_split))) {
+          if (length(region_split[[i]]) > max_length_region) {
+            region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
+          }
+          
+          if (length(region_split[[i]]) < max_length_region) {
+            region_split[[i]][length(region_split[[i]]):max_length_region] <- "."
+          }
+        }
+        
+        region_split <- as.data.frame(region_split)
+        region_split <- t(region_split)
+        row.names(region_split) <- NULL
+        
+        region_alignment <- cbind(
+          as.data.frame(cluster_id),
+          as.data.frame(freq_cluster_id),
+          Functionality = "productive"
+        )
+        
+        region_alignment <- cbind(region_alignment,
+                                  J.GENE.and.allele = input_tmp[[used_columns[["Summary"]][8]]],
+                                  D.GENE.and.allele = input_tmp[[used_columns[["Summary"]][11]]],
+                                  V.GENE.and.allele = input_tmp[[used_columns[["Summary"]][3]]],
+                                  region_split, stringsAsFactors = FALSE
+        )
+        
+        region_alignment$cluster_id <- as.character(cluster_id)
+        region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
+        
+        if (FtopN) {
+          region_alignment <- region_alignment %>%
+            dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
+        }
+        
+        if (Fthr) {
+          region_alignment <- region_alignment %>%
+            dplyr::filter(as.numeric(as.character(freq_cluster_id)) >= thrClono | region_alignment$cluster_id == "-")
+        }
+        
+        if (only_one_germline) {
+          alignment_with_germline <- rbind(germline, region_alignment[, seq_len(length(germline)), with=FALSE])
+          
+          a <- t(apply(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], 1, function(x) {
+            x == alignment_with_germline[1, 3:length(alignment_with_germline)] & x != "."
+          })) # x: a row of input[count,XColumns]
+          temp <- replace(alignment_with_germline[2:nrow(alignment_with_germline), 3:length(alignment_with_germline)], a == TRUE, "-")
+          # add the first and the second columns
+          temp2 <- cbind(alignment_with_germline[2:nrow(alignment_with_germline), seq_len(2), with=FALSE], temp)
+          # add the last columns
+          if ((length(alignment_with_germline) + 1) < length(region_alignment)) {
+            temp2 <- rbind(temp2, region_alignment[, (length(alignment_with_germline) + 1):length(region_alignment)])
+          }
+          # add the germline (first row)
+          germline_new <- germline
+          colnames(germline_new) <- colnames(temp2)
+          output <- rbind(germline_new[1, ], temp2)
+        } else {
+          if (use_genes_germline) {
+            for (i in seq_len(nrow(region_alignment))) {
+              region_alignment$V.GENE.and.allele[i] <- strsplit(region_alignment$V.GENE.and.allele[i], "[*]")[[1]][1]
+            }
+          }
+          
+          a <- matrix(".", ncol = ncol(region_alignment) - ncol(Tgermlines) - 5, nrow = nrow(Tgermlines))
+          germlines <- cbind("-", 0, "germline", "-", "-", Tgermlines, a)
+          colnames(germlines) <- colnames(region_alignment)
+          
+          alignment_with_germline <- rbind(germlines, region_alignment)
+          
+          germline <- c()
+          output <- c()
+          a <- c()
+          XColumns <- seq_len((ncol(region_alignment) - 6))
+          XColumns <- as.character(XColumns)
+          
+          alignment_with_germline <- data.table::as.data.table(alignment_with_germline)
+          
+          for (germ in unique(alignment_with_germline$V.GENE.and.allele)) {
+            y <- alignment_with_germline[which(alignment_with_germline$V.GENE.and.allele == germ), ]
+            
+            germline <- which(y[["Functionality"]] == "germline")
+            productive <- which(y[["Functionality"]] == "productive")
+            
+            if (length(germline) > 0 && length(productive) > 0) {
+              germline <- germline[1]
+              
+              t <- as.matrix(y[germline, ..XColumns])
+              t <- rep(t, length(productive))
+              t <- matrix(data = t, nrow = length(productive), byrow = TRUE)
+              
+              a <- y[productive, ..XColumns] == t & y[productive, ..XColumns] != "."
+              
+              temp <- replace(y[productive, ..XColumns], a == TRUE, "-")
+              
+              temp.names <- colnames(alignment_with_germline[, seq_len(6), with=FALSE])
+              
+              temp2 <- cbind(y[productive, ..temp.names], temp)
+              
+              temp.names <- c(temp.names, XColumns)
+              
+              output <- rbind(output, y[germline, ..temp.names], temp2)
+            }
+          }
+        }
+        
+        
+        alignment_datasets[[name[j]]] <- output %>% select(-c(Functionality))
+        
+        if (save_tables_individually) {
+          filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", name[j], ".txt")
+          write.table(alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        }
+        
+        return(alignment_datasets[[name[j]]])
+      }
+      
+      if (Sys.info()[1] == "Windows") {
+        if (length(name) == 1) {
+          alignment_datasets[[name]] <- alignment_allData
+        } else {
+          alignment_datasets <- lapply(seq_len(length(name)), one_run)
+        }
+      } else {
+        if (length(name) == 1) {
+          alignment_datasets[[name]] <- alignment_allData
+        } else {
+          alignment_datasets <- lapply(seq_len(length(name)), one_run)
+          #alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+        }
+      }
+      
+      names(alignment_datasets) <- name
       
       if (save_tables_individually) {
-        filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", name[j], ".txt")
-        write.table(alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+        filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
+        write.table(alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
       }
       
-      return(alignment_datasets[[name[j]]])
-    }
-    
-    if (Sys.info()[1] == "Windows") {
-      if (length(name) == 1) {
-        alignment_datasets[[name]] <- alignment_allData
-      } else {
-        alignment_datasets <- lapply(seq_len(length(name)), one_run)
-      }
+      confirm <- "Alignment run!"
+      
+      result <- list(
+        "alignment_allData" = alignment_allData,
+        "alignment_datasets" = alignment_datasets,
+        "confirm" = confirm
+      )
+      
+      # log time end and memory used
+      # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+      # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+      
+      return(result)
     } else {
-      if (length(name) == 1) {
-        alignment_datasets[[name]] <- alignment_allData
-      } else {
-        alignment_datasets <- lapply(seq_len(length(name)), one_run)
-        #alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
-      }
+      return(0)
     }
     
-    names(alignment_datasets) <- name
-    
-    if (save_tables_individually) {
-      filename <- paste0(e$output_folder, "/", "Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
-      write.table(alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-    }
-    
-    confirm <- "Alignment run!"
-    
-    result <- list(
-      "alignment_allData" = alignment_allData,
-      "alignment_datasets" = alignment_datasets,
-      "confirm" = confirm
-    )
-    
-    # log time end and memory used
-    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-    
-    return(result)
-  } else {
-    return(0)
   }
+  
 }
 
 ######################################################################################################################################
@@ -5043,62 +5428,69 @@ mutations <- function(align, align_datasets, thr, AAorNtMutations, name, topNClo
 
 # input: the alignment file
 groupedAlignment <- function(alignment_allData, alignment_datasets, name, AAorNtAlignment) {
-    # logfile
-    # logFile<-e$logFile
-    # cat(paste0("groupedAlignment", "\t"), file = logFile, append = TRUE)
-    # cat(paste0("grouping", "\t"), file = logFile, append = TRUE)
-    # cat(paste0(nrow(alignment_allData), "\t"), file = logFile, append = TRUE)
-    # cat(paste0(ncol(alignment_allData), "\t"), file = logFile, append = TRUE)
-    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-
+  # logfile
+  # logFile<-e$logFile
+  # cat(paste0("groupedAlignment", "\t"), file = logFile, append = TRUE)
+  # cat(paste0("grouping", "\t"), file = logFile, append = TRUE)
+  # cat(paste0(nrow(alignment_allData), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(ncol(alignment_allData), "\t"), file = logFile, append = TRUE)
+  # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  
+  if (is.null(alignment_allData)) {
+    grouped_alignment_allData <- NULL
+  } else {
+    
     input <- data.table(alignment_allData)
-
+    
     XColumns <- seq_len((ncol(alignment_allData) - 6))
     XColumns <- as.character(XColumns)
     XColumns <- c("V.GENE.and.allele", "cluster_id", "freq_cluster_id", XColumns)
-
+    
     distinct_changes <- input[, list(Freq = .N), by = XColumns]
     grouped_alignment_allData <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1)), with=FALSE])
-
-    grouped_alignment_datasets <- list()
-    one_run <- function(j) {
-        input <- data.table(alignment_datasets[[name[j]]])
-        distinct_changes <- input[, list(Freq = .N), by = XColumns]
-        grouped_alignment_datasets[[name[j]]] <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1)), with=FALSE])
-        if (save_tables_individually) {
-            filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
-            write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-        }
-        if (save_tables_individually) {
-            filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", name[j], ".txt")
-            write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
-        }
-        return(grouped_alignment_datasets[[name[j]]])
-    }
-
-    if (Sys.info()[1] == "Windows") {
-        grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
-    } else {
-        grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
-        #grouped_alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
-    }
-
-    names(grouped_alignment_datasets) <- name
-
+    
     if (save_tables_individually) {
-        filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
-        write.table(grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+      filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", "All_Data", ".txt")
+      write.table(grouped_alignment_allData, filename, sep = "\t", row.names = FALSE, col.names = TRUE)
     }
-
-    confirm <- "Grouped Alignment run!"
-
-    result <- list("grouped_alignment_allData" = grouped_alignment_allData, "grouped_alignment_datasets" = grouped_alignment_datasets, "confirm" = confirm)
-
-    # log time end and memory used
-    # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
-    # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
-
-    return(result)
+    
+  }
+  
+  grouped_alignment_datasets <- list()
+  one_run <- function(j) {
+    input <- data.table(alignment_datasets[[name[j]]])
+    
+    XColumns <- seq_len((ncol(alignment_datasets[[name[j]]]) - 6))
+    XColumns <- as.character(XColumns)
+    XColumns <- c("V.GENE.and.allele", "cluster_id", "freq_cluster_id", XColumns)
+    
+    distinct_changes <- input[, list(Freq = .N), by = XColumns]
+    grouped_alignment_datasets[[name[j]]] <- cbind(N = distinct_changes$Freq, distinct_changes[, seq_len((ncol(distinct_changes) - 1)), with=FALSE])
+    if (save_tables_individually) {
+      filename <- paste0(e$output_folder, "/", "Grouped Alignment_", AAorNtAlignment, "_", name[j], ".txt")
+      write.table(grouped_alignment_datasets[[name[j]]], filename, sep = "\t", row.names = FALSE, col.names = TRUE)
+    }
+    return(grouped_alignment_datasets[[name[j]]])
+  }
+  
+  if (Sys.info()[1] == "Windows") {
+    grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
+  } else {
+    grouped_alignment_datasets <- lapply(seq_len(length(name)), one_run)
+    #grouped_alignment_datasets <- parallel::mclapply(seq_len(length(name)), one_run, mc.cores = num_of_cores, mc.preschedule = TRUE)
+  }
+  
+  names(grouped_alignment_datasets) <- name
+  
+  confirm <- "Grouped Alignment run!"
+  
+  result <- list("grouped_alignment_allData" = grouped_alignment_allData, "grouped_alignment_datasets" = grouped_alignment_datasets, "confirm" = confirm)
+  
+  # log time end and memory used
+  # cat(paste0(Sys.time(), "\t"), file = logFile, append = TRUE)
+  # cat(pryr::mem_used(), file = logFile, append = TRUE, sep = "\n")
+  
+  return(result)
 }
 
 ######################################################################################################################################

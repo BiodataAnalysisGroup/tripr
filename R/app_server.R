@@ -3960,7 +3960,7 @@ app_server <- function(input, output, session) {
                             clono$view_specific_clonotype_allData,
                             clono$view_specific_clonotype_datasets,
                             input$topNClonoAlignment,
-                            FtopN, input$thrClonoAlignment, Fthr, FALSE
+                            FtopN, input$thrClonoAlignment, Fthr, FALSE, meta_clonotypes_results$meta_clonotypes
                         )
 
                         message("Alignment Step 2.a")
@@ -3978,7 +3978,7 @@ app_server <- function(input, output, session) {
                             clono$view_specific_clonotype_allData,
                             clono$view_specific_clonotype_datasets,
                             input$topNClonoAlignment,
-                            FtopN, input$thrClonoAlignment, Fthr, FALSE
+                            FtopN, input$thrClonoAlignment, Fthr, FALSE, meta_clonotypes_results$meta_clonotypes
                         )
                     } else {
                         alignmentRegion_results <<- alignment(
@@ -3996,7 +3996,7 @@ app_server <- function(input, output, session) {
                             clono$view_specific_clonotype_allData,
                             clono$view_specific_clonotype_datasets,
                             input$topNClonoAlignment,
-                            FtopN, input$thrClonoAlignment, Fthr, FALSE
+                            FtopN, input$thrClonoAlignment, Fthr, FALSE, meta_clonotypes_results$meta_clonotypes
                         )
                     }
                 } else {
@@ -4016,7 +4016,7 @@ app_server <- function(input, output, session) {
                             clono$view_specific_clonotype_allData,
                             clono$view_specific_clonotype_datasets,
                             input$topNClonoAlignment,
-                            FtopN, input$thrClonoAlignment, Fthr, TRUE
+                            FtopN, input$thrClonoAlignment, Fthr, TRUE, meta_clonotypes_results$meta_clonotypes
                         )
 
                         message("Alignment Step 2.b")
@@ -4033,7 +4033,7 @@ app_server <- function(input, output, session) {
                             clono$view_specific_clonotype_allData,
                             clono$view_specific_clonotype_datasets,
                             input$topNClonoAlignment,
-                            FtopN, input$thrClonoAlignment, Fthr, TRUE
+                            FtopN, input$thrClonoAlignment, Fthr, TRUE, meta_clonotypes_results$meta_clonotypes
                         )
                     } else {
                         alignmentRegion_results <<- alignment(
@@ -4049,7 +4049,7 @@ app_server <- function(input, output, session) {
                             clono$view_specific_clonotype_allData,
                             clono$view_specific_clonotype_datasets,
                             input$topNClonoAlignment,
-                            FtopN, input$thrClonoAlignment, Fthr, TRUE
+                            FtopN, input$thrClonoAlignment, Fthr, TRUE, meta_clonotypes_results$meta_clonotypes
                         )
                     }
                 }
