@@ -42,9 +42,9 @@ Functions for an `R` command-line use are also available.
 <!-- When accepted in Bioconductor -->
 
 `tripr` is distributed as a [Bioconductor](https://www.bioconductor.org/) 
-package and requires `R` (version "4.2"), which can be installed on any 
+package and requires `R` (version "4.5"), which can be installed on any 
 operating system from [CRAN](https://cran.r-project.org/), and 
-Bioconductor (version "3.15").
+Bioconductor (version "3.21").
 
 To install `tripr` package enter the following commands in your `R` session:
 

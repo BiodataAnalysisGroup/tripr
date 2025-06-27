@@ -45,7 +45,7 @@ app_ui <- function(request) {
         shinyjs::useShinyjs(),
         shinyjs::extendShinyjs(text = jscode, functions = c("enabletab", "disabletab")),
         navbarPage(
-            "T-cell Receptor/Immunoglobulin Profiler (tripr) Version:1.11.12 (3/5/2025)",
+            "T-cell Receptor/Immunoglobulin Profiler (tripr) Version:1.15.01 (27/6/2025)",
             id = "navbar",
             position = "fixed-top",
             inverse = TRUE,
