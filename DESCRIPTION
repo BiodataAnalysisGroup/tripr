@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
-Version: 1.15.01
+Version: 1.17.01
 Authors@R: c(
         person("Maria Th.", "Kotouza", role = "aut"),
         person("Katerina", "Gemenetzi", role = "aut"),
@@ -34,7 +34,7 @@ Imports: shinyjs, shinyFiles, plyr, data.table, DT, stringr,
 Enhances: parallel
 Suggests: BiocGenerics, shinycssloaders, tidyverse, BiocManager,
         Biostrings, xtable, rlist, motifStack, knitr, rmarkdown,
-        testthat (>= 3.0.0), fs, BiocStyle, RefManageR, biocthis, pryr
+        testthat (>= 3.0.0), fs, BiocStyle, RefManageR, biocthis
 Depends: shiny (>= 1.6.0), shinyBS
 Collate: "tripr-package.R" "global.R" "helpers.R"
         "run_TRIP_without_ui.R" "app_config.R" "app_server.R"
