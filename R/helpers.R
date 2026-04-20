@@ -4744,60 +4744,140 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
     if (region %in% colnames(input)) {
       
       ############### Clonotypes ##############
-      cluster_id <- c()
-      freq_cluster_id <- c()
+      cluster_id <- rep(NA_character_, nrow(input))
+      freq_cluster_id <- rep(NA_real_, nrow(input))
+      
+      all_seq_ids_df <- data.frame(
+        cluster = character(),
+        seq_id = character(),
+        stringsAsFactors = FALSE
+      )
+      
       if (length(view_specific_clonotype_allData) == 0) {
-        cluster_id[seq_len(nrow(input))] <- 0
+        
+        cluster_id[seq_len(nrow(input))] <- "0"
         freq_cluster_id[seq_len(nrow(input))] <- 0
+        
       } else {
+        
         if (!highly) {
+          
           pattern <- clono_allData$clonotype
           view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
+          
+          all_seq_ids_df <- do.call(rbind, lapply(seq_along(view_specific_clonotype_allData), function(i) {
+            data.frame(
+              cluster = names(view_specific_clonotype_allData)[i],
+              seq_id = view_specific_clonotype_allData[[i]][[used_columns[["Summary"]][1]]],
+              stringsAsFactors = FALSE
+            )
+          }))
+          
           for (i in seq_len(length(view_specific_clonotype_allData))) {
-            index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
-            if (index[1] > 0) {
-              freq_cluster_id[index] <- clono_allData$Freq[i]
-              cluster_id[index] <- i
+            
+            current_clonotype <- names(view_specific_clonotype_allData)[i]
+            
+            index <- which(
+              input[[used_columns[["Summary"]][1]]] %in%
+                view_specific_clonotype_allData[[i]][[used_columns[["Summary"]][1]]]
+            )
+            
+            if (length(index) > 0) {
+              
+              # ✅ FIX: match frequency by clonotype name
+              freq_cluster_id[index] <- clono_allData$Freq[
+                match(current_clonotype, clono_allData$clonotype)
+              ]
+              
+              # ✅ FIX: use real cluster IDs
+              cluster_id[index] <- current_clonotype
             }
           }
+          
         } else {
+          
           cluster_id_vector <- lapply(view_specific_clonotype_allData, function(x){
-            x <- levels(as.factor(x$cluster_id))
-            return(x)
+            levels(as.factor(x$cluster_id))
           })
+          
           cluster_id_vector <- unlist(cluster_id_vector)
           names(view_specific_clonotype_allData) <- cluster_id_vector
-          prev_clono <- c()
+          
+          prev_clono <- vector("list", nrow(clono_allData))
+          
           for (i in seq_len(nrow(clono_allData))) {
-            prev_clono[[i]] <- as.numeric(strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]])])
+            prev_clono[[i]] <- as.numeric(
+              strsplit(as.character(clono_allData$prev_cluster[i]), " ")[[1]][-1]
+            )
           }
+          
           names(prev_clono) <- clono_allData$clonotype
-          prev_clono <- data.frame(ID = rep(names(prev_clono), sapply(prev_clono, length)),
-                                   Obs = unlist(prev_clono))
+          
+          prev_clono <- data.frame(
+            ID = rep(names(prev_clono), sapply(prev_clono, length)),
+            Obs = unlist(prev_clono)
+          )
+          
           prev_clono <- na.omit(prev_clono)
-          prev_clono <- prev_clono[match(names(view_specific_clonotype_allData), prev_clono$Obs),]
+          prev_clono <- prev_clono[
+            match(names(view_specific_clonotype_allData), prev_clono$Obs),
+          ]
+          
           names(view_specific_clonotype_allData) <- prev_clono$ID
-          view_specific_clonotype_allData <- names(view_specific_clonotype_allData) %>% 
-            unique %>% 
-            purrr::map(~ view_specific_clonotype_allData[names(view_specific_clonotype_allData)==.x] %>% 
-                         bind_rows(.id = "id"))
-          clono_allData_clonotypes <- unlist(lapply(view_specific_clonotype_allData, function(x) levels(as.factor(x$id))))
+          
+          view_specific_clonotype_allData <- names(view_specific_clonotype_allData) %>%
+            unique() %>%
+            purrr::map(~ view_specific_clonotype_allData[
+              names(view_specific_clonotype_allData) == .x
+            ] %>%
+              dplyr::bind_rows(.id = "id"))
+          
+          clono_allData_clonotypes <- unlist(
+            lapply(view_specific_clonotype_allData, function(x)
+              levels(as.factor(x$id)))
+          )
+          
           names(view_specific_clonotype_allData) <- clono_allData_clonotypes
+          
           pattern <- clono_allData$clonotype
           view_specific_clonotype_allData <- view_specific_clonotype_allData[pattern]
+          
+          all_seq_ids_df <- do.call(rbind, lapply(seq_along(view_specific_clonotype_allData), function(i) {
+            data.frame(
+              cluster = names(view_specific_clonotype_allData)[i],
+              seq_id = view_specific_clonotype_allData[[i]][[used_columns[["Summary"]][1]]],
+              stringsAsFactors = FALSE
+            )
+          }))
+          
           for (i in seq_len(length(view_specific_clonotype_allData))) {
-            index <- which(input[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_allData[[names(view_specific_clonotype_allData)[i]]][[used_columns[["Summary"]][1]]])
-            if (index[1] > 0) {
-              freq_cluster_id[index] <- clono_allData$Freq[i]
-              cluster_id[index] <- i
+            
+            current_clonotype <- names(view_specific_clonotype_allData)[i]
+            
+            index <- which(
+              input[[used_columns[["Summary"]][1]]] %in%
+                view_specific_clonotype_allData[[i]][[used_columns[["Summary"]][1]]]
+            )
+            
+            if (length(index) > 0) {
+              
+              # ✅ FIX: match frequency correctly
+              freq_cluster_id[index] <- clono_allData$Freq[
+                match(current_clonotype, clono_allData$clonotype)
+              ]
+              
+              # ✅ FIX: use real cluster IDs
+              cluster_id[index] <- current_clonotype
             }
           }
         }
       }
       
-      #########################################
-      region_split <- strsplit(input[[region]], "")
+      all_seq_ids <- setNames(all_seq_ids_df$seq_id, all_seq_ids_df$cluster)
       
+      #########################################
+      
+      region_split <- strsplit(input[[region]], "")
       
       for (i in seq_len(length(region_split))) {
         if (length(region_split[[i]]) > max_length_region) {
@@ -4812,11 +4892,14 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
       region_split <- t(region_split)
       row.names(region_split) <- NULL
       
-      region_alignment <- cbind(as.data.frame(cluster_id),
-                                as.data.frame(freq_cluster_id),
-                                Functionality = "productive"
-      )
+      seq_id_vector <- all_seq_ids[match(cluster_id, names(all_seq_ids))]
       
+      region_alignment <- cbind(
+        cluster_id = cluster_id,
+        freq_cluster_id = freq_cluster_id,
+        all_seq_ids = seq_id_vector,
+        Functionality = "productive"
+      )
       
       region_alignment <- cbind(region_alignment,
                                 J.GENE.and.allele = input[[used_columns[["Summary"]][8]]],
@@ -4825,8 +4908,17 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
                                 region_split, stringsAsFactors = FALSE
       )
       
+      region_alignment <- as.data.frame(region_alignment)
+      region_alignment <- region_alignment[, colnames(region_alignment) != "stringsAsFactors"]
+      region_alignment <- region_alignment[, colnames(region_alignment) != "all_seq_ids"]
       region_alignment$cluster_id <- as.character(cluster_id)
       region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
+      n_seq_cols <- ncol(region_alignment) - 6
+      colnames(region_alignment) <- c(
+        "cluster_id", "freq_cluster_id", "Functionality",
+        "J.GENE.and.allele", "D.GENE.and.allele", "V.GENE.and.allele",
+        as.character(seq_len(n_seq_cols))
+      )
       
       if (FtopN) {
         region_alignment <- region_alignment %>% dplyr::filter(as.numeric(as.character(region_alignment$cluster_id)) <= topNClono | region_alignment$cluster_id == "-")
@@ -4934,94 +5026,183 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
       one_run <- function(j) {
         input_tmp <- input %>% dplyr::filter(input$dataName == name[j])
         ############### Clonotypes ##############
-        cluster_id <- c()
-        freq_cluster_id <- c()
+        cluster_id <- rep(NA_character_, nrow(input_tmp))
+        freq_cluster_id <- rep(NA_real_, nrow(input_tmp))
+        
+        all_seq_ids_df <- data.frame(
+          cluster = character(),
+          seq_id = character(),
+          stringsAsFactors = FALSE
+        )
         
         if (length(view_specific_clonotype_allData) == 0) {
-          cluster_id[seq_len(nrow(input_tmp))] <- 0
-          freq_cluster_id[seq_len(nrow(input))] <- 0
+          
+          cluster_id[seq_len(nrow(input_tmp))] <- "0"
+          freq_cluster_id[seq_len(nrow(input_tmp))] <- 0
+          
         } else {
+          
           if (!highly) {
+            
             patterns <- list()
             for (i in seq_len(length(clono_datasets))) {
               patterns[[i]] <- clono_datasets[[i]]$clonotype
             }
             names(patterns) <- name
-            view_specific_clonotype_datasets[[name[j]]] <- view_specific_clonotype_datasets[[name[j]]][patterns[[name[j]]]]
+            
+            view_specific_clonotype_datasets[[name[j]]] <- 
+              view_specific_clonotype_datasets[[name[j]]][patterns[[name[j]]]]
+            
+            # ✅ build all_seq_ids
+            all_seq_ids_df <- do.call(rbind, lapply(
+              seq_along(view_specific_clonotype_datasets[[name[j]]]),
+              function(i) {
+                data.frame(
+                  cluster = names(view_specific_clonotype_datasets[[name[j]]])[i],
+                  seq_id = view_specific_clonotype_datasets[[name[j]]][[i]][[used_columns[["Summary"]][1]]],
+                  stringsAsFactors = FALSE
+                )
+              }
+            ))
+            
             for (i in seq_len(length(view_specific_clonotype_datasets[[name[j]]]))) {
-              index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view_specific_clonotype_datasets[[name[j]]][[names(view_specific_clonotype_datasets[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
-              if (index[1] > 0) {
-                cluster_id[index] <- i
-                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
+              
+              current_clonotype <- names(view_specific_clonotype_datasets[[name[j]]])[i]
+              
+              index <- which(
+                input_tmp[[used_columns[["Summary"]][1]]] %in%
+                  view_specific_clonotype_datasets[[name[j]]][[i]][[used_columns[["Summary"]][1]]]
+              )
+              
+              if (length(index) > 0) {
+                
+                # ✅ FIX: match frequency by clonotype name
+                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[
+                  match(current_clonotype, clono_datasets[[name[j]]]$clonotype)
+                ]
+                
+                # ✅ correct cluster id
+                cluster_id[index] <- current_clonotype
               }
             }
+            
           } else {
+            
             cluster_id_vector <- list()
+            
             for (i in seq_len(length(view_specific_clonotype_datasets))) {
-              cluster_id_vector[[i]] <- lapply(view_specific_clonotype_datasets[[i]], function(x){
-                x <- levels(as.factor(x$cluster_id))
-                return(x)
+              cluster_id_vector[[i]] <- lapply(view_specific_clonotype_datasets[[i]], function(x) {
+                levels(as.factor(x$cluster_id))
               })
             }
+            
             for (i in seq_len(length(cluster_id_vector))) {
               cluster_id_vector[[i]] <- unlist(cluster_id_vector[[i]])
             }
+            
             for (i in seq_len(length(view_specific_clonotype_datasets))) {
               names(view_specific_clonotype_datasets[[i]]) <- cluster_id_vector[[i]]
             }
+            
             prev_clono_function <- function(clono_df) {
               prev_clono <- list()
               for (i in seq_len(nrow(clono_df))) {
-                x <- as.numeric(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]][2:length(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]])])
+                x <- as.numeric(strsplit(as.character(clono_df$prev_cluster[i]), " ")[[1]][-1])
                 prev_clono[[i]] <- x
               }
-              return(prev_clono)
+              prev_clono
             }
-            prev_clono <- list()
-            prev_clono <- lapply(clono_datasets , prev_clono_function)
+            
+            prev_clono <- lapply(clono_datasets, prev_clono_function)
+            
             names(prev_clono[[name[j]]]) <- clono_datasets[[name[j]]]$clonotype
-            prev_clono[[name[j]]] <- data.frame(ID = rep(names(prev_clono[[name[j]]]), sapply(prev_clono[[name[j]]], length)),
-                                                Obs = unlist(prev_clono[[name[j]]]))
+            
+            prev_clono[[name[j]]] <- data.frame(
+              ID = rep(names(prev_clono[[name[j]]]), sapply(prev_clono[[name[j]]], length)),
+              Obs = unlist(prev_clono[[name[j]]])
+            )
+            
             prev_clono[[name[j]]] <- na.omit(prev_clono[[name[j]]])
-            prev_clono[[name[j]]] <- prev_clono[[name[j]]][match(names(view_specific_clonotype_datasets[[name[j]]]), prev_clono[[name[j]]]$Obs),]
+            
+            prev_clono[[name[j]]] <- prev_clono[[name[j]]][
+              match(names(view_specific_clonotype_datasets[[name[j]]]), prev_clono[[name[j]]]$Obs),
+            ]
+            
             names(view_specific_clonotype_datasets[[name[j]]]) <- prev_clono[[name[j]]]$ID
+            
             setDF_function <- function(x_list) {
-              a <- list()
-              for (i in seq_len(length(x_list))) {
+              lapply(seq_along(x_list), function(i) {
                 x <- setDF(x_list[[i]])
-                a[[i]] <- x
-                names(a[[i]]) <- names(x_list[[i]])
-              }
-              return(a)
+                names(x) <- names(x_list[[i]])
+                x
+              })
             }
-            view <- list()
+            
             view <- lapply(view_specific_clonotype_datasets, setDF_function)
+            
             names(view[[name[j]]]) <- names(view_specific_clonotype_datasets[[name[j]]])
-            view[[name[j]]] <- names(view[[name[j]]]) %>% 
-              unique %>% 
-              purrr::map(~ view[[name[j]]][names(view[[name[j]]])==.x] %>% 
-                           bind_rows(.id = "id"))
+            
+            view[[name[j]]] <- names(view[[name[j]]]) %>%
+              unique() %>%
+              purrr::map(~ view[[name[j]]][names(view[[name[j]]]) == .x] %>%
+                           dplyr::bind_rows(.id = "id"))
+            
             clono_datasets_clonotypes <- list()
-            clono_datasets_clonotypes[[name[j]]] <- unlist(lapply(view[[name[j]]], function(x) levels(as.factor(x$id))))
+            clono_datasets_clonotypes[[name[j]]] <- unlist(
+              lapply(view[[name[j]]], function(x) levels(as.factor(x$id)))
+            )
+            
             names(view[[name[j]]]) <- clono_datasets_clonotypes[[name[j]]]
+            
             patterns <- list()
             for (i in seq_len(length(clono_datasets))) {
               patterns[[i]] <- clono_datasets[[i]]$clonotype
             }
             names(patterns) <- name
+            
             view[[name[j]]] <- view[[name[j]]][patterns[[name[j]]]]
+            
+            # ✅ build all_seq_ids
+            all_seq_ids_df <- do.call(rbind, lapply(
+              seq_along(view[[name[j]]]),
+              function(i) {
+                data.frame(
+                  cluster = names(view[[name[j]]])[i],
+                  seq_id = view[[name[j]]][[i]][[used_columns[["Summary"]][1]]],
+                  stringsAsFactors = FALSE
+                )
+              }
+            ))
+            
             for (i in seq_len(length(view[[name[j]]]))) {
-              index <- which(input_tmp[[used_columns[["Summary"]][1]]] %in% view[[name[j]]][[names(view[[name[j]]])[i]]][[used_columns[["Summary"]][1]]])
-              if (index[1] > 0) {
-                cluster_id[index] <- i
-                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[i]
+              
+              current_clonotype <- names(view[[name[j]]])[i]
+              
+              index <- which(
+                input_tmp[[used_columns[["Summary"]][1]]] %in%
+                  view[[name[j]]][[i]][[used_columns[["Summary"]][1]]]
+              )
+              
+              if (length(index) > 0) {
+                
+                # ✅ FIX frequency
+                freq_cluster_id[index] <- clono_datasets[[name[j]]]$Freq[
+                  match(current_clonotype, clono_datasets[[name[j]]]$clonotype)
+                ]
+                
+                cluster_id[index] <- current_clonotype
               }
             }
           }
         }
         
+        # ✅ final mapping
+        all_seq_ids <- setNames(all_seq_ids_df$seq_id, all_seq_ids_df$cluster)
+        
         #########################################
+        
         region_split <- strsplit(input_tmp[[region]], "")
+        
         for (i in seq_len(length(region_split))) {
           if (length(region_split[[i]]) > max_length_region) {
             region_split[[i]] <- region_split[[i]][seq_len(max_length_region)]
@@ -5036,9 +5217,12 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
         region_split <- t(region_split)
         row.names(region_split) <- NULL
         
+        seq_id_vector <- all_seq_ids[match(cluster_id, names(all_seq_ids))]
+        
         region_alignment <- cbind(
-          as.data.frame(cluster_id),
-          as.data.frame(freq_cluster_id),
+          cluster_id = cluster_id,
+          freq_cluster_id = freq_cluster_id,
+          all_seq_ids = seq_id_vector,
           Functionality = "productive"
         )
         
@@ -5049,8 +5233,17 @@ alignment <- function(clonotype_type, input, region, germline, name, only_one_ge
                                   region_split, stringsAsFactors = FALSE
         )
         
+        region_alignment <- as.data.frame(region_alignment)
+        region_alignment <- region_alignment[, colnames(region_alignment) != "stringsAsFactors"]
+        region_alignment <- region_alignment[, colnames(region_alignment) != "all_seq_ids"]
         region_alignment$cluster_id <- as.character(cluster_id)
         region_alignment$freq_cluster_id <- as.character(freq_cluster_id)
+        n_seq_cols <- ncol(region_alignment) - 6
+        colnames(region_alignment) <- c(
+          "cluster_id", "freq_cluster_id", "Functionality",
+          "J.GENE.and.allele", "D.GENE.and.allele", "V.GENE.and.allele",
+          as.character(seq_len(n_seq_cols))
+        )
         
         if (FtopN) {
           region_alignment <- region_alignment %>%
