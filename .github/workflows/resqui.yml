@@ -7,7 +7,6 @@ on:
 jobs:
   resqui:
     runs-on: self-hosted
-    environment: resqui
 
     steps:
       - name: Checkout repository
