@@ -1,0 +1,23 @@
+name: Run resqui
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  resqui:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+
+      - name: Run resqui
+        uses: thodkatz/QualityPipelines@main
+        with:
+          config: configurations/basic.json
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          dashverse_token: ${{ secrets.DASHVERSE_TOKEN }}
