@@ -1,7 +1,7 @@
 Package: tripr
 Type: Package
 Title: T-cell Receptor/Immunoglobulin Profiler (TRIP)
-Version: 1.17.02
+Version: 1.19.03
 Authors@R: c(
         person("Maria Th.", "Kotouza", role = "aut"),
         person("Katerina", "Gemenetzi", role = "aut"),
@@ -60,4 +60,4 @@ Author: Maria Th. Kotouza [aut],
   Fotis E. Psomopoulos [aut],
   Iason Ofeidis [aut],
   Aspasia Orfanou [aut]
-Maintainer: Nikolaos Pechlivanis <inab.bioinformatics@lists.certh.gr>
+Maintainer: Konstantinos Kardamiliotis <inab.bioinformatics@lists.certh.gr>
